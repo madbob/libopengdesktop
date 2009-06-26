@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY version SYSTEM "version.xml">
+]>
+
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
+  <bookinfo>
+    <title>libopengdesktop Reference Manual</title>
+    <releaseinfo>Version &version;</releaseinfo>
+  </bookinfo>
+
+  <part id="libopengdesktop">
+    <title>libopengdesktop Overview</title>
+
+    <partintro>
+
+    <para>
+    libopengdesktop is an implementation of the Open Collaboration Services
+    specification from Freedesktop.org, usefull to query and access contents
+    from a "social desktop" provider. It is based on Glib and GObject.
+    </para>
+
+    </partintro>
+
+  </part>
+
+  <part id="libopengdesktop-access">
+    <title>Essential Elements</title>
+
+    <partintro>
+
+      <para>
+      Two essential object are used when communicating with the service
+      provider: OGDProvider and OGDObject.
+      </para>
+
+      <para>
+      The first is just the rappresentation of the server exposing contents,
+      to which send requests, while the second is the fundamental type from
+      which all other OGD* components are built upon.
+      </para>
+
+      <para>
+      Aside that, the OGDIterator is just a little utility element usefull to
+      access progressively contents in discrete format.
+      </para>
+
+    </partintro>
+
+    <xi:include href="xml/ogd-provider.xml"/>
+    <xi:include href="xml/ogd-object.xml"/>
+    <xi:include href="xml/ogd-iterator.xml"/>
+  </part>
+
+  <part id="libopengdesktop-social">
+    <title>Social Activity</title>
+
+    <xi:include href="xml/ogd-person.xml"/>
+    <xi:include href="xml/ogd-activity.xml"/>
+    <xi:include href="xml/ogd-event.xml"/>
+  </part>
+
+  <part id="libopengdesktop-contents">
+    <title>Social Contents</title>
+
+    <xi:include href="xml/ogd-category.xml"/>
+    <xi:include href="xml/ogd-content.xml"/>
+  </part>
+
+  <index>
+    <title>Index</title>
+  </index>
+
+  <appendix id="license">
+    <title>License</title>
+
+    <para>
+      This library is free software; you can redistribute it and/or
+      modify it under the terms of the <citetitle>GNU General Public
+      License</citetitle> as published by the Free Software
+      Foundation; either version 3 of the License, or (at your option)
+      any later version.
+    </para>
+
+    <para>
+      This library is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      <citetitle>GNU General Public License</citetitle> for more details.
+    </para>
+
+    <para>
+      You may obtain a copy of the <citetitle>GNU General Public
+      License</citetitle> from the Free Software Foundation by
+      visiting <ulink type="http" url="http://www.fsf.org">their Web
+      site</ulink>.
+    </para>
+  </appendix>
+
+</book>

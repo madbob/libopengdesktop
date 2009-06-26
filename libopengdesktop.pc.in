@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${exec_prefix}/include
+
+Name: libopengdesktop
+Description: GObject wrapper for Open Collaborations Services web API
+Version: @VERSION@
+Libs: -L${libdir} -lopengdesktop-1.0
+Cflags: -I${includedir}/libopengdesktop
+Requires: gobject-2.0 libsoup-2.4 libxml-2.0

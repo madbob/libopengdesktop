@@ -1,0 +1,43 @@
+libopengdesktop - an OpenDesktop API implementation
+===================================================
+
+libopengdesktop provides a Glib-friendly implementation of the Open
+Collaboration Services API exposed by many web services.
+
+This library easy the process of query and access contents from a "social
+desktop" provider, such as wallpapers, themes or whatever, but also
+informations about other users using the same platform.
+
+For more information, see:
+  * Open Collaboration Services: http://www.freedesktop.org/wiki/Specifications/open-collaboration-services
+  * Glib and GObject: http://gtk.org
+
+REQUIREMENTS
+------------
+In order to build libopengdesktop you will need:
+
+  * pkg-config
+  * Glib >= 2.20.3
+  * LibSoup >= 2.26.2
+  * LibXML >= 2.7.3
+  * gtk-doc >= 1.10
+
+INSTALLATION
+------------
+To build JSON-GLib just run:
+
+  $ ./configure
+  $ make
+  # make install
+
+HACKING
+-------
+libopengdesktop is hosted by BarberaWare: http://barberaware.org
+The reference website is at http://libopengdesktop.barberaware.org : here you
+find links to the SVN repository, the bugtracker and the developers mailing
+list.
+
+AUTHOR
+------
+libopengdesktop has been written by Roberto Guido
+Copyright (C) 2009  Roberto Guido
