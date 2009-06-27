@@ -10,6 +10,10 @@ INCLUDES = \
 
 LDADD = $(LIBOGD_LT_LDFLAGS) -export-dynamic -rpath $(libdir)
 
+sources_private_h = \
+   ogd-private-utils.h  \
+   $(NULL)
+
 sources_public_h = \
     ogd-activity.h    \
     ogd-category.h    \
@@ -40,6 +44,7 @@ lib_LTLIBRARIES = libopengdesktop-1.0.la
 libopengdesktop_1_0_la_LIBADD = $(LIBOGD_LIBS)
 libopengdesktop_1_0_la_SOURCES = \
 	$(sources_public_h) \
+	$(sources_private_h) \
 	$(sources_c) \
 	$(NULL)
 libopengdesktop_1_0_la_LDFLAGS = $(LDADD)

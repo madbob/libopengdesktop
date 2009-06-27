@@ -29,8 +29,6 @@ GNOME_COMMON_INIT
 GNOME_COMPILE_WARNINGS
 GNOME_DEBUG_CHECK
 
-IT_PROG_INTLTOOL([0.35.0])
-
 AM_DISABLE_STATIC
 AM_PATH_GLIB_2_0
 AM_PROG_CC_C_O
@@ -93,7 +91,6 @@ GTK_DOC_CHECK([1.10])
 AC_CONFIG_FILES([
         Makefile
         libopengdesktop/Makefile
-        po/Makefile.in
         doc/Makefile
         doc/reference/Makefile
         doc/reference/version.xml
