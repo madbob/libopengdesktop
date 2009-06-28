@@ -24,6 +24,15 @@
 #define OGD_PROVIDER_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
                                              OGD_PROVIDER_TYPE, OGDProviderPrivate))
 
+/**
+ * SECTION: ogd-provider
+ * @short_description:  a webservice implementing the Open Collaboration Services REST API
+ *
+ * The #OGDProvider is the center of all activities which may be performed with this library, and
+ * all functions are just wrappers to different communications with this host. Has to be accessed
+ * with a username/password pair, or an API key.
+ */
+
 struct _OGDProviderPrivate {
     gchar       *server_name;
     SoupSession *http_session;

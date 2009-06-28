@@ -47,6 +47,18 @@ struct _OGDEventClass {
     OGDObjectClass          parent_class;
 };
 
+/**
+ * OGD_EVENT_CATEGORY:
+ * @OGD_EVENT_UNDEFINED:            any type has been specified
+ * @OGD_EVENT_PARTY:                #OGDEvent is a party
+ * @OGD_EVENT_USER_GROUP:           #OGDEvent is related to a group of users
+ * @OGD_EVENT_CONFERENCE:           #OGDEvent is a conference
+ * @OGD_EVENT_DEV_MEETING:          #OGDEvent is a meeting among software developers
+ * @OGD_EVENT_INSTALL_PARTY:        #OGDEvent is an Installation Party
+ * @OGD_EVENT_OTHER_PARTY:          #OGDEvent is some kind of unspecified party
+ *
+ * Helps to identify type of an event registered on the provider
+ */
 typedef enum {
     OGD_EVENT_UNDEFINED,
     OGD_EVENT_PARTY,

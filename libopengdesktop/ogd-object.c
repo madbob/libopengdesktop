@@ -22,6 +22,15 @@
 #define OGD_OBJECT_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
                                              OGD_OBJECT_TYPE, OGDObjectPrivate))
 
+/**
+ * SECTION: ogd-object
+ * @short_description:  common rappresentation for contents incoming from the web
+ *
+ * This is just an abstract class for all objects described in the specification, describes a
+ * common interface to serialize and deserialize them and some usefull informations shared among
+ * all components
+ */
+
 struct _OGDObjectPrivate {
     OGDProvider     *provider;
 };

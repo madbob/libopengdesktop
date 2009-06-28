@@ -47,6 +47,30 @@ struct _OGDActivityClass {
     OGDObjectClass          parent_class;
 };
 
+/**
+ * OGD_ACTIVITY_CATEGORY:
+ * @OGD_ACTIVITY_STATUS_MESSAGE:            the message status of a #OGDPerson has been updated
+ * @OGD_ACTIVITY_NEW_FRIEND:                a new friend has been added to an existing friend
+ * @OGD_ACTIVITY_NEW_CONTENT:               a new #OGDContent has been added by a friend
+ * @OGD_ACTIVITY_PROFILE_UPDATE:            a friend updated his profile
+ * @OGD_ACTIVITY_PROFILE_PHOTO_UPDATE:      a friend updated his avatar
+ * @OGD_ACTIVITY_CONTENT_EDIT:              a #OGDContent has been modified by a friend
+ * @OGD_ACTIVITY_NEW_MESSAGE:               someone sent a message to the current user
+ * @OGD_ACTIVITY_HOMEPAGE_VISIT:            someone visit the profile page of the current user
+ * @OGD_ACTIVITY_BECOME_FAN:                a friend become fan of a #OGDContent
+ * @OGD_ACTIVITY_NO_LONGER_FAN:             a friend stops to be fan of a #OGDContent
+ * @OGD_ACTIVITY_GROUP_CREATED:             a new group has been created
+ * @OGD_ACTIVITY_GROUP_JOINED:              a friend joined a group
+ * @OGD_ACTIVITY_GROUP_LEFT:                a friend left a group
+ * @OGD_ACTIVITY_EVENT_CREATED:             a friend created an #OGDEvent
+ * @OGD_ACTIVITY_ATTENDING_EVENT:           a friend is attending for an #OGDEvent
+ * @OGD_ACTIVITY_NO_LONGER_ATTENDING_EVENT: a friend no longer attendees an #OGDEvent
+ * @OGD_ACTIVITY_CREATED_JOB_OFFER:         a new job offer has been added
+ * @OGD_ACTIVITY_EDITED_JOB_OFFER:          a job offer has been modified
+ * @OGD_ACTIVITY_NEW_USER:                  a new user has registered to #OGDProvider
+ *
+ * Helps to identify type of activity happened on the provider
+ */
 typedef enum {
     OGD_ACTIVITY_STATUS_MESSAGE             = 1,
     OGD_ACTIVITY_NEW_FRIEND,

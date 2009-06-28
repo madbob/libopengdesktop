@@ -22,6 +22,16 @@
 #define OGD_PERSON_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
                                              OGD_PERSON_TYPE, OGDPersonPrivate))
 
+/**
+ * SECTION: ogd-person
+ * @short_description:  a user on the platform
+ *
+ * #OGDPerson describes an user of the target #OGDProvider, and may be a friend or the author of
+ * a #OGDContent or a #OGDEvent. Utilities are provided to manage the #OGDPerson rappresenting
+ * the user using the application (the one inited with ogd_provider_auth_user_and_pwd()), for
+ * which some extra functionality is exposed.
+ */
+
 struct _OGDPersonPrivate {
     gchar               *id;
     guint               privacy;
@@ -239,44 +249,119 @@ static void ogd_person_init (OGDPerson *item)
     memset (item->priv, 0, sizeof (OGDPersonPrivate));
 }
 
+/**
+ * ogd_person_get_id:
+ * @person:         the #OGDPerson to query
+ *
+ * To obtain the ID of a @person
+ * 
+ * Return value:    the @OGDPerson ID
+ */
 const gchar* ogd_person_get_id (OGDPerson *person)
 {
     return (const gchar*) person->priv->id;
 }
 
-guint ogd_person_get_privacy (OGDPerson *person)
+/**
+ * ogd_person_get_privacy:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve current privacy settings for a @person
+ * 
+ * Return value:    identifier of the current settings of privacy
+ */
+OGD_PERSON_PRIVACY ogd_person_get_privacy (OGDPerson *person)
 {
     return person->priv->privacy;
 }
 
+/**
+ * ogd_person_get_firstname:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve firstname of a @person
+ * 
+ * Return value:    a string containing the firstname for the target @person
+ */
 const gchar* ogd_person_get_firstname (OGDPerson *person)
 {
     return (const gchar*) person->priv->firstname;
 }
 
+/**
+ * ogd_person_get_lastname:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve lastname of a @person
+ * 
+ * Return value:    a string containing the lastname for the target @person
+ */
 const gchar* ogd_person_get_lastname (OGDPerson *person)
 {
     return (const gchar*) person->priv->lastname;
 }
 
+/**
+ * ogd_person_get_gender:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve gender of a @person
+ * 
+ * Return value:    identifier of the gender of the target @person
+ */
 OGD_PERSON_GENDER ogd_person_get_gender (OGDPerson *person)
 {
     return person->priv->gender;
 }
 
+/**
+ * ogd_person_get_communityrole:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve role of a @person into the community
+ * 
+ * Return value:    identifier of the role the target @person has
+ */
 OGD_PERSON_ROLE ogd_person_get_communityrole (OGDPerson *person)
 {
     return person->priv->role;
 }
 
+/**
+ * ogd_person_get_homepage:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve URL of the personal webpage of a @person
+ * 
+ * Return value:    a string containing URL of the webpage specified by the target @person
+ */
 const gchar* ogd_person_get_homepage (OGDPerson *person)
 {
     return (const gchar*) person->priv->homepage;
 }
 
+/**
+ * ogd_person_get_company:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve company for which a @person works
+ * 
+ * Return value:    a string containing the company name to which the target @person works.
+ *                  Please note this content is not semantically validated, so cannot be
+ *                  programmatically managed
+ */
 const gchar* ogd_person_get_company (OGDPerson *person) {
     return (const gchar*) person->priv->company;
 }
+
+/**
+ * ogd_person_get_avatar:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve avatar picture URI of a @person
+ * 
+ * Return value:    a string containing the URI of the avatar picture for the target @person
+ */
 
 /*
     TODO    Provide also ogd_person_get_avatar_pixbuf()
@@ -287,31 +372,83 @@ const gchar* ogd_person_get_avatar (OGDPerson *person)
     return (const gchar*) person->priv->avatar;
 }
 
+/**
+ * ogd_person_get_birthday:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve birthday date of a @person
+ * 
+ * Return value:    a #GDate for the birthday of the user
+ */
 const GDate* ogd_person_get_birthday (OGDPerson *person)
 {
     return (const GDate*) person->priv->birthday;
 }
 
+/**
+ * ogd_person_get_job_status:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve current job status of a @person
+ * 
+ * Return value:    identified of the current job condition of the target @person
+ */
 OGD_PERSON_JOB ogd_person_get_job_status (OGDPerson *person)
 {
     return person->priv->jobstatus;
 }
 
+/**
+ * ogd_person_get_city:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve city from which the @person is
+ * 
+ * Return value:    a string containing the city from which target @person is. Please note
+ *                  this content is not semantically validated, so cannot be programmatically
+ *                  managed
+ */
 const gchar* ogd_person_get_city (OGDPerson *person)
 {
     return (const gchar*) person->priv->city;
 }
 
+/**
+ * ogd_person_get_country:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve country from which the @person is
+ * 
+ * Return value:    a string containing the country from which target @person is. Please note
+ *                  this content is not semantically validated, so cannot be programmatically
+ *                  managed
+ */
 const gchar* ogd_person_get_country (OGDPerson *person)
 {
     return (const gchar*) person->priv->country;
 }
 
+/**
+ * ogd_person_get_latitude:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve current coordinates latitude the @person is
+ * 
+ * Return value:    latitude of the current position of target @person
+ */
 gdouble ogd_person_get_latitude (OGDPerson *person)
 {
     return person->priv->latitude;
 }
 
+/**
+ * ogd_person_get_longitude:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve current coordinates longitude the @person is
+ * 
+ * Return value:    longitude of the current position of target @person
+ */
 gdouble ogd_person_get_longitude (OGDPerson *person)
 {
     return person->priv->longitude;
@@ -321,70 +458,197 @@ gdouble ogd_person_get_longitude (OGDPerson *person)
     TODO    IRC is missing, some kind of advanced management is required
 */
 
+/**
+ * ogd_person_get_likes:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve things a @person likes
+ * 
+ * Return value:    a string containing thing the target @person likes. Please note this content
+ *                  is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_person_get_likes (OGDPerson *person)
 {
     return (const gchar*) person->priv->likes;
 }
 
+/**
+ * ogd_person_get_dont_likes:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve things a @person doesn't likes
+ * 
+ * Return value:    a string containing thing the target @person doesn't likes. Please note this
+ *                  content is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_person_get_dont_likes (OGDPerson *person)
 {
     return (const gchar*) person->priv->dontlikes;
 }
 
+/**
+ * ogd_person_get_interests:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve interests by a @person
+ * 
+ * Return value:    a string containing interests of the target @person. Please note this content
+ *                  is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_person_get_interests (OGDPerson *person)
 {
     return (const gchar*) person->priv->interests;
 }
 
+/**
+ * ogd_person_get_languages:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve languages spoke by a @person
+ * 
+ * Return value:    a string containing languages the target @person is able to spoke. Please
+ *                  note this content is not semantically validated, so cannot be
+ *                  programmatically managed
+ */
 const gchar* ogd_person_get_languages (OGDPerson *person)
 {
     return (const gchar*) person->priv->languages;
 }
 
+/**
+ * ogd_person_get_programming_langs:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve programming languages used by a @person
+ * 
+ * Return value:    a string containing programming languages the target @person is able to use.
+ *                  Please note this content is not semantically validated, so cannot be
+ *                  programmatically managed
+ */
 const gchar* ogd_person_get_programming_langs (OGDPerson *person)
 {
     return (const gchar*) person->priv->programminglangs;
 }
 
+/**
+ * ogd_person_get_favourite_quote:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve quote preferred by a @person
+ * 
+ * Return value:    a string containing favourite quote by the target @person. Please note this
+ *                  content is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_person_get_favourite_quote (OGDPerson *person)
 {
     return (const gchar*) person->priv->favouritequote;
 }
 
+/**
+ * ogd_person_get_favourite_music:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve music preferred by a @person
+ * 
+ * Return value:    a string containing favourite music by the target @person. Please note this
+ *                  content is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_person_get_favourite_music (OGDPerson *person)
 {
     return (const gchar*) person->priv->favouritemusic;
 }
 
+/**
+ * ogd_person_get_favourite_tv:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve TV shows preferred by a @person
+ * 
+ * Return value:    a string containing favourite TV shows by the target @person. Please note this
+ *                  content is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_person_get_favourite_tv (OGDPerson *person)
 {
     return (const gchar*) person->priv->favouritetv;
 }
 
+/**
+ * ogd_person_get_favourite_movies:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve movies preferred by a @person
+ * 
+ * Return value:    a string containing favourite movies by the target @person. Please note this
+ *                  content is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_person_get_favourite_movies (OGDPerson *person)
 {
     return (const gchar*) person->priv->favouritemovies;
 }
 
+/**
+ * ogd_person_get_favourite_books:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve books preferred by a @person
+ * 
+ * Return value:    a string containing favourite books by the target @person. Please note this
+ *                  content is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_person_get_favourite_books (OGDPerson *person)
 {
     return (const gchar*) person->priv->favouritebooks;
 }
 
+/**
+ * ogd_person_get_favourite_games:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve games preferred by a @person
+ * 
+ * Return value:    a string containing favourite games by the target @person. Please note this
+ *                  content is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_person_get_favourite_games (OGDPerson *person)
 {
     return (const gchar*) person->priv->favouritegames;
 }
 
+/**
+ * ogd_person_get_description:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve description of a @person
+ * 
+ * Return value:    a string containing the description of the target @person
+ */
 const gchar* ogd_person_get_description (OGDPerson *person)
 {
     return (const gchar*) person->priv->description;
 }
 
+/**
+ * ogd_person_get_profile_page:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve link to the profile page of the target @person
+ * 
+ * Return value:    a string containing the URL of the profile webpage
+ */
 const gchar* ogd_person_get_profile_page (OGDPerson *person)
 {
     return (const gchar*) person->priv->profilepage;
 }
+
+/**
+ * ogd_person_get_balance:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve the current balance for the specified @person. Please note that this call requires
+ * some syncronous communication with the server, so may return after some time
+ * 
+ * Return value:    a #OGDPersonBalance structure describing current balance of the target @person
+ */
 
 /*
     TODO    Provide also an async version
@@ -399,6 +663,16 @@ const OGDPersonBalance* ogd_person_get_balance (OGDPerson *person)
     return NULL;
 }
 
+/**
+ * ogd_person_get_friends:
+ * @person:         the #OGDPerson to query
+ *
+ * Retrieve list of friends registered for the specified @person. Please note that this call
+ * requires some syncronous communication with the server, so may return after some time
+ * 
+ * Return value:    list of #OGDPerson, one for each friend of the target @person
+ */
+
 /*
     TODO    Provide also an async version
 */
@@ -410,4 +684,68 @@ GList* ogd_person_get_friends (OGDPerson *person)
     */
 
     return NULL;
+}
+
+/**
+ * ogd_person_get_myself:
+ *
+ * Retrieve the #OGDPerson rappresenting the current user, in function of the @username provided
+ * in ogd_provider_auth_user_and_pwd(), and is not usable if ogd_provider_auth_api_key() has been
+ * engaged instead
+ * 
+ * Return value:    the #OGDPerson rappresenting the current user
+ */
+
+/*
+    TODO    Provide also an async version
+*/
+
+const OGDPerson* ogd_person_get_myself ()
+{
+    /*
+        TODO
+    */
+
+    return NULL;
+}
+
+/**
+ * ogd_person_myself_set_coordinates:
+ * @latitude:       current latitude
+ * @longitude:      current longitude
+ *
+ * To set current coordinates of the user which name has been expressed as @username parameter in
+ * ogd_provider_auth_user_and_pwd(), and is not usable if ogd_provider_auth_api_key() has been
+ * engaged instead
+ */
+
+/*
+    TODO    Provide also an async version
+*/
+
+void ogd_person_myself_set_coordinates (gdouble latitude, gdouble longitude)
+{
+    /*
+        TODO
+    */
+}
+
+/**
+ * ogd_person_myself_invite_friend:
+ * @person:         the #OGDPerson to which send friendship invite
+ *
+ * Sends a friendship invite to the target @person. That will become friend of the user which
+ * name has been expressed as @username parameter in ogd_provider_auth_user_and_pwd(), and is not
+ * usable if ogd_provider_auth_api_key() has been engaged instead
+ */
+
+/*
+    TODO    Provide also an async version
+*/
+
+void ogd_person_myself_invite_friend (OGDPerson *person)
+{
+    /*
+        TODO
+    */
 }

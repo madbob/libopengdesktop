@@ -49,6 +49,15 @@ struct _OGDCategoryClass {
     OGDObjectClass          parent_class;
 };
 
+/**
+ * OGD_CATEGORY_SORTING:
+ * @OGD_CATEGORY_SORT_NEWEST:           newer content come before
+ * @OGD_CATEGORY_SORT_ALPHABETICAL:     contents ordered alphabetically, by name
+ * @OGD_CATEGORY_SORT_RATING:           contents with higher scores come before
+ * @OGD_CATEGORY_SORT_DOWNLOADS:        contents with most downloads come before
+ * 
+ * Types of sorting for listing #OGDContents into a #OGDCategory
+ */
 typedef enum {
     OGD_CATEGORY_SORT_NEWEST,
     OGD_CATEGORY_SORT_ALPHABETICAL,

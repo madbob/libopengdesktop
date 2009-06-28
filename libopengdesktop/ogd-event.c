@@ -22,6 +22,14 @@
 #define OGD_EVENT_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
                                              OGD_EVENT_TYPE, OGDEventPrivate))
 
+/**
+ * SECTION: ogd-event
+ * @short_description:  a registered event
+ *
+ * An #OGDEvent is an happening which is shared through the social platform: each #OGDPerson may
+ * create new events (at the moment, only using the web platform) or attendee a specific one
+ */
+
 struct _OGDEventPrivate {
     gchar               *id;
     gchar               *name;
@@ -197,35 +205,94 @@ static void ogd_event_init (OGDEvent *item)
     memset (item->priv, 0, sizeof (OGDEventPrivate));
 }
 
+/**
+ * ogd_event_get_id:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain ID of an @event
+ * 
+ * Return value:    ID of the target @event
+ */
 const gchar* ogd_event_get_id (OGDEvent *event)
 {
     return (const gchar*) event->priv->id;
 }
 
+/**
+ * ogd_event_get_name:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain name of an @event
+ * 
+ * Return value:    name of the target @event
+ */
 const gchar* ogd_event_get_name (OGDEvent *event)
 {
     return (const gchar*) event->priv->name;
 }
 
+/**
+ * ogd_event_get_description:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain description of an @event
+ * 
+ * Return value:    description of the target @event
+ */
 const gchar* ogd_event_get_description (OGDEvent *event)
 {
     return (const gchar*) event->priv->description;
 }
 
+/**
+ * ogd_event_get_category:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain category of an @event
+ * 
+ * Return value:    identifier of the category of the target @event
+ */
 OGD_EVENT_CATEGORY ogd_event_get_category (OGDEvent *event)
 {
     return event->priv->category;
 }
 
+/**
+ * ogd_event_get_start_date:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the date in which @event starts
+ * 
+ * Return value:    a #GDate for the starting date of the target @event
+ */
 const GDate* ogd_event_get_start_date (OGDEvent *event)
 {
     return event->priv->startdate;
 }
 
+/**
+ * ogd_event_get_end_date:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the date in which @event ends
+ * 
+ * Return value:    a #GDate for the ending date of the target @event
+ */
 const GDate* ogd_event_get_end_date (OGDEvent *event)
 {
     return event->priv->enddate;
 }
+
+/**
+ * ogd_event_get_author:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain author of an @event
+ * 
+ * Return value:    #OGDPerson rappresenting the author of the target @event. Please note that
+ *                  this call requires some syncronous communication with the server, so may
+ *                  return after some time
+ */
 
 /*
     TODO    Provide also an async version
@@ -248,71 +315,193 @@ const OGDPerson* ogd_event_get_author (OGDEvent *event)
     return event->priv->author;
 }
 
+/**
+ * ogd_event_get_organizer:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the organizer of @event
+ * 
+ * Return value:    a string summarizing the organizer of the target @event. Please note this
+ *                  content is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_event_get_organizer (OGDEvent *event)
 {
     return (const gchar*) event->priv->organizer;
 }
 
+/**
+ * ogd_event_get_location:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the location of @event
+ * 
+ * Return value:    a string summarizing the location of the target @event. Please note this
+ *                  content is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_event_get_location (OGDEvent *event)
 {
     return (const gchar*) event->priv->location;
 }
 
+/**
+ * ogd_event_get_city:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the city in which of @event happens
+ * 
+ * Return value:    a string summarizing the city of the target @event. Please note this content
+ *                  is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_event_get_city (OGDEvent *event)
 {
     return (const gchar*) event->priv->city;
 }
 
+/**
+ * ogd_event_get_country:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the country in which of @event happens
+ * 
+ * Return value:    a string summarizing the country of the target @event. Please note this
+ *                  content is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_event_get_country (OGDEvent *event)
 {
     return (const gchar*) event->priv->country;
 }
 
+/**
+ * ogd_event_get_longitude:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the longitude of @event location
+ * 
+ * Return value:    coordinates longitude of the target @event
+ */
 gdouble ogd_event_get_longitude (OGDEvent *event)
 {
     return event->priv->longitude;
 }
 
+/**
+ * ogd_event_get_latitude:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the latitude of @event location
+ * 
+ * Return value:    coordinates latitude of the target @event
+ */
 gdouble ogd_event_get_latitude (OGDEvent *event)
 {
     return event->priv->latitude;
 }
 
+/**
+ * ogd_event_get_homepage:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the homepage of @event
+ * 
+ * Return value:    URL of the homepage describing the target @event
+ */
 const gchar* ogd_event_get_homepage (OGDEvent *event)
 {
     return (const gchar*) event->priv->homepage;
 }
 
+/**
+ * ogd_event_get_telephone:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the telephone number dedicated to the @event
+ * 
+ * Return value:    a string containing the telephone number of the target @event. Please note
+ *                  this content is not semantically validated, so cannot be programmatically
+ *                  managed
+ */
 const gchar* ogd_event_get_telephone (OGDEvent *event)
 {
     return (const gchar*) event->priv->telephone;
 }
 
+/**
+ * ogd_event_get_fax:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the fax number dedicated to the @event
+ * 
+ * Return value:    a string containing the fax number of the target @event. Please note this
+ *                  content is not semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_event_get_fax (OGDEvent *event)
 {
     return (const gchar*) event->priv->fax;
 }
 
+/**
+ * ogd_event_get_email:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the mail address dedicated to the @event
+ * 
+ * Return value:    a string containing the mail address of the target @event. Please note
+ *                  this content is not semantically validated, so cannot be programmatically
+ *                  managed
+ */
 const gchar* ogd_event_get_email (OGDEvent *event)
 {
     return (const gchar*) event->priv->mail;
 }
 
+/**
+ * ogd_event_get_changed:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the latest change date of @event
+ * 
+ * Return value:    a #GDate for the latest change date of the target @event
+ */
 const GDate* ogd_event_get_changed (OGDEvent *event)
 {
     return event->priv->changed;
 }
 
+/**
+ * ogd_event_get_num_comments:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the number of comments for @event. Comments are readable in the dedicated homepage
+ * (see ogd_event_get_homepage())
+ * 
+ * Return value:    number of comments assigned to the target @event
+ */
 gulong ogd_event_get_num_comments (OGDEvent *event)
 {
     return event->priv->numcomments;
 }
 
+/**
+ * ogd_event_get_num_partecipants:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the number of partecipants to the @event
+ * 
+ * Return value:    number of partecipants to the target @event
+ */
 gulong ogd_event_get_num_partecipants (OGDEvent *event)
 {
     return event->priv->numpartecipants;
 }
 
+/**
+ * ogd_event_get_image:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the URL of the image attached to the @event
+ * 
+ * Return value:    URL of the image assigned to the target @event
+ */
 const gchar* ogd_event_get_image (OGDEvent *event)
 {
     return (const gchar*) event->priv->image;

@@ -22,6 +22,15 @@
 #define OGD_CATEGORY_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
                                              OGD_CATEGORY_TYPE, OGDCategoryPrivate))
 
+/**
+ * SECTION: ogd-category
+ * @short_description:  group of contents
+ *
+ * #OGDCategory is a meta-object which permits browsing contents by their nature. Each
+ * #OGDProvider hosts an arbitrary number of arbitrary categories, each identificable by name and
+ * containing some #OGDContent
+ */
+
 struct _OGDCategoryPrivate {
     gchar       *id;
     gchar       *name;

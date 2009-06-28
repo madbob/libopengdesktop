@@ -49,6 +49,14 @@ struct _OGDContentClass {
     OGDObjectClass          parent_class;
 };
 
+/**
+ * OGD_CONTENT_VOTE:
+ * @OGD_CONTENT_BAD:            content not has been appreciated
+ * @OGD_CONTENT_GOOD:           content has been appreciated
+ * 
+ * Type of rating which may be assigned by the current user to a specific content with
+ * ogd_content_vote()
+ */
 typedef enum {
     OGD_CONTENT_BAD,
     OGD_CONTENT_GOOD

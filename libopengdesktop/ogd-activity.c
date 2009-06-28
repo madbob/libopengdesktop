@@ -22,6 +22,17 @@
 #define OGD_ACTIVITY_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
                                              OGD_ACTIVITY_TYPE, OGDActivityPrivate))
 
+/**
+ * SECTION: ogd-activity
+ * @short_description:  description of what happens
+ *
+ * You can use #OGDActivity to see what is going on in friends network. For example who visited
+ * you homepage, who has send you a message and who uploaded a new content to the website.
+ * 
+ * You can also post a microblogging message which is visible on you profile page and in the
+ * activities of your friends.
+ */
+
 struct _OGDActivityPrivate {
     gchar                   *authorid;
     OGDPerson               *author;
@@ -105,6 +116,16 @@ static void ogd_activity_init (OGDActivity *item)
     memset (item->priv, 0, sizeof (OGDActivityPrivate));
 }
 
+/**
+ * ogd_activity_get_author:
+ * @activity:		an #OGDActivity to read
+ *
+ * To retrieve the author of the activity
+ * 
+ * Return value:	an #OGDPerson who created the activity. Take care this information is not
+ *                  contained in the #OGDActivity itself, and must be took from the provider
+ */
+
 /*
     TODO    Provide also an async version
 */
@@ -126,21 +147,53 @@ OGDPerson* ogd_activity_get_author (OGDActivity *activity)
     return activity->priv->author;
 }
 
+/**
+ * ogd_activity_get_date:
+ * @activity:		an #OGDActivity to read
+ *
+ * To retrieve the date of creation of the activity
+ * 
+ * Return value:	a #GDate for the date of creation of the activity
+ */
 const GDate* ogd_activity_get_date (OGDActivity *activity)
 {
     return (const GDate*) activity->priv->date;
 }
 
+/**
+ * ogd_activity_get_category:
+ * @activity:		an #OGDActivity to read
+ *
+ * To retrieve the category of the activity
+ * 
+ * Return value:	identifier of the provided activity
+ */
 OGD_ACTIVITY_CATEGORY ogd_activity_get_category (OGDActivity *activity)
 {
     return activity->priv->category;
 }
 
+/**
+ * ogd_activity_get_message:
+ * @activity:		an #OGDActivity to read
+ *
+ * To retrieve the message attached to the activity
+ * 
+ * Return value:	a string containing a message, or NULL if no message has been assigned
+ */
 const gchar* ogd_activity_get_message (OGDActivity *activity)
 {
     return (const gchar*) activity->priv->message;
 }
 
+/**
+ * ogd_activity_get_link:
+ * @activity:		an #OGDActivity to read
+ *
+ * To retrieve the web link attached to the activity
+ * 
+ * Return value:	a string containing a web link, or NULL if no link has been assigned
+ */
 const gchar* ogd_activity_get_link (OGDActivity *activity)
 {
     return (const gchar*) activity->priv->link;

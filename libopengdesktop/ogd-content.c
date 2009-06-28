@@ -22,6 +22,15 @@
 #define OGD_CONTENT_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
                                              OGD_CONTENT_TYPE, OGDContentPrivate))
 
+/**
+ * SECTION: ogd-content
+ * @short_description:  description of a specific content took from the provider
+ *
+ * A #OGDContent is the full description of a specific content took from the #OGDProvider, such
+ * as a wallpaper or a theme. To access those material query the provider for existing categories
+ * ( ogd_category_get_all() ) and iterate the preferred #OGDCategory.
+ */
+
 struct _OGDContentPrivate {
     gchar       *id;
     gchar       *name;
@@ -145,30 +154,83 @@ static void ogd_content_init (OGDContent *item)
     memset (item->priv, 0, sizeof (OGDContentPrivate));
 }
 
+/**
+ * ogd_content_get_id:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the ID of the @content
+ * 
+ * Return value:    ID of the target @content
+ */
 const gchar* ogd_content_get_id (OGDContent *content)
 {
     return (const gchar*) content->priv->id;
 }
 
+/**
+ * ogd_content_get_name:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the name of the @content
+ * 
+ * Return value:    name of the target @content
+ */
 const gchar* ogd_content_get_name (OGDContent *content)
 {
     return (const gchar*) content->priv->name;
 }
 
+/**
+ * ogd_content_get_version:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the version of the @content
+ * 
+ * Return value:    version of the target @content. Please note this content is not semantically
+ *                  validated, so cannot be programmatically managed
+ */
 const gchar* ogd_content_get_version (OGDContent *content)
 {
     return (const gchar*) content->priv->version;
 }
 
+/**
+ * ogd_content_get_subcategory:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the subcategory of the @content
+ * 
+ * Return value:    subcategory of the target @content. Please note this content is not
+ *                  semantically validated, so cannot be programmatically managed
+ */
 const gchar* ogd_content_get_subcategory (OGDContent *content)
 {
     return (const gchar*) content->priv->subcategory;
 }
 
+/**
+ * ogd_content_get_language:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the language of the @content
+ * 
+ * Return value:    language of the target @content. Please note this content is not semantically
+ *                  validated, so cannot be programmatically managed
+ */
 const gchar* ogd_content_get_language (OGDContent *content)
 {
     return (const gchar*) content->priv->language;
 }
+
+/**
+ * ogd_content_get_author:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the author of the @content. Please note that this call requires some syncronous
+ * communication with the server, so may return after some time
+ * 
+ * Return value:    #OGDPerson who created the @content
+ */
 
 /*
     TODO    Provide also an async version
@@ -191,60 +253,162 @@ OGDPerson* ogd_content_get_author (OGDContent *content)
     return content->priv->author;
 }
 
+/**
+ * ogd_content_get_creation_date:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the creation date of the @content
+ * 
+ * Return value:    a #GDate for the creation date of the target @content
+ */
 GDate* ogd_content_get_creation_date (OGDContent *content)
 {
     return content->priv->creationdate;
 }
 
+/**
+ * ogd_content_get_change_date:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the date of latest change of the @content
+ * 
+ * Return value:    a #GDate for the latest change date of the target @content
+ */
 GDate* ogd_content_get_change_date (OGDContent *content)
 {
     return content->priv->changedate;
 }
 
+/**
+ * ogd_content_get_num_downloads:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the current downloads number of the @content
+ * 
+ * Return value:    current downloads number of the target @content
+ */
 gulong ogd_content_get_num_downloads (OGDContent *content)
 {
     return content->priv->numdownloads;
 }
 
+/**
+ * ogd_content_get_score:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the current score of the @content
+ * 
+ * Return value:    current score of the target @content, in function of votes. To exprime your
+ *                  vote, use ogd_content_vote()
+ */
 guint ogd_content_get_score (OGDContent *content)
 {
     return content->priv->score;
 }
 
+/**
+ * ogd_content_get_description:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the description of the @content
+ * 
+ * Return value:    description of the target @content
+ */
 const gchar* ogd_content_get_description (OGDContent *content)
 {
     return (const gchar*) content->priv->description;
 }
 
+/**
+ * ogd_content_get_changelog:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain a changelog of @content
+ * 
+ * Return value:    changelog for the target @content
+ */
 const gchar* ogd_content_get_changelog (OGDContent *content)
 {
     return (const gchar*) content->priv->changelog;
 }
 
+/**
+ * ogd_content_get_homepage:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain homepage URL of @content
+ * 
+ * Return value:    URL of the homepage for the target @content
+ */
 const gchar* ogd_content_get_homepage (OGDContent *content)
 {
     return (const gchar*) content->priv->homepage;
 }
 
+/**
+ * ogd_content_get_num_comments:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain number of comments of @content
+ * 
+ * Return value:    number of comments for the target @content
+ */
 gulong ogd_content_get_num_comments (OGDContent *content)
 {
     return content->priv->numcomments;
 }
 
+/**
+ * ogd_content_get_num_fans:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain number of fans of @content
+ * 
+ * Return value:    number of fans for the target @content
+ */
 gulong ogd_content_get_num_fans (OGDContent *content)
 {
     return content->priv->numfans;
 }
 
+/**
+ * ogd_content_get_previews:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain a list of URL where to find previews of @content
+ * 
+ * Return value:    list of URL of previews for the target @content
+ */
 GList* ogd_content_get_previews (OGDContent *content)
 {
     return content->priv->previews;
 }
 
+/**
+ * ogd_content_get_download_refs:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain a list of URL where @content may be downloaded
+ * 
+ * Return value:    list of URL from which download the target @content
+ */
 GList* ogd_content_get_download_refs (OGDContent *content)
 {
     return content->priv->downloads;
 }
+
+/**
+ * ogd_content_vote:
+ * @content:        the #OGDContent to vote
+ * @vote:           rating for the @content
+ *
+ * To share a rating about the content. The vote is assigned to the current user, the one which
+ * username is used in ogd_provider_auth_user_and_pwd(), and the function cannot be used if
+ * ogd_provider_auth_api_key() has been used instead
+ * 
+ * Return value:    language of the target @content. Please note this content is not semantically
+ *                  validated, so cannot be programmatically managed
+ */
 
 /*
     TODO    Provide also an async version
