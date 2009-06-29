@@ -38,6 +38,7 @@ struct _OGDIteratorPrivate {
     gchar       *query;
     GType       obj_type;
 
+    gulong      total;
     gulong      step;
     gulong      position;
 };
@@ -84,9 +85,10 @@ OGDIterator* ogd_iterator_new (OGDProvider *provider, const gchar *base_query, G
 {
     OGDIterator *iterator;
 
-    /*
-        TODO    Verify obj_type is a OGDObject
-    */
+    if (g_type_is_a (obj_type, OGD_OBJECT_TYPE) == FALSE) {
+        g_warning ("An OGD_OBJECT_TYPE must be specified as 'obj_type'\n");
+        return NULL;
+    }
 
     iterator = g_object_new (OGD_ITERATOR_TYPE, NULL);
     iterator->priv->provider = provider;
@@ -109,7 +111,8 @@ OGDIterator* ogd_iterator_new (OGDProvider *provider, const gchar *base_query, G
  * Return value:    a #GList of #GObject of the type specified at initialization
  *                  ( ogd_iterator_new() ). The list may be at maximum composed of @quantity
  *                  elements, or shorter if not enough objects are available to fill it starting
- *                  at @start index
+ *                  at @start index. The list must be freed and internal object unref when no
+ *                  longer in use
  */
 
 /*
@@ -123,9 +126,6 @@ GList* ogd_iterator_get_slice (OGDIterator *iter, gulong start, gulong quantity)
     gchar *query;
     GList *ret;
 
-    /*
-        TODO    Page selection can not works if step is modified, improve rounding algorithm
-    */
     page = start / quantity;
     query = g_strdup_printf ("%s&page=%lu&pagesize=%lu", iter->priv->query, page, quantity);
     ret = ogd_provider_get (iter->priv->provider, query, iter->priv->obj_type);
@@ -147,7 +147,8 @@ GList* ogd_iterator_get_slice (OGDIterator *iter, gulong start, gulong quantity)
  *
  * Return value:    a #GList of #GObject of the type specified at initialization
  *                  ( ogd_iterator_new() ). The list length is between 0 and the number of
- *                  objects specified with ogd_iterator_set_step()
+ *                  objects specified with ogd_iterator_set_step(). The list must be freed and
+ *                  internal object unref when no longer in use
  */
 
 /*

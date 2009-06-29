@@ -204,6 +204,33 @@ finish:
     return data;
 }
 
+static SoupMessage* send_msg_to_server (OGDProvider *provider, const gchar *complete_query)
+{
+    guint sendret;
+    SoupMessage *msg;
+
+    msg = soup_message_new ("GET", complete_query);
+    if (msg == NULL) {
+        g_warning ("Unable to build request to server\n");
+        return NULL;
+    }
+
+    sendret = soup_session_send_message (provider->priv->http_session, msg);
+    if (sendret != 200) {
+        g_warning ("Unable to send request to server, error %u\n", sendret);
+        g_object_unref (msg);
+        return NULL;
+    }
+
+    if (msg->status_code != SOUP_STATUS_OK) {
+        g_warning ("Unable to submit request to server: %s\n", msg->reason_phrase);
+        g_object_unref (msg);
+        return NULL;
+    }
+
+    return msg;
+}
+
 /**
  * ogd_provider_get_raw:
  * @provider:       the #OGDProvider to query
@@ -214,7 +241,8 @@ finish:
  * 
  * Return value:    reference to a raw XML node, is the &lt;data&gt; section of the upcoming
  *                  response from the server. If an error is found reading the head of the
- *                  message, NULL is returned
+ *                  message, NULL is returned. The returned structure must be freed with
+ *                  xmlFreeDoc(return_prt->doc) when no longer in use
  */
 xmlNode* ogd_provider_get_raw (OGDProvider *provider, const gchar *query)
 {
@@ -223,29 +251,73 @@ xmlNode* ogd_provider_get_raw (OGDProvider *provider, const gchar *query)
     xmlNode *ret;
 
     ret = NULL;
+
     complete_query = g_strdup_printf ("%s%s", provider->priv->access_url, query);
-
-    msg = soup_message_new ("GET", complete_query);
+    msg = send_msg_to_server (provider, complete_query);
     g_free (complete_query);
-    if (msg == NULL) {
-        g_warning ("Unable to build request to server\n");
-        goto finish;
+
+    if (msg != NULL) {
+        ret = parse_provider_response (msg->response_body);
+        g_object_unref (msg);
     }
 
-    if (soup_session_send_message (provider->priv->http_session, msg) != 200) {
-        g_warning ("Unable to send request to server\n");
-        goto finish;
+    return ret;
+}
+
+/**
+ * ogd_provider_header_from_raw:
+ * @response:       xmlNode returned by ogd_provider_get_raw()
+ *
+ * Given an xmlNode from ogd_provider_get_raw(), read informations from the header of the same
+ * response. Here can be found informations about the status of the message and, in some
+ * situation, the number of elements involved in the query which produced the response itself
+ *
+ * Return value:    a #GHashTable with informations from the header, with keys assigned to the
+ *                  name of the XML fields and values assigned with their contents. Has to be
+ *                  freed with g_hash_table_unref() when no longer in use
+ */
+GHashTable* ogd_provider_header_from_raw (xmlNode *response)
+{
+    GHashTable *header;
+    xmlNode *node;
+
+    node = xmlDocGetRootElement (response->doc);
+    node = node->children;
+
+    if (node == NULL || strcmp (node->name, "meta") != 0) {
+        g_warning ("No header in this response\n");
+        return NULL;
     }
 
-    if (msg->status_code != SOUP_STATUS_OK) {
-        g_warning ("Unable to submit request to server: %s\n", msg->reason_phrase);
-        goto finish;
+    header = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) xmlFree, (GDestroyNotify) xmlFree);
+
+    for (node = node->children; node; node = node->next)
+        g_hash_table_insert (header, xmlCharStrdup (node->name), xmlNodeGetContent (node));
+
+    return header;
+}
+
+static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *provider, GType obj_type)
+{
+    xmlNode *cursor;
+    GList *ret;
+    OGDObject *obj;
+
+    ret = NULL;
+
+    for (cursor = data->children; cursor; cursor = cursor->next) {
+        obj = g_object_new (obj_type, NULL);
+
+        if (ogd_object_fill_by_xml (obj, cursor, NULL) == TRUE) {
+            ogd_object_set_provider (obj, provider);
+            ret = g_list_prepend (ret, obj);
+        }
     }
 
-    ret = parse_provider_response (msg->response_body);
+    if (ret)
+        ret = g_list_reverse (ret);
 
-finish:
-    g_object_unref (msg);
+    xmlFreeDoc (data->doc);
     return ret;
 }
 
@@ -268,25 +340,12 @@ GList* ogd_provider_get (OGDProvider *provider, const gchar *query, GType obj_ty
 {   
     GList *ret;
     xmlNode *data;
-    xmlNode *cursor;
-    OGDObject *obj;
 
     ret = NULL;
+
     data = ogd_provider_get_raw (provider, query);
-
-    if (data != NULL) {
-        for (cursor = data->children; cursor; cursor = cursor->next) {
-            obj = g_object_new (obj_type, NULL);
-
-            if (ogd_object_fill_by_xml (obj, cursor, NULL) == TRUE) {
-                ogd_object_set_provider (obj, provider);
-                ret = g_list_prepend (ret, obj);
-            }
-        }
-
-        ret = g_list_reverse (ret);
-        xmlFreeDoc (data->doc);
-    }
+    if (data != NULL)
+        ret = parse_xml_node_to_list_of_objects (data, provider, obj_type);
 
     return ret;
 }
