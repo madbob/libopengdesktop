@@ -71,6 +71,37 @@ static void ogd_iterator_init (OGDIterator *iter)
     iter->priv->step = OGD_ITERATOR_DEFAULT_STEP;
 }
 
+static void prefetch_total_count (OGDIterator *iterator)
+{
+    gchar *query;
+    GHashTable *header;
+    GList *header_vals;
+    GList *iter;
+    xmlNode *node;
+
+    /*
+        Here we provide a simple dry-run of the query, just to obtain information about total
+        items involved in the query. Perhaps this check may be delayed at least at the first step
+        up of the iterator, or asyncronized
+    */
+
+    query = g_strdup_printf ("%s&page=0&pagesize=1", iterator->priv->query);
+    node = ogd_provider_get_raw (iterator->priv->provider, query);
+    g_free (query);
+
+    header = ogd_provider_header_from_raw (node);
+    header_vals = g_hash_table_get_keys (header);
+
+    for (iter = g_list_first (header_vals); iter; iter = g_list_next (iter))
+        if (strcmp ((gchar*) iter->data, "totalitems") == 0) {
+            iterator->priv->total = (gulong) g_ascii_strtoull (g_hash_table_lookup (header, iter->data), NULL, 10);
+            break;
+        }
+
+    xmlFreeDoc (node->doc);
+    g_hash_table_unref (header);
+}
+
 /**
  * ogd_iterator_new:
  * @provider:       #OGDProvider from which fetch contents
@@ -94,6 +125,7 @@ OGDIterator* ogd_iterator_new (OGDProvider *provider, const gchar *base_query, G
     iterator->priv->provider = provider;
     iterator->priv->query = g_strdup (base_query);
     iterator->priv->obj_type = obj_type;
+    prefetch_total_count (iterator);
     return iterator;
 }
 
@@ -125,6 +157,9 @@ GList* ogd_iterator_get_slice (OGDIterator *iter, gulong start, gulong quantity)
     gulong page;
     gchar *query;
     GList *ret;
+
+    if (start >= iter->priv->total)
+        return NULL;
 
     page = start / quantity;
     query = g_strdup_printf ("%s&page=%lu&pagesize=%lu", iter->priv->query, page, quantity);
