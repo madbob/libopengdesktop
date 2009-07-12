@@ -641,29 +641,6 @@ const gchar* ogd_person_get_profile_page (OGDPerson *person)
 }
 
 /**
- * ogd_person_get_balance:
- * @person:         the #OGDPerson to query
- *
- * Retrieve the current balance for the specified @person. Please note that this call requires
- * some syncronous communication with the server, so may return after some time
- * 
- * Return value:    a #OGDPersonBalance structure describing current balance of the target @person
- */
-
-/*
-    TODO    Provide also an async version
-*/
-
-const OGDPersonBalance* ogd_person_get_balance (OGDPerson *person)
-{
-    /*
-        TODO
-    */
-
-    return NULL;
-}
-
-/**
  * ogd_person_get_friends:
  * @person:         the #OGDPerson to query
  *
@@ -677,17 +654,64 @@ const OGDPersonBalance* ogd_person_get_balance (OGDPerson *person)
     TODO    Provide also an async version
 */
 
-GList* ogd_person_get_friends (OGDPerson *person)
+const GList* ogd_person_get_friends (OGDPerson *person)
 {
-    /*
-        TODO
-    */
+    gulong collected;
+    gulong totalitems;
+    gint page;
+    gchar *query;
+    GList *ret;
+    xmlChar *friend_id;
+    xmlNode *data;
+    xmlNode *cursor;
+    OGDPerson *obj;
+    OGDProvider *provider;
 
-    return NULL;
+    ret = NULL;
+    collected = 0;
+    totalitems = 0;
+    page = 0;
+    provider = ogd_object_get_provider (OGD_OBJECT (person));
+
+    do {
+        query = g_strdup_printf ("friend/data/%s?pagesize=100&page=%d", ogd_person_get_id (person), page);
+        data = ogd_provider_get_raw (provider, query);
+        g_free (query);
+
+        if (data != NULL) {
+            totalitems = total_items_for_query (data);
+
+            for (cursor = data->children; cursor; cursor = cursor->next) {
+                friend_id = xmlNodeGetContent (cursor->children);
+
+                if (friend_id != NULL) {
+                    obj = g_object_new (OGD_PERSON_TYPE, NULL);
+
+                    if (ogd_object_fill_by_id (OGD_OBJECT (obj), friend_id, NULL) == TRUE) {
+                        ogd_object_set_provider (OGD_OBJECT (obj), provider);
+                        ret = g_list_prepend (ret, obj);
+                        collected++;
+                    }
+
+                    xmlFree (friend_id);
+                }
+            }
+
+            xmlFreeDoc (data->doc);
+            page++;
+        }
+
+    } while (collected < totalitems);
+
+    if (ret)
+        ret = g_list_reverse (ret);
+
+    return ret;
 }
 
 /**
  * ogd_person_get_myself:
+ * @provider:       #OGDProvider from which retrieve information
  *
  * Retrieve the #OGDPerson rappresenting the current user, in function of the @username provided
  * in ogd_provider_auth_user_and_pwd(), and is not usable if ogd_provider_auth_api_key() has been
@@ -700,17 +724,23 @@ GList* ogd_person_get_friends (OGDPerson *person)
     TODO    Provide also an async version
 */
 
-const OGDPerson* ogd_person_get_myself ()
+const OGDPerson* ogd_person_get_myself (OGDProvider *provider)
 {
-    /*
-        TODO
-    */
+    GList *tmp_list;
+    OGDPerson *ret;
 
-    return NULL;
+    tmp_list = ogd_provider_get (provider, "person/self", OGD_PERSON_TYPE);
+    if (tmp_list == NULL)
+        return NULL;
+
+    ret = (OGDPerson*) tmp_list->data;
+    g_list_free (tmp_list);
+    return ret;
 }
 
 /**
  * ogd_person_myself_set_coordinates:
+ * @myself:         #OGDPerson returned by ogd_person_get_myself()
  * @latitude:       current latitude
  * @longitude:      current longitude
  *
@@ -723,16 +753,30 @@ const OGDPerson* ogd_person_get_myself ()
     TODO    Provide also an async version
 */
 
-void ogd_person_myself_set_coordinates (gdouble latitude, gdouble longitude)
+void ogd_person_myself_set_coordinates (OGDPerson *myself, gdouble latitude, gdouble longitude)
 {
-    /*
-        TODO
-    */
+    gchar lat_str [100];
+    gchar lon_str [100];
+    GHashTable *params;
+    OGDProvider *provider;
+
+    provider = ogd_object_get_provider (OGD_OBJECT (myself));
+    snprintf (lat_str, 100, "%.03f", latitude);
+    snprintf (lon_str, 100, "%.03f", longitude);
+
+    params = g_hash_table_new (g_str_hash, g_str_equal);
+    g_hash_table_insert (params, "longitude", lon_str);
+    g_hash_table_insert (params, "latitude", lat_str);
+
+    ogd_provider_put (provider, "person/self", params);
+
+    g_hash_table_unref (params);
 }
 
 /**
  * ogd_person_myself_invite_friend:
  * @person:         the #OGDPerson to which send friendship invite
+ * @message:        message to attach to the friendship request
  *
  * Sends a friendship invite to the target @person. That will become friend of the user which
  * name has been expressed as @username parameter in ogd_provider_auth_user_and_pwd(), and is not
@@ -743,9 +787,20 @@ void ogd_person_myself_set_coordinates (gdouble latitude, gdouble longitude)
     TODO    Provide also an async version
 */
 
-void ogd_person_myself_invite_friend (OGDPerson *person)
+void ogd_person_myself_invite_friend (OGDPerson *person, const gchar *message)
 {
-    /*
-        TODO
-    */
+    gchar *query;
+    GHashTable *params;
+    OGDProvider *provider;
+
+    provider = ogd_object_get_provider (OGD_OBJECT (person));
+
+    query = g_strdup_printf ("friend/outbox/%s", ogd_person_get_id (person));
+    params = g_hash_table_new (g_str_hash, g_str_equal);
+    g_hash_table_insert (params, "message", message);
+
+    ogd_provider_put (provider, query, params);
+
+    g_hash_table_unref (params);
+    g_free (query);
 }

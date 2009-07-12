@@ -32,8 +32,10 @@
     }                                       \
 }
 
-GDate*      node_to_date    (xmlNode *node);
-guint64     node_to_num     (xmlNode *node);
-gdouble     node_to_double  (xmlNode *node);
+GDate*      node_to_date                (xmlNode *node);
+guint64     node_to_num                 (xmlNode *node);
+gdouble     node_to_double              (xmlNode *node);
+
+gulong      total_items_for_query       (xmlNode *package);
 
 #endif /* OGD_PRIVATE_UTILS_H */

@@ -35,7 +35,6 @@ struct _OGDContentPrivate {
     gchar       *id;
     gchar       *name;
     gchar       *version;
-    gchar       *subcategory;
     gchar       *language;
     gchar       *authorid;
     OGDPerson   *author;
@@ -80,11 +79,9 @@ static gboolean ogd_content_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
             content->priv->name = xmlNodeGetContent (cursor);
         else if (strcmp (cursor->name, "version") == 0)
             content->priv->version = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "typename") == 0)
-            content->priv->subcategory = xmlNodeGetContent (cursor);
         else if (strcmp (cursor->name, "language") == 0)
             content->priv->language = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "author") == 0)
+        else if (strcmp (cursor->name, "personid") == 0)
             content->priv->authorid = xmlNodeGetContent (cursor);
         else if (strcmp (cursor->name, "created") == 0)
             content->priv->creationdate = node_to_date (cursor);
@@ -195,20 +192,6 @@ const gchar* ogd_content_get_version (OGDContent *content)
 }
 
 /**
- * ogd_content_get_subcategory:
- * @content:        the #OGDContent to query
- *
- * To obtain the subcategory of the @content
- * 
- * Return value:    subcategory of the target @content. Please note this content is not
- *                  semantically validated, so cannot be programmatically managed
- */
-const gchar* ogd_content_get_subcategory (OGDContent *content)
-{
-    return (const gchar*) content->priv->subcategory;
-}
-
-/**
  * ogd_content_get_language:
  * @content:        the #OGDContent to query
  *
@@ -229,14 +212,14 @@ const gchar* ogd_content_get_language (OGDContent *content)
  * To obtain the author of the @content. Please note that this call requires some syncronous
  * communication with the server, so may return after some time
  * 
- * Return value:    #OGDPerson who created the @content
+ * Return value:    #OGDPerson who created the @content, or NULL if the object cannot be retrieved
  */
 
 /*
     TODO    Provide also an async version
 */
 
-OGDPerson* ogd_content_get_author (OGDContent *content)
+const OGDPerson* ogd_content_get_author (OGDContent *content)
 {
     if (content->priv->author == NULL) {
         if (content->priv->authorid != NULL && strlen (content->priv->authorid) != 0) {
@@ -247,6 +230,8 @@ OGDPerson* ogd_content_get_author (OGDContent *content)
 
             if (ogd_object_fill_by_id (OGD_OBJECT (author), content->priv->authorid, NULL))
                 content->priv->author = author;
+            else
+                g_object_unref (author);
         }
     }
 
@@ -261,7 +246,7 @@ OGDPerson* ogd_content_get_author (OGDContent *content)
  * 
  * Return value:    a #GDate for the creation date of the target @content
  */
-GDate* ogd_content_get_creation_date (OGDContent *content)
+const GDate* ogd_content_get_creation_date (OGDContent *content)
 {
     return content->priv->creationdate;
 }
@@ -274,7 +259,7 @@ GDate* ogd_content_get_creation_date (OGDContent *content)
  * 
  * Return value:    a #GDate for the latest change date of the target @content
  */
-GDate* ogd_content_get_change_date (OGDContent *content)
+const GDate* ogd_content_get_change_date (OGDContent *content)
 {
     return content->priv->changedate;
 }
@@ -379,7 +364,7 @@ gulong ogd_content_get_num_fans (OGDContent *content)
  * 
  * Return value:    list of URL of previews for the target @content
  */
-GList* ogd_content_get_previews (OGDContent *content)
+const GList* ogd_content_get_previews (OGDContent *content)
 {
     return content->priv->previews;
 }
@@ -392,7 +377,7 @@ GList* ogd_content_get_previews (OGDContent *content)
  * 
  * Return value:    list of URL from which download the target @content
  */
-GList* ogd_content_get_download_refs (OGDContent *content)
+const GList* ogd_content_get_download_refs (OGDContent *content)
 {
     return content->priv->downloads;
 }

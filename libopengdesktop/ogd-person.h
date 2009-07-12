@@ -118,18 +118,6 @@ typedef enum {
     OGD_PERSON_JOB_FREE
 } OGD_PERSON_JOB;
 
-/**
- * OGDPersonBalance:
- * @currency:       string describing the currency in which balance is expressed
- * @balance:        quantity of money available in the #OGDPerson balance
- *
- * Summarizes informations about the current balance of a #OGDPerson
- */
-typedef struct {
-    gchar       *currency;
-    gdouble     balance;
-} OGDPersonBalance;
-
 GType                   ogd_person_get_type                 ();
 
 const gchar*            ogd_person_get_id                   (OGDPerson *person);
@@ -160,12 +148,11 @@ const gchar*            ogd_person_get_favourite_books      (OGDPerson *person);
 const gchar*            ogd_person_get_favourite_games      (OGDPerson *person);
 const gchar*            ogd_person_get_description          (OGDPerson *person);
 const gchar*            ogd_person_get_profile_page         (OGDPerson *person);
-const OGDPersonBalance* ogd_person_get_balance              (OGDPerson *person);
-GList*                  ogd_person_get_friends              (OGDPerson *person);
+const GList*            ogd_person_get_friends              (OGDPerson *person);
 
-const OGDPerson*        ogd_person_get_myself               ();
-void                    ogd_person_myself_set_coordinates   (gdouble latitude, gdouble longitude);
-void                    ogd_person_myself_invite_friend     (OGDPerson *person);
+const OGDPerson*        ogd_person_get_myself               (OGDProvider *provider);
+void                    ogd_person_myself_set_coordinates   (OGDPerson *myself, gdouble latitude, gdouble longitude);
+void                    ogd_person_myself_invite_friend     (OGDPerson *person, const gchar *message);
 
 G_END_DECLS
 

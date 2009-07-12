@@ -58,7 +58,7 @@ void            ogd_provider_auth_api_key           (OGDProvider *provider, gcha
 xmlNode*        ogd_provider_get_raw                (OGDProvider *provider, const gchar *query);
 GList*          ogd_provider_get                    (OGDProvider *provider, const gchar *query, GType obj_type);
 GHashTable*     ogd_provider_header_from_raw        (xmlNode *response);
-gboolean        ogd_provider_put                    (OGDProvider *provider, const gchar *query, const gchar *data);
+gboolean        ogd_provider_put                    (OGDProvider *provider, const gchar *query, GHashTable *data);
 
 G_END_DECLS
 

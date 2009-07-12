@@ -67,11 +67,10 @@ GType                   ogd_content_get_type                ();
 const gchar*            ogd_content_get_id                  (OGDContent *content);
 const gchar*            ogd_content_get_name                (OGDContent *content);
 const gchar*            ogd_content_get_version             (OGDContent *content);
-const gchar*            ogd_content_get_subcategory         (OGDContent *content);
 const gchar*            ogd_content_get_language            (OGDContent *content);
-OGDPerson*              ogd_content_get_author              (OGDContent *content);
-GDate*                  ogd_content_get_creation_date       (OGDContent *content);
-GDate*                  ogd_content_get_change_date         (OGDContent *content);
+const OGDPerson*        ogd_content_get_author              (OGDContent *content);
+const GDate*            ogd_content_get_creation_date       (OGDContent *content);
+const GDate*            ogd_content_get_change_date         (OGDContent *content);
 gulong                  ogd_content_get_num_downloads       (OGDContent *content);
 guint                   ogd_content_get_score               (OGDContent *content);
 const gchar*            ogd_content_get_description         (OGDContent *content);
@@ -79,8 +78,8 @@ const gchar*            ogd_content_get_changelog           (OGDContent *content
 const gchar*            ogd_content_get_homepage            (OGDContent *content);
 gulong                  ogd_content_get_num_comments        (OGDContent *content);
 gulong                  ogd_content_get_num_fans            (OGDContent *content);
-GList*                  ogd_content_get_previews            (OGDContent *content);
-GList*                  ogd_content_get_download_refs       (OGDContent *content);
+const GList*            ogd_content_get_previews            (OGDContent *content);
+const GList*            ogd_content_get_download_refs       (OGDContent *content);
 
 gboolean                ogd_content_vote                    (OGDContent *content, OGD_CONTENT_VOTE vote);
 

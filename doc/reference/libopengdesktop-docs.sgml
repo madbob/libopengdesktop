@@ -57,6 +57,8 @@
     <title>Social Activity</title>
 
     <xi:include href="xml/ogd-person.xml"/>
+    <xi:include href="xml/ogd-folder.xml"/>
+    <xi:include href="xml/ogd-message.xml"/>
     <xi:include href="xml/ogd-activity.xml"/>
     <xi:include href="xml/ogd-event.xml"/>
   </part>

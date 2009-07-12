@@ -292,7 +292,7 @@ GHashTable* ogd_provider_header_from_raw (xmlNode *response)
     header = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) xmlFree, (GDestroyNotify) xmlFree);
 
     for (node = node->children; node; node = node->next)
-        g_hash_table_insert (header, xmlCharStrdup (node->name), xmlNodeGetContent (node));
+        g_hash_table_insert (header, strdup (node->name), xmlNodeGetContent (node));
 
     return header;
 }
@@ -365,10 +365,18 @@ GList* ogd_provider_get (OGDProvider *provider, const gchar *query, GType obj_ty
     TODO    Provide also an async version
 */
 
-gboolean ogd_provider_put (OGDProvider *provider, const gchar *query, const gchar *data)
+gboolean ogd_provider_put (OGDProvider *provider, const gchar *query, GHashTable *data)
 {
-    /**
-        TODO
-    */
-    return FALSE;
+    guint sendret;
+    gboolean ret;
+    gchar *complete_query;
+    SoupMessage *msg;
+
+    complete_query = g_strdup_printf ("%s%s", provider->priv->access_url, query);
+    msg = soup_form_request_new_from_hash ("POST", complete_query, data);
+    sendret = soup_session_send_message (provider->priv->http_session, msg);
+    ret = (sendret == 200 && msg->status_code == SOUP_STATUS_OK);
+    g_free (complete_query);
+    g_object_unref (msg);
+    return ret;
 }

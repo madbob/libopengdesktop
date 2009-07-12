@@ -54,3 +54,25 @@ GDate* node_to_date (xmlNode *node)
     xmlFree (tmp);
     return ret;
 }
+
+gulong total_items_for_query (xmlNode *package)
+{
+    gulong ret;
+    GHashTable *header;
+    GList *header_vals;
+    GList *iter;
+
+    ret = 0;
+    header = ogd_provider_header_from_raw (package);
+    header_vals = g_hash_table_get_keys (header);
+
+    for (iter = g_list_first (header_vals); iter; iter = g_list_next (iter))
+        if (strcmp ((gchar*) iter->data, "totalitems") == 0) {
+            ret = (gulong) g_ascii_strtoull (g_hash_table_lookup (header, iter->data), NULL, 10);
+            break;
+        }
+
+    g_list_free (header_vals);
+    g_hash_table_unref (header);
+    return ret;
+}

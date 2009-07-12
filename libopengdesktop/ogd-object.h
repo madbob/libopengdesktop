@@ -50,13 +50,13 @@ struct _OGDObjectClass {
     gboolean (*fill_by_id)      (OGDObject *obj, const gchar *id, GError **error);
 };
 
-GType           ogd_object_get_type                 ();
+GType               ogd_object_get_type                 ();
 
-OGDProvider*    ogd_object_get_provider             (OGDObject *obj);
-void            ogd_object_set_provider             (OGDObject *obj, OGDProvider *provider);
+const OGDProvider*  ogd_object_get_provider             (OGDObject *obj);
+void                ogd_object_set_provider             (OGDObject *obj, const OGDProvider *provider);
 
-gboolean        ogd_object_fill_by_xml              (OGDObject *obj, const xmlNode *xml, GError **error);
-gboolean        ogd_object_fill_by_id               (OGDObject *obj, const gchar *id, GError **error);
+gboolean            ogd_object_fill_by_xml              (OGDObject *obj, const xmlNode *xml, GError **error);
+gboolean            ogd_object_fill_by_id               (OGDObject *obj, const gchar *id, GError **error);
 
 G_END_DECLS
 

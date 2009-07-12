@@ -72,7 +72,7 @@ static gboolean ogd_activity_fill_by_xml (OGDObject *obj, const xmlNode *xml, GE
             TODO    Provide optimization for strings comparison
         */
 
-        if (strcmp (cursor->name, "activityid") == 0)
+        if (strcmp (cursor->name, "personid") == 0)
             activity->priv->authorid = xmlNodeGetContent (cursor);
         else if (strcmp (cursor->name, "timestamp") == 0)
             activity->priv->date = node_to_date (cursor);
@@ -130,7 +130,7 @@ static void ogd_activity_init (OGDActivity *item)
     TODO    Provide also an async version
 */
 
-OGDPerson* ogd_activity_get_author (OGDActivity *activity)
+const OGDPerson* ogd_activity_get_author (OGDActivity *activity)
 {
     if (activity->priv->author == NULL) {
         if (activity->priv->authorid != NULL && strlen (activity->priv->authorid) != 0) {
@@ -197,4 +197,31 @@ const gchar* ogd_activity_get_message (OGDActivity *activity)
 const gchar* ogd_activity_get_link (OGDActivity *activity)
 {
     return (const gchar*) activity->priv->link;
+}
+
+/**
+ * ogd_activity_set:
+ * @myself:         return value of ogd_person_get_myself()
+ * @status:         text to set as current status
+ *
+ * To update the status of the current user. Valid only if authentication is performed with
+ * ogd_provider_auth_user_and_pwd()
+ *
+ * Return value:    %TRUE if status is correctly set, %FALSE otherwise
+ */
+gboolean ogd_activity_set (OGDPerson *myself, const gchar *status)
+{
+    gboolean ret;
+    GHashTable *params;
+    OGDProvider *provider;
+
+    provider = ogd_object_get_provider (OGD_OBJECT (myself));
+
+    params = g_hash_table_new (g_str_hash, g_str_equal);
+    g_hash_table_insert (params, "message", status);
+
+    ret = ogd_provider_put (provider, "activity", params);
+
+    g_hash_table_unref (params);
+    return ret;
 }

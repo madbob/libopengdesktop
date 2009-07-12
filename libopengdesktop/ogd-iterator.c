@@ -74,9 +74,6 @@ static void ogd_iterator_init (OGDIterator *iter)
 static void prefetch_total_count (OGDIterator *iterator)
 {
     gchar *query;
-    GHashTable *header;
-    GList *header_vals;
-    GList *iter;
     xmlNode *node;
 
     /*
@@ -89,17 +86,8 @@ static void prefetch_total_count (OGDIterator *iterator)
     node = ogd_provider_get_raw (iterator->priv->provider, query);
     g_free (query);
 
-    header = ogd_provider_header_from_raw (node);
-    header_vals = g_hash_table_get_keys (header);
-
-    for (iter = g_list_first (header_vals); iter; iter = g_list_next (iter))
-        if (strcmp ((gchar*) iter->data, "totalitems") == 0) {
-            iterator->priv->total = (gulong) g_ascii_strtoull (g_hash_table_lookup (header, iter->data), NULL, 10);
-            break;
-        }
-
+    iterator->priv->total = total_items_for_query (node);
     xmlFreeDoc (node->doc);
-    g_hash_table_unref (header);
 }
 
 /**

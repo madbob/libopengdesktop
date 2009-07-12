@@ -95,11 +95,13 @@ typedef enum {
 
 GType                   ogd_activity_get_type                   ();
 
-OGDPerson*              ogd_activity_get_author                 (OGDActivity *activity);
+const OGDPerson*        ogd_activity_get_author                 (OGDActivity *activity);
 const GDate*            ogd_activity_get_date                   (OGDActivity *activity);
 OGD_ACTIVITY_CATEGORY   ogd_activity_get_category               (OGDActivity *activity);
 const gchar*            ogd_activity_get_message                (OGDActivity *activity);
 const gchar*            ogd_activity_get_link                   (OGDActivity *activity);
+
+gboolean                ogd_activity_set                        (OGDPerson *myself, const gchar *status);
 
 G_END_DECLS
 

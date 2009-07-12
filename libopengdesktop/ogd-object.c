@@ -108,7 +108,7 @@ static void ogd_object_init (OGDObject *item)
  * 
  * Return value:    the #OGDProvider from which the object has been took
  */
-OGDProvider* ogd_object_get_provider (OGDObject *obj)
+const OGDProvider* ogd_object_get_provider (OGDObject *obj)
 {
     return obj->priv->provider;
 }
@@ -122,7 +122,7 @@ OGDProvider* ogd_object_get_provider (OGDObject *obj)
  * propagate reference to the content repository from an object to another, and avoid specify it
  * each time an action is performed
  */
-void ogd_object_set_provider (OGDObject *obj, OGDProvider *provider)
+void ogd_object_set_provider (OGDObject *obj, const OGDProvider *provider)
 {
     obj->priv->provider = provider;
 }
