@@ -107,6 +107,7 @@ static gboolean ogd_person_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
     xmlChar *tmp;
 
     person = OGD_PERSON (obj);
+    xml = xml->children;
 
     if (strcmp (xml->name, "person") != 0)
         return FALSE;
@@ -116,7 +117,7 @@ static gboolean ogd_person_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
             TODO    Provide optimization for strings comparison
         */
 
-        if (strcmp (cursor->name, "id") == 0)
+        if (strcmp (cursor->name, "personid") == 0)
             person->priv->id = xmlNodeGetContent (cursor);
         else if (strcmp (cursor->name, "privacy") == 0) {
             tmp = xmlNodeGetContent (cursor);

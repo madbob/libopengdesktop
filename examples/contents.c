@@ -34,7 +34,7 @@ static void print_all_contents (OGDCategory *cat)
 
         for (iter = g_list_first (slice); iter; iter = g_list_next (iter)) {
             content = (OGDContent*) iter->data;
-            printf ("\t%s\n", ogd_content_get_name (content));
+            printf ("\t%s by %s\n", ogd_content_get_name (content), ogd_person_get_id (ogd_content_get_author (content)));
             g_object_unref (content);
         }
 
