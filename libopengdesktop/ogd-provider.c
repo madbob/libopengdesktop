@@ -50,6 +50,7 @@ static void ogd_provider_finalize (GObject *obj)
 
     PTR_CHECK_FREE_NULLIFY (provider->priv->server_name);
     PTR_CHECK_FREE_NULLIFY (provider->priv->access_url);
+    OBJ_CHECK_FREE_NULLIFY (provider->priv->http_session);
 }
 
 static void ogd_provider_class_init (OGDProviderClass *klass)

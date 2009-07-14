@@ -24,6 +24,7 @@ static void print_all_contents (OGDCategory *cat)
     GList *iter;
     OGDIterator *iterator;
     OGDContent *content;
+    OGDPerson *author;
 
     printf ("%s (%s) contains:\n", ogd_category_get_name (cat), ogd_category_get_id (cat));
     iterator = ogd_category_get_contents (cat, OGD_CATEGORY_SORT_NEWEST);
@@ -34,12 +35,15 @@ static void print_all_contents (OGDCategory *cat)
 
         for (iter = g_list_first (slice); iter; iter = g_list_next (iter)) {
             content = (OGDContent*) iter->data;
-            printf ("\t%s by %s\n", ogd_content_get_name (content), ogd_person_get_id (ogd_content_get_author (content)));
+            author = ogd_content_get_author (content);
+            printf ("\t%s by %s\n", ogd_content_get_name (content), author ? ogd_person_get_id (author) : "UNKNOW");
             g_object_unref (content);
         }
 
         g_list_free (slice);
     } while (len != 0);
+
+    g_object_unref (iterator);
 }
 
 static void print_all_contents_by_random (OGDProvider *provider)
@@ -91,5 +95,6 @@ int main (int argc, char **argv)
     provider = ogd_provider_new ("api.opendesktop.org");
     ogd_provider_auth_user_and_pwd (provider, username, password);
     print_all_contents_by_random (provider);
+    g_object_unref (provider);
     exit (0);
 }

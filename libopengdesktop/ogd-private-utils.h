@@ -32,6 +32,16 @@
     }                                       \
 }
 
+#define STRLIST_CHECK_FREE_NULLIFY(__ptr) {                                         \
+    if (__ptr != NULL) {                                                            \
+        GList *__iter;                                                              \
+        for (__iter = g_list_first (__ptr); __iter; __iter = g_list_next (__iter))  \
+            g_free (__iter->data);                                                  \
+        g_list_free (__ptr);                                                        \
+        __ptr = NULL;                                                               \
+    }                                                                               \
+}
+
 GDate*      node_to_date                (xmlNode *node);
 guint64     node_to_num                 (xmlNode *node);
 gdouble     node_to_double              (xmlNode *node);

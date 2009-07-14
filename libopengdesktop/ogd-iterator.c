@@ -47,11 +47,10 @@ G_DEFINE_TYPE (OGDIterator, ogd_iterator, G_TYPE_OBJECT);
 
 static void ogd_iterator_finalize (GObject *obj)
 {
-    OGDIterator *provider;
+    OGDIterator *iterator;
 
-    provider = OGD_ITERATOR (obj);
-
-    PTR_CHECK_FREE_NULLIFY (provider->priv->query);
+    iterator = OGD_ITERATOR (obj);
+    PTR_CHECK_FREE_NULLIFY (iterator->priv->query);
 }
 
 static void ogd_iterator_class_init (OGDIteratorClass *klass)

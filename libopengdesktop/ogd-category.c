@@ -44,6 +44,7 @@ static void ogd_category_finalize (GObject *obj)
 
     category = OGD_CATEGORY (obj);
 
+    PTR_CHECK_FREE_NULLIFY (category->priv->id);
     PTR_CHECK_FREE_NULLIFY (category->priv->name);
 }
 

@@ -55,11 +55,23 @@ G_DEFINE_TYPE (OGDContent, ogd_content, OGD_OBJECT_TYPE);
 
 static void ogd_content_finalize (GObject *obj)
 {
-    OGDContent *category;
+    OGDContent *content;
 
-    category = OGD_CONTENT (obj);
+    content = OGD_CONTENT (obj);
 
-    PTR_CHECK_FREE_NULLIFY (category->priv->name);
+    PTR_CHECK_FREE_NULLIFY (content->priv->id);
+    PTR_CHECK_FREE_NULLIFY (content->priv->name);
+    PTR_CHECK_FREE_NULLIFY (content->priv->version);
+    PTR_CHECK_FREE_NULLIFY (content->priv->language);
+    PTR_CHECK_FREE_NULLIFY (content->priv->authorid);
+    OBJ_CHECK_UNREF_NULLIFY (content->priv->author);
+    g_date_free (content->priv->creationdate);
+    g_date_free (content->priv->changedate);
+    PTR_CHECK_FREE_NULLIFY (content->priv->description);
+    PTR_CHECK_FREE_NULLIFY (content->priv->changelog);
+    PTR_CHECK_FREE_NULLIFY (content->priv->homepage);
+    STRLIST_CHECK_FREE_NULLIFY (content->priv->previews);
+    STRLIST_CHECK_FREE_NULLIFY (content->priv->downloads);
 }
 
 static gboolean ogd_content_fill_by_xml (OGDObject *obj, const xmlNode *xml, GError **error)

@@ -48,6 +48,7 @@ static void ogd_message_finalize (GObject *obj)
 
     msg = OGD_MESSAGE (obj);
 
+    PTR_CHECK_FREE_NULLIFY (msg->priv->id);
     PTR_CHECK_FREE_NULLIFY (msg->priv->authorid);
     OBJ_CHECK_UNREF_NULLIFY (msg->priv->author);
     g_date_free (msg->priv->date);
