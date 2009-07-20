@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.1
+/*  libopengdesktop 0.2
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -59,6 +59,8 @@ static gboolean ogd_folder_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
 
     if (strcmp (xml->name, "folder") != 0)
         return FALSE;
+
+    ogd_folder_finalize (obj);
 
     for (cursor = xml->children; cursor; cursor = cursor->next) {
         if (strcmp (cursor->name, "id") == 0)

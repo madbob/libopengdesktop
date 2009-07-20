@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.1
+/*  libopengdesktop 0.2
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -50,7 +50,7 @@ static void ogd_provider_finalize (GObject *obj)
 
     PTR_CHECK_FREE_NULLIFY (provider->priv->server_name);
     PTR_CHECK_FREE_NULLIFY (provider->priv->access_url);
-    OBJ_CHECK_FREE_NULLIFY (provider->priv->http_session);
+    OBJ_CHECK_UNREF_NULLIFY (provider->priv->http_session);
 }
 
 static void ogd_provider_class_init (OGDProviderClass *klass)

@@ -24,7 +24,7 @@ In order to build libopengdesktop you will need:
 
 INSTALLATION
 ------------
-To build JSON-GLib just run:
+To build libopengdesktop just run:
 
   $ ./configure
   $ make

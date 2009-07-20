@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.1
+/*  libopengdesktop 0.2
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -52,7 +52,7 @@ static void ogd_activity_finalize (GObject *obj)
 
     PTR_CHECK_FREE_NULLIFY (activity->priv->authorid);
     OBJ_CHECK_UNREF_NULLIFY (activity->priv->author);
-    g_date_free (activity->priv->date);
+    DATE_CHECK_FREE_NULLIFY (activity->priv->date);
     PTR_CHECK_FREE_NULLIFY (activity->priv->message);
     PTR_CHECK_FREE_NULLIFY (activity->priv->link);
 }
@@ -67,11 +67,9 @@ static gboolean ogd_activity_fill_by_xml (OGDObject *obj, const xmlNode *xml, GE
     if (strcmp (xml->name, "activity") != 0)
         return FALSE;
 
-    for (cursor = xml->children; cursor; cursor = cursor->next) {
-        /*
-            TODO    Provide optimization for strings comparison
-        */
+    ogd_activity_finalize (obj);
 
+    for (cursor = xml->children; cursor; cursor = cursor->next) {
         if (strcmp (cursor->name, "personid") == 0)
             activity->priv->authorid = xmlNodeGetContent (cursor);
         else if (strcmp (cursor->name, "timestamp") == 0)

@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.1
+/*  libopengdesktop 0.2
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -51,7 +51,7 @@ static void ogd_message_finalize (GObject *obj)
     PTR_CHECK_FREE_NULLIFY (msg->priv->id);
     PTR_CHECK_FREE_NULLIFY (msg->priv->authorid);
     OBJ_CHECK_UNREF_NULLIFY (msg->priv->author);
-    g_date_free (msg->priv->date);
+    DATE_CHECK_FREE_NULLIFY (msg->priv->date);
     PTR_CHECK_FREE_NULLIFY (msg->priv->subject);
     PTR_CHECK_FREE_NULLIFY (msg->priv->body);
 }
@@ -66,11 +66,9 @@ static gboolean ogd_message_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
     if (strcmp (xml->name, "message") != 0)
         return FALSE;
 
-    for (cursor = xml->children; cursor; cursor = cursor->next) {
-        /*
-            TODO    Provide optimization for strings comparison
-        */
+    ogd_message_finalize (obj);
 
+    for (cursor = xml->children; cursor; cursor = cursor->next) {
         if (strcmp (cursor->name, "messageid") == 0)
             msg->priv->id = xmlNodeGetContent (cursor);
         else if (strcmp (cursor->name, "messagefrom") == 0)

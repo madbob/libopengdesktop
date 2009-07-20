@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.1
+/*  libopengdesktop 0.2
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -71,8 +71,8 @@ static void ogd_event_finalize (GObject *obj)
     PTR_CHECK_FREE_NULLIFY (event->priv->id);
     PTR_CHECK_FREE_NULLIFY (event->priv->name);
     PTR_CHECK_FREE_NULLIFY (event->priv->description);
-    g_date_free (event->priv->startdate);
-    g_date_free (event->priv->enddate);
+    DATE_CHECK_FREE_NULLIFY (event->priv->startdate);
+    DATE_CHECK_FREE_NULLIFY (event->priv->enddate);
     PTR_CHECK_FREE_NULLIFY (event->priv->authorid);
     OBJ_CHECK_UNREF_NULLIFY (event->priv->author);
     PTR_CHECK_FREE_NULLIFY (event->priv->organizer);
@@ -83,7 +83,7 @@ static void ogd_event_finalize (GObject *obj)
     PTR_CHECK_FREE_NULLIFY (event->priv->telephone);
     PTR_CHECK_FREE_NULLIFY (event->priv->fax);
     PTR_CHECK_FREE_NULLIFY (event->priv->mail);
-    g_date_free (event->priv->changed);
+    DATE_CHECK_FREE_NULLIFY (event->priv->changed);
     PTR_CHECK_FREE_NULLIFY (event->priv->image);
 }
 
@@ -98,11 +98,9 @@ static gboolean ogd_event_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErro
     if (strcmp (xml->name, "event") != 0)
         return FALSE;
 
-    for (cursor = xml->children; cursor; cursor = cursor->next) {
-        /*
-            TODO    Provide optimization for strings comparison
-        */
+    ogd_event_finalize (obj);
 
+    for (cursor = xml->children; cursor; cursor = cursor->next) {
         if (strcmp (cursor->name, "id") == 0)
             event->priv->id = xmlNodeGetContent (cursor);
         else if (strcmp (cursor->name, "name") == 0)

@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.1
+/*  libopengdesktop 0.2
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -29,6 +29,13 @@
     if (__ptr != NULL) {                    \
         g_object_unref (__ptr);             \
         __ptr = NULL;                       \
+    }                                       \
+}
+
+#define DATE_CHECK_FREE_NULLIFY(__date) {   \
+    if (__date != NULL) {                   \
+        g_date_free (__date);               \
+        __date = NULL;                      \
     }                                       \
 }
 

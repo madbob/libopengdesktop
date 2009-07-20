@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.1
+/*  libopengdesktop 0.2
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -82,7 +82,7 @@ static void ogd_person_finalize (GObject *obj)
     PTR_CHECK_FREE_NULLIFY (person->priv->homepage);
     PTR_CHECK_FREE_NULLIFY (person->priv->company);
     PTR_CHECK_FREE_NULLIFY (person->priv->avatar);
-    g_date_free (person->priv->birthday);
+    DATE_CHECK_FREE_NULLIFY (person->priv->birthday);
     PTR_CHECK_FREE_NULLIFY (person->priv->city);
     PTR_CHECK_FREE_NULLIFY (person->priv->country);
     PTR_CHECK_FREE_NULLIFY (person->priv->likes);
@@ -112,11 +112,9 @@ static gboolean ogd_person_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
     if (strcmp (xml->name, "person") != 0)
         return FALSE;
 
-    for (cursor = xml->children; cursor; cursor = cursor->next) {
-        /*
-            TODO    Provide optimization for strings comparison
-        */
+    ogd_person_finalize (obj);
 
+    for (cursor = xml->children; cursor; cursor = cursor->next) {
         if (strcmp (cursor->name, "personid") == 0)
             person->priv->id = xmlNodeGetContent (cursor);
         else if (strcmp (cursor->name, "privacy") == 0) {

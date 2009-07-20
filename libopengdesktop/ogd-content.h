@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.1
+/*  libopengdesktop 0.2
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -81,7 +81,7 @@ gulong                  ogd_content_get_num_fans            (OGDContent *content
 const GList*            ogd_content_get_previews            (OGDContent *content);
 const GList*            ogd_content_get_download_refs       (OGDContent *content);
 
-gboolean                ogd_content_vote                    (OGDContent *content, OGD_CONTENT_VOTE vote);
+void                    ogd_content_vote                    (OGDContent *content, OGD_CONTENT_VOTE vote);
 
 G_END_DECLS
 

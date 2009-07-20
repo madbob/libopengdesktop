@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.1
+/*  libopengdesktop 0.2
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -65,8 +65,8 @@ static void ogd_content_finalize (GObject *obj)
     PTR_CHECK_FREE_NULLIFY (content->priv->language);
     PTR_CHECK_FREE_NULLIFY (content->priv->authorid);
     OBJ_CHECK_UNREF_NULLIFY (content->priv->author);
-    g_date_free (content->priv->creationdate);
-    g_date_free (content->priv->changedate);
+    DATE_CHECK_FREE_NULLIFY (content->priv->creationdate);
+    DATE_CHECK_FREE_NULLIFY (content->priv->changedate);
     PTR_CHECK_FREE_NULLIFY (content->priv->description);
     PTR_CHECK_FREE_NULLIFY (content->priv->changelog);
     PTR_CHECK_FREE_NULLIFY (content->priv->homepage);
@@ -83,6 +83,8 @@ static gboolean ogd_content_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
 
     if (strcmp (xml->name, "content") != 0)
         return FALSE;
+
+    ogd_content_finalize (obj);
 
     for (cursor = xml->children; cursor; cursor = cursor->next) {
         if (strcmp (cursor->name, "id") == 0)
@@ -133,7 +135,7 @@ static gboolean ogd_content_fill_by_id (OGDObject *obj, const gchar *id, GError 
     g_free (query);
 
     if (data != NULL) {
-        ret = ogd_content_fill_by_xml (obj, data, error);
+        ret = ogd_content_fill_by_xml (obj, data->children, error);
         xmlFreeDoc (data->doc);
     }
     else
@@ -402,20 +404,36 @@ const GList* ogd_content_get_download_refs (OGDContent *content)
  * To share a rating about the content. The vote is assigned to the current user, the one which
  * username is used in ogd_provider_auth_user_and_pwd(), and the function cannot be used if
  * ogd_provider_auth_api_key() has been used instead
- * 
- * Return value:    language of the target @content. Please note this content is not semantically
- *                  validated, so cannot be programmatically managed
  */
 
 /*
     TODO    Provide also an async version
 */
 
-gboolean ogd_content_vote (OGDContent *content, OGD_CONTENT_VOTE vote)
+void ogd_content_vote (OGDContent *content, OGD_CONTENT_VOTE vote)
 {
-    /*
-        TODO
-    */
+    gchar *query;
+    gchar *vote_str;
+    OGDProvider *provider;
 
-    return FALSE;
+    provider = ogd_object_get_provider (OGD_OBJECT (content));
+
+    switch (vote) {
+        case OGD_CONTENT_GOOD:
+            vote_str = "good";
+            break;
+
+        case OGD_CONTENT_BAD:
+            vote_str = "bad";
+            break;
+
+        default:
+            g_warning ("Invalid vote");
+            return;
+            break;
+    }
+
+    query = g_strdup_printf ("content/vote/%s?vote=%s", ogd_content_get_id (content), vote_str);
+    ogd_provider_put (provider, query, NULL);
+    g_free (query);
 }
