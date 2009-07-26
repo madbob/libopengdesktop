@@ -95,68 +95,68 @@ static gboolean ogd_event_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErro
 
     event = OGD_EVENT (obj);
 
-    if (strcmp (xml->name, "event") != 0)
+    if (MYSTRCMP (xml->name, "event") != 0)
         return FALSE;
 
-    ogd_event_finalize (obj);
+    ogd_event_finalize (G_OBJECT (obj));
 
     for (cursor = xml->children; cursor; cursor = cursor->next) {
-        if (strcmp (cursor->name, "id") == 0)
-            event->priv->id = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "name") == 0)
-            event->priv->name = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "description") == 0)
-            event->priv->description = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "category") == 0) {
+        if (MYSTRCMP (cursor->name, "id") == 0)
+            event->priv->id = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "name") == 0)
+            event->priv->name = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "description") == 0)
+            event->priv->description = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "category") == 0) {
             tmp = xmlNodeGetContent (cursor);
-            if (strcmp (tmp, "Party") == 0)
+            if (MYSTRCMP (tmp, "Party") == 0)
                 event->priv->category = OGD_EVENT_PARTY;
-            else if (strcmp (tmp, "User Group") == 0)
+            else if (MYSTRCMP (tmp, "User Group") == 0)
                 event->priv->category = OGD_EVENT_USER_GROUP;
-            else if (strcmp (tmp, "Conference") == 0)
+            else if (MYSTRCMP (tmp, "Conference") == 0)
                 event->priv->category = OGD_EVENT_CONFERENCE;
-            else if (strcmp (tmp, "Developer Meeting") == 0)
+            else if (MYSTRCMP (tmp, "Developer Meeting") == 0)
                 event->priv->category = OGD_EVENT_DEV_MEETING;
-            else if (strcmp (tmp, "Install Party") == 0)
+            else if (MYSTRCMP (tmp, "Install Party") == 0)
                 event->priv->category = OGD_EVENT_INSTALL_PARTY;
-            else if (strcmp (tmp, "otherParty") == 0)
+            else if (MYSTRCMP (tmp, "otherParty") == 0)
                 event->priv->category = OGD_EVENT_OTHER_PARTY;
             xmlFree (tmp);
         }
-        else if (strcmp (cursor->name, "startdate") == 0)
+        else if (MYSTRCMP (cursor->name, "startdate") == 0)
             event->priv->startdate = node_to_date (cursor);
-        else if (strcmp (cursor->name, "enddate") == 0)
+        else if (MYSTRCMP (cursor->name, "enddate") == 0)
             event->priv->enddate = node_to_date (cursor);
-        else if (strcmp (cursor->name, "user") == 0)
-            event->priv->authorid = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "organizer") == 0)
-            event->priv->organizer = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "location") == 0)
-            event->priv->location = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "city") == 0)
-            event->priv->city = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "country") == 0)
-            event->priv->country = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "latitude") == 0)
+        else if (MYSTRCMP (cursor->name, "user") == 0)
+            event->priv->authorid = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "organizer") == 0)
+            event->priv->organizer = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "location") == 0)
+            event->priv->location = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "city") == 0)
+            event->priv->city = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "country") == 0)
+            event->priv->country = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "latitude") == 0)
             event->priv->latitude = node_to_double (cursor);
-        else if (strcmp (cursor->name, "longitude") == 0)
+        else if (MYSTRCMP (cursor->name, "longitude") == 0)
             event->priv->longitude = node_to_double (cursor);
-        else if (strcmp (cursor->name, "homepage") == 0)
-            event->priv->homepage = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "tel") == 0)
-            event->priv->telephone = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "fax") == 0)
-            event->priv->fax = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "email") == 0)
-            event->priv->mail = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "changed") == 0)
+        else if (MYSTRCMP (cursor->name, "homepage") == 0)
+            event->priv->homepage = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "tel") == 0)
+            event->priv->telephone = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "fax") == 0)
+            event->priv->fax = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "email") == 0)
+            event->priv->mail = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "changed") == 0)
             event->priv->changed = node_to_date (cursor);
-        else if (strcmp (cursor->name, "comments") == 0)
+        else if (MYSTRCMP (cursor->name, "comments") == 0)
             event->priv->numcomments = (guint) node_to_num (cursor);
-        else if (strcmp (cursor->name, "partecipants") == 0)
+        else if (MYSTRCMP (cursor->name, "partecipants") == 0)
             event->priv->numpartecipants = (guint) node_to_num (cursor);
-        else if (strcmp (cursor->name, "image") == 0)
-            event->priv->image = xmlNodeGetContent (cursor);
+        else if (MYSTRCMP (cursor->name, "image") == 0)
+            event->priv->image = MYGETCONTENT (cursor);
     }
 
     return TRUE;
@@ -169,7 +169,7 @@ static gboolean ogd_event_fill_by_id (OGDObject *obj, const gchar *id, GError **
     xmlNode *data;
 
     query = g_strdup_printf ("event/data/%s", id);
-    data = ogd_provider_get_raw (ogd_object_get_provider (obj), query);
+    data = ogd_provider_get_raw ((OGDProvider*) ogd_object_get_provider (obj), query);
     g_free (query);
 
     if (data != NULL) {

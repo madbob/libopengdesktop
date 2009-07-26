@@ -63,24 +63,24 @@ static gboolean ogd_message_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
 
     msg = OGD_MESSAGE (obj);
 
-    if (strcmp (xml->name, "message") != 0)
+    if (MYSTRCMP (xml->name, "message") != 0)
         return FALSE;
 
-    ogd_message_finalize (obj);
+    ogd_message_finalize (G_OBJECT (obj));
 
     for (cursor = xml->children; cursor; cursor = cursor->next) {
-        if (strcmp (cursor->name, "messageid") == 0)
-            msg->priv->id = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "messagefrom") == 0)
-            msg->priv->authorid = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "senddate") == 0)
+        if (MYSTRCMP (cursor->name, "messageid") == 0)
+            msg->priv->id = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "messagefrom") == 0)
+            msg->priv->authorid = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "senddate") == 0)
             msg->priv->date = node_to_date (cursor);
-        else if (strcmp (cursor->name, "status") == 0)
+        else if (MYSTRCMP (cursor->name, "status") == 0)
             msg->priv->status = (guint) node_to_num (cursor);
-        else if (strcmp (cursor->name, "subject") == 0)
-            msg->priv->subject = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "body") == 0)
-            msg->priv->body = xmlNodeGetContent (cursor);
+        else if (MYSTRCMP (cursor->name, "subject") == 0)
+            msg->priv->subject = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "body") == 0)
+            msg->priv->body = MYGETCONTENT (cursor);
     }
 
     return TRUE;
@@ -206,7 +206,7 @@ static const gchar* retrieve_messages_folder (OGDProvider *provider, OGD_FOLDER_
     OGDFolder *fold;
 
     ret = NULL;
-    folders = ogd_folder_get_all (provider);
+    folders = ogd_folder_fetch_all (provider);
 
     for (iter = g_list_first (folders); iter; iter = g_list_next (iter)) {
         fold = (OGDFolder*) iter->data;
@@ -232,11 +232,11 @@ static const gchar* retrieve_messages_folder (OGDProvider *provider, OGD_FOLDER_
 void ogd_message_send (OGDPerson *to, const gchar *subject, const gchar *body)
 {
     gchar *query;
-    gchar *id_of_send_folder;
+    const gchar *id_of_send_folder;
     GHashTable *params;
     OGDProvider *provider;
 
-    provider = ogd_object_get_provider (OGD_OBJECT (to));
+    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (to));
 
     id_of_send_folder = retrieve_messages_folder (provider, OGD_FOLDER_SEND);
     if (id_of_send_folder == NULL)
@@ -245,9 +245,9 @@ void ogd_message_send (OGDPerson *to, const gchar *subject, const gchar *body)
     query = g_strdup_printf ("message/%s", id_of_send_folder);
 
     params = g_hash_table_new (g_str_hash, g_str_equal);
-    g_hash_table_insert (params, "to", ogd_person_get_id (to));
-    g_hash_table_insert (params, "subject", subject);
-    g_hash_table_insert (params, "message", body);
+    g_hash_table_insert (params, "to", (gpointer) ogd_person_get_id (to));
+    g_hash_table_insert (params, "subject", (gpointer) subject);
+    g_hash_table_insert (params, "message", (gpointer) body);
 
     ogd_provider_put (provider, query, params);
 

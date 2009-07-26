@@ -51,7 +51,7 @@ static void print_all_contents_by_random (OGDProvider *provider)
     GList *categories;
     GList *iter;
 
-    categories = ogd_category_get_all (provider);
+    categories = ogd_category_fetch_all (provider);
     srand (time (NULL));
     iter = g_list_nth (categories, rand () % g_list_length (categories));
     print_all_contents ((OGDCategory*) iter->data);

@@ -49,6 +49,9 @@
     }                                                                               \
 }
 
+#define MYSTRCMP(__a,__b)       strcmp ((char*) __a, (char*) __b)
+#define MYGETCONTENT(__a)       (char*) xmlNodeGetContent(__a)
+
 GDate*      node_to_date                (xmlNode *node);
 guint64     node_to_num                 (xmlNode *node);
 gdouble     node_to_double              (xmlNode *node);

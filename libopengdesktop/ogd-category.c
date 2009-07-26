@@ -55,16 +55,16 @@ static gboolean ogd_category_fill_by_xml (OGDObject *obj, const xmlNode *xml, GE
 
     category = OGD_CATEGORY (obj);
 
-    if (strcmp (xml->name, "category") != 0)
+    if (MYSTRCMP (xml->name, "category") != 0)
         return FALSE;
 
-    ogd_category_finalize (obj);
+    ogd_category_finalize (G_OBJECT (obj));
 
     for (cursor = xml->children; cursor; cursor = cursor->next) {
-        if (strcmp (cursor->name, "id") == 0)
-            category->priv->id = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "name") == 0)
-            category->priv->name = xmlNodeGetContent (cursor);
+        if (MYSTRCMP (cursor->name, "id") == 0)
+            category->priv->id = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "name") == 0)
+            category->priv->name = MYGETCONTENT (cursor);
     }
 
     return TRUE;
@@ -102,7 +102,7 @@ static void ogd_category_init (OGDCategory *item)
 }
 
 /**
- * ogd_category_get_all:
+ * ogd_category_fetch_all:
  * @provider:       a #OGDProvider
  *
  * To retrieve the list of categories managed by a specified provider
@@ -114,7 +114,7 @@ static void ogd_category_init (OGDCategory *item)
     TODO    Provide also an async version
 */
 
-GList* ogd_category_get_all (OGDProvider *provider)
+GList* ogd_category_fetch_all (OGDProvider *provider)
 {
     return ogd_provider_get (provider, "content/categories", OGD_CATEGORY_TYPE);
 }

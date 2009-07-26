@@ -101,7 +101,7 @@ OGD_ACTIVITY_CATEGORY   ogd_activity_get_category               (OGDActivity *ac
 const gchar*            ogd_activity_get_message                (OGDActivity *activity);
 const gchar*            ogd_activity_get_link                   (OGDActivity *activity);
 
-gboolean                ogd_activity_set                        (OGDPerson *myself, const gchar *status);
+gboolean                ogd_activity_set                        (OGDPerson *myself, gchar *status);
 
 G_END_DECLS
 

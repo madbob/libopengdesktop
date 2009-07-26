@@ -23,7 +23,7 @@ static void print_all_categories (OGDProvider *provider)
     GList *iter;
     OGDCategory *cat;
 
-    categories = ogd_category_get_all (provider);
+    categories = ogd_category_fetch_all (provider);
 
     for (iter = g_list_first (categories); iter; iter = g_list_next (iter)) {
         cat = (OGDCategory*) iter->data;

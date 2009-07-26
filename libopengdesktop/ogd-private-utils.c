@@ -23,7 +23,7 @@ guint64 node_to_num (xmlNode *node)
     xmlChar *tmp;
 
     tmp = xmlNodeGetContent (node);
-    ret = g_ascii_strtoull (tmp, NULL, 10);
+    ret = g_ascii_strtoull ((char*) tmp, NULL, 10);
     xmlFree (tmp);
     return ret;
 }
@@ -34,7 +34,7 @@ gdouble node_to_double (xmlNode *node)
     xmlChar *tmp;
 
     tmp = xmlNodeGetContent (node);
-    ret = g_ascii_strtod (tmp, NULL);
+    ret = g_ascii_strtod ((char*) tmp, NULL);
     xmlFree (tmp);
     return ret;
 }
@@ -48,7 +48,7 @@ GDate* node_to_date (xmlNode *node)
     ret = g_date_new ();
     tmp = xmlNodeGetContent (node);
 
-    if (g_time_val_from_iso8601 (tmp, &timeval))
+    if (g_time_val_from_iso8601 ((char*) tmp, &timeval))
         g_date_set_time_val (ret, &timeval);
 
     xmlFree (tmp);

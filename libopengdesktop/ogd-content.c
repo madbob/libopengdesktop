@@ -28,7 +28,7 @@
  *
  * A #OGDContent is the full description of a specific content took from the #OGDProvider, such
  * as a wallpaper or a theme. To access those material query the provider for existing categories
- * ( ogd_category_get_all() ) and iterate the preferred #OGDCategory.
+ * ( ogd_category_fetch_all() ) and iterate the preferred #OGDCategory.
  */
 
 struct _OGDContentPrivate {
@@ -81,44 +81,44 @@ static gboolean ogd_content_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
 
     content = OGD_CONTENT (obj);
 
-    if (strcmp (xml->name, "content") != 0)
+    if (MYSTRCMP (xml->name, "content") != 0)
         return FALSE;
 
-    ogd_content_finalize (obj);
+    ogd_content_finalize (G_OBJECT (obj));
 
     for (cursor = xml->children; cursor; cursor = cursor->next) {
-        if (strcmp (cursor->name, "id") == 0)
-            content->priv->id = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "name") == 0)
-            content->priv->name = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "version") == 0)
-            content->priv->version = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "language") == 0)
-            content->priv->language = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "personid") == 0)
-            content->priv->authorid = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "created") == 0)
+        if (MYSTRCMP (cursor->name, "id") == 0)
+            content->priv->id = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "name") == 0)
+            content->priv->name = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "version") == 0)
+            content->priv->version = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "language") == 0)
+            content->priv->language = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "personid") == 0)
+            content->priv->authorid = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "created") == 0)
             content->priv->creationdate = node_to_date (cursor);
-        else if (strcmp (cursor->name, "changed") == 0)
+        else if (MYSTRCMP (cursor->name, "changed") == 0)
             content->priv->changedate = node_to_date (cursor);
-        else if (strcmp (cursor->name, "downloads") == 0)
+        else if (MYSTRCMP (cursor->name, "downloads") == 0)
             content->priv->numdownloads = (guint) node_to_num (cursor);
-        else if (strcmp (cursor->name, "score") == 0)
+        else if (MYSTRCMP (cursor->name, "score") == 0)
             content->priv->score = (guint) node_to_num (cursor);
-        else if (strcmp (cursor->name, "description") == 0)
-            content->priv->description = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "changelog") == 0)
-            content->priv->changelog = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "homepage") == 0)
-            content->priv->homepage = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "comments") == 0)
+        else if (MYSTRCMP (cursor->name, "description") == 0)
+            content->priv->description = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "changelog") == 0)
+            content->priv->changelog = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "homepage") == 0)
+            content->priv->homepage = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "comments") == 0)
             content->priv->numcomments = (guint) node_to_num (cursor);
-        else if (strcmp (cursor->name, "fans") == 0)
+        else if (MYSTRCMP (cursor->name, "fans") == 0)
             content->priv->numfans = (guint) node_to_num (cursor);
-        else if (strncmp (cursor->name, "previewpic", strlen ("previewpic")) == 0)
-            content->priv->previews = g_list_prepend (content->priv->previews, xmlNodeGetContent (cursor));
-        else if (strncmp (cursor->name, "downloadlink", strlen ("downloadlink")) == 0)
-            content->priv->downloads = g_list_prepend (content->priv->downloads, xmlNodeGetContent (cursor));
+        else if (strncmp ((char*) cursor->name, "previewpic", strlen ("previewpic")) == 0)
+            content->priv->previews = g_list_prepend (content->priv->previews, MYGETCONTENT (cursor));
+        else if (strncmp ((char*) cursor->name, "downloadlink", strlen ("downloadlink")) == 0)
+            content->priv->downloads = g_list_prepend (content->priv->downloads, MYGETCONTENT (cursor));
     }
 
     return TRUE;
@@ -131,7 +131,7 @@ static gboolean ogd_content_fill_by_id (OGDObject *obj, const gchar *id, GError 
     xmlNode *data;
 
     query = g_strdup_printf ("content/data/%s", id);
-    data = ogd_provider_get_raw (ogd_object_get_provider (obj), query);
+    data = ogd_provider_get_raw ((OGDProvider*) ogd_object_get_provider (obj), query);
     g_free (query);
 
     if (data != NULL) {
@@ -416,7 +416,7 @@ void ogd_content_vote (OGDContent *content, OGD_CONTENT_VOTE vote)
     gchar *vote_str;
     OGDProvider *provider;
 
-    provider = ogd_object_get_provider (OGD_OBJECT (content));
+    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (content));
 
     switch (vote) {
         case OGD_CONTENT_GOOD:

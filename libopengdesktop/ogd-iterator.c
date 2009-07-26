@@ -99,7 +99,7 @@ static void prefetch_total_count (OGDIterator *iterator)
  *
  * Return value:    a newly allocated #OGDIterator, which initial index is 0
  */
-OGDIterator* ogd_iterator_new (OGDProvider *provider, const gchar *base_query, GType obj_type)
+OGDIterator* ogd_iterator_new (const OGDProvider *provider, const gchar *base_query, GType obj_type)
 {
     OGDIterator *iterator;
 
@@ -109,7 +109,7 @@ OGDIterator* ogd_iterator_new (OGDProvider *provider, const gchar *base_query, G
     }
 
     iterator = g_object_new (OGD_ITERATOR_TYPE, NULL);
-    iterator->priv->provider = provider;
+    iterator->priv->provider = (OGDProvider*) provider;
     iterator->priv->query = g_strdup (base_query);
     iterator->priv->obj_type = obj_type;
     prefetch_total_count (iterator);

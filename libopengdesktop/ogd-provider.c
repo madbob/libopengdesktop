@@ -129,7 +129,7 @@ static gboolean check_provider_response (xmlNode *root, xmlNode **data)
     xmlChar *st;
     xmlChar *me;
 
-    if (root->type != XML_ELEMENT_NODE || strcmp (root->name, "ocs") != 0) {
+    if (root->type != XML_ELEMENT_NODE || MYSTRCMP (root->name, "ocs") != 0) {
         g_warning ("Unidentified root XML block\n");
         return FALSE;
     }
@@ -137,20 +137,20 @@ static gboolean check_provider_response (xmlNode *root, xmlNode **data)
     status = root->children;
     subroot = status;
 
-    if (strcmp (status->name, "meta") == 0)
+    if (MYSTRCMP (status->name, "meta") == 0)
         status = status->children;
 
-    if (status == NULL || strcmp (status->name, "status") != 0) {
+    if (status == NULL || MYSTRCMP (status->name, "status") != 0) {
         g_warning ("Unidentified status XML block\n");
         return FALSE;
     }
 
     st = xmlNodeGetContent (status);
     if (st != NULL) {
-        if (strcmp (st, "ok") != 0) {
+        if (MYSTRCMP (st, "ok") != 0) {
             status = status->next;
 
-            if (status != NULL && strcmp (status->name, "message") == 0) {
+            if (status != NULL && MYSTRCMP (status->name, "message") == 0) {
                 me = xmlNodeGetContent (status);
                 g_warning ("Failed to retrieve informations on server: %s\n", me);
                 xmlFree (me);
@@ -167,7 +167,7 @@ static gboolean check_provider_response (xmlNode *root, xmlNode **data)
         return FALSE;
 
     if (data != NULL) {
-        if (strcmp (subroot->next->name, "data") == 0) {
+        if (MYSTRCMP (subroot->next->name, "data") == 0) {
             *data = subroot->next;
         }
         else {
@@ -245,7 +245,7 @@ static SoupMessage* send_msg_to_server (OGDProvider *provider, const gchar *comp
  *                  message, NULL is returned. The returned structure must be freed with
  *                  xmlFreeDoc(return_prt->doc) when no longer in use
  */
-xmlNode* ogd_provider_get_raw (OGDProvider *provider, const gchar *query)
+xmlNode* ogd_provider_get_raw (OGDProvider *provider, gchar *query)
 {
     gchar *complete_query;
     SoupMessage *msg;
@@ -285,7 +285,7 @@ GHashTable* ogd_provider_header_from_raw (xmlNode *response)
     node = xmlDocGetRootElement (response->doc);
     node = node->children;
 
-    if (node == NULL || strcmp (node->name, "meta") != 0) {
+    if (node == NULL || MYSTRCMP (node->name, "meta") != 0) {
         g_warning ("No header in this response\n");
         return NULL;
     }
@@ -293,7 +293,7 @@ GHashTable* ogd_provider_header_from_raw (xmlNode *response)
     header = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) xmlFree, (GDestroyNotify) xmlFree);
 
     for (node = node->children; node; node = node->next)
-        g_hash_table_insert (header, strdup (node->name), xmlNodeGetContent (node));
+        g_hash_table_insert (header, strdup ((char*) node->name), xmlNodeGetContent (node));
 
     return header;
 }
@@ -337,7 +337,7 @@ static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *pro
     TODO    Provide also an async version
 */
 
-GList* ogd_provider_get (OGDProvider *provider, const gchar *query, GType obj_type)
+GList* ogd_provider_get (OGDProvider *provider, gchar *query, GType obj_type)
 {   
     GList *ret;
     xmlNode *data;
@@ -366,7 +366,7 @@ GList* ogd_provider_get (OGDProvider *provider, const gchar *query, GType obj_ty
     TODO    Provide also an async version
 */
 
-gboolean ogd_provider_put (OGDProvider *provider, const gchar *query, GHashTable *data)
+gboolean ogd_provider_put (OGDProvider *provider, gchar *query, GHashTable *data)
 {
     guint sendret;
     gboolean ret;

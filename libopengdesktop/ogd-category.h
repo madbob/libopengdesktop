@@ -67,7 +67,7 @@ typedef enum {
 
 GType                   ogd_category_get_type               ();
 
-GList*                  ogd_category_get_all                (OGDProvider *provider);
+GList*                  ogd_category_fetch_all              (OGDProvider *provider);
 
 const gchar*            ogd_category_get_id                 (OGDCategory *category);
 const gchar*            ogd_category_get_name               (OGDCategory *category);

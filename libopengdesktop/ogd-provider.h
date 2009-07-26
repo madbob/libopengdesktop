@@ -55,10 +55,10 @@ OGDProvider*    ogd_provider_new                    (gchar *url);
 void            ogd_provider_auth_user_and_pwd      (OGDProvider *provider, gchar *username, gchar *password);
 void            ogd_provider_auth_api_key           (OGDProvider *provider, gchar *key);
 
-xmlNode*        ogd_provider_get_raw                (OGDProvider *provider, const gchar *query);
-GList*          ogd_provider_get                    (OGDProvider *provider, const gchar *query, GType obj_type);
+xmlNode*        ogd_provider_get_raw                (OGDProvider *provider, gchar *query);
+GList*          ogd_provider_get                    (OGDProvider *provider, gchar *query, GType obj_type);
 GHashTable*     ogd_provider_header_from_raw        (xmlNode *response);
-gboolean        ogd_provider_put                    (OGDProvider *provider, const gchar *query, GHashTable *data);
+gboolean        ogd_provider_put                    (OGDProvider *provider, gchar *query, GHashTable *data);
 
 G_END_DECLS
 

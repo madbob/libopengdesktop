@@ -109,99 +109,99 @@ static gboolean ogd_person_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
     person = OGD_PERSON (obj);
     xml = xml->children;
 
-    if (strcmp (xml->name, "person") != 0)
+    if (MYSTRCMP (xml->name, "person") != 0)
         return FALSE;
 
-    ogd_person_finalize (obj);
+    ogd_person_finalize (G_OBJECT (obj));
 
     for (cursor = xml->children; cursor; cursor = cursor->next) {
-        if (strcmp (cursor->name, "personid") == 0)
-            person->priv->id = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "privacy") == 0) {
+        if (MYSTRCMP (cursor->name, "personid") == 0)
+            person->priv->id = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "privacy") == 0) {
             tmp = xmlNodeGetContent (cursor);
             person->priv->privacy = g_ascii_digit_value (tmp [0]);
             xmlFree (tmp);
         }
-        else if (strcmp (cursor->name, "firstname") == 0)
-            person->priv->firstname = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "lastname") == 0)
-            person->priv->lastname = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "gender") == 0) {
+        else if (MYSTRCMP (cursor->name, "firstname") == 0)
+            person->priv->firstname = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "lastname") == 0)
+            person->priv->lastname = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "gender") == 0) {
             tmp = xmlNodeGetContent (cursor);
-            if (strcmp (tmp, "man") == 0)
+            if (MYSTRCMP (tmp, "man") == 0)
                 person->priv->gender = OGD_PERSON_MAN;
-            else if (strcmp (tmp, "woman") == 0)
+            else if (MYSTRCMP (tmp, "woman") == 0)
                 person->priv->gender = OGD_PERSON_WOMAN;
             xmlFree (tmp);
         }
-        else if (strcmp (cursor->name, "communityrole") == 0) {
+        else if (MYSTRCMP (cursor->name, "communityrole") == 0) {
             tmp = xmlNodeGetContent (cursor);
-            if (strcmp (tmp, "user") == 0)
+            if (MYSTRCMP (tmp, "user") == 0)
                 person->priv->role = OGD_PERSON_USER;
-            else if (strcmp (tmp, "developer") == 0)
+            else if (MYSTRCMP (tmp, "developer") == 0)
                 person->priv->role = OGD_PERSON_DEVELOPER;
-            else if (strcmp (tmp, "artist") == 0)
+            else if (MYSTRCMP (tmp, "artist") == 0)
                 person->priv->role = OGD_PERSON_ARTIST;
-            else if (strcmp (tmp, "supporter") == 0)
+            else if (MYSTRCMP (tmp, "supporter") == 0)
                 person->priv->role = OGD_PERSON_SUPPORTER;
             xmlFree (tmp);
         }
-        else if (strcmp (cursor->name, "homepage") == 0)
-            person->priv->homepage = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "company") == 0)
-            person->priv->company = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "bigavatarpic") == 0)
-            person->priv->avatar = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "birthday") == 0)
+        else if (MYSTRCMP (cursor->name, "homepage") == 0)
+            person->priv->homepage = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "company") == 0)
+            person->priv->company = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "bigavatarpic") == 0)
+            person->priv->avatar = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "birthday") == 0)
             person->priv->birthday = node_to_date (cursor);
-        else if (strcmp (cursor->name, "jobstatus") == 0) {
+        else if (MYSTRCMP (cursor->name, "jobstatus") == 0) {
             tmp = xmlNodeGetContent (cursor);
-            if (strcmp (tmp, "working") == 0)
+            if (MYSTRCMP (tmp, "working") == 0)
                 person->priv->jobstatus = OGD_PERSON_JOB_WORKING;
-            else if (strcmp (tmp, "student") == 0)
+            else if (MYSTRCMP (tmp, "student") == 0)
                 person->priv->jobstatus = OGD_PERSON_JOB_STUDENT;
-            else if (strcmp (tmp, "looking for a job") == 0)
+            else if (MYSTRCMP (tmp, "looking for a job") == 0)
                 person->priv->jobstatus = OGD_PERSON_JOB_LOOKING;
-            else if (strcmp (tmp, "retired") == 0)
+            else if (MYSTRCMP (tmp, "retired") == 0)
                 person->priv->jobstatus = OGD_PERSON_JOB_RETIRED;
-            else if (strcmp (tmp, "free") == 0)
+            else if (MYSTRCMP (tmp, "free") == 0)
                 person->priv->jobstatus = OGD_PERSON_JOB_FREE;
             xmlFree (tmp);
         }
-        else if (strcmp (cursor->name, "city") == 0)
-            person->priv->city = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "country") == 0)
-            person->priv->country = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "latitude") == 0)
+        else if (MYSTRCMP (cursor->name, "city") == 0)
+            person->priv->city = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "country") == 0)
+            person->priv->country = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "latitude") == 0)
             person->priv->latitude = node_to_double (cursor);
-        else if (strcmp (cursor->name, "longitude") == 0)
+        else if (MYSTRCMP (cursor->name, "longitude") == 0)
             person->priv->longitude = node_to_double (cursor);
-        else if (strcmp (cursor->name, "likes") == 0)
-            person->priv->likes = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "dontlikes") == 0)
-            person->priv->dontlikes = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "interests") == 0)
-            person->priv->interests = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "languages") == 0)
-            person->priv->languages = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "programminglanguages") == 0)
-            person->priv->programminglangs = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "favouritequote") == 0)
-            person->priv->favouritequote = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "favouritemusic") == 0)
-            person->priv->favouritemusic = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "favouritetvshows") == 0)
-            person->priv->favouritetv = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "favouritemovies") == 0)
-            person->priv->favouritemovies = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "favouritebooks") == 0)
-            person->priv->favouritebooks = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "favouritegames") == 0)
-            person->priv->favouritegames = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "description") == 0)
-            person->priv->description = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "profilepage") == 0)
-            person->priv->profilepage = xmlNodeGetContent (cursor);
+        else if (MYSTRCMP (cursor->name, "likes") == 0)
+            person->priv->likes = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "dontlikes") == 0)
+            person->priv->dontlikes = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "interests") == 0)
+            person->priv->interests = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "languages") == 0)
+            person->priv->languages = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "programminglanguages") == 0)
+            person->priv->programminglangs = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "favouritequote") == 0)
+            person->priv->favouritequote = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "favouritemusic") == 0)
+            person->priv->favouritemusic = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "favouritetvshows") == 0)
+            person->priv->favouritetv = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "favouritemovies") == 0)
+            person->priv->favouritemovies = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "favouritebooks") == 0)
+            person->priv->favouritebooks = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "favouritegames") == 0)
+            person->priv->favouritegames = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "description") == 0)
+            person->priv->description = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "profilepage") == 0)
+            person->priv->profilepage = MYGETCONTENT (cursor);
     }
 
     return TRUE;
@@ -214,7 +214,7 @@ static gboolean ogd_person_fill_by_id (OGDObject *obj, const gchar *id, GError *
     xmlNode *data;
 
     query = g_strdup_printf ("person/data/%s", id);
-    data = ogd_provider_get_raw (ogd_object_get_provider (obj), query);
+    data = ogd_provider_get_raw ((OGDProvider*) ogd_object_get_provider (obj), query);
     g_free (query);
 
     if (data != NULL) {
@@ -686,7 +686,7 @@ const GList* ogd_person_get_friends (OGDPerson *person)
                 if (friend_id != NULL) {
                     obj = g_object_new (OGD_PERSON_TYPE, NULL);
 
-                    if (ogd_object_fill_by_id (OGD_OBJECT (obj), friend_id, NULL) == TRUE) {
+                    if (ogd_object_fill_by_id (OGD_OBJECT (obj), (char*) friend_id, NULL) == TRUE) {
                         ogd_object_set_provider (OGD_OBJECT (obj), provider);
                         ret = g_list_prepend (ret, obj);
                         collected++;

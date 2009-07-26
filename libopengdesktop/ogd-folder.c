@@ -57,25 +57,25 @@ static gboolean ogd_folder_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
 
     folder = OGD_FOLDER (obj);
 
-    if (strcmp (xml->name, "folder") != 0)
+    if (MYSTRCMP (xml->name, "folder") != 0)
         return FALSE;
 
-    ogd_folder_finalize (obj);
+    ogd_folder_finalize (G_OBJECT (obj));
 
     for (cursor = xml->children; cursor; cursor = cursor->next) {
-        if (strcmp (cursor->name, "id") == 0)
-            folder->priv->id = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "name") == 0)
-            folder->priv->name = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "messagecount") == 0)
+        if (MYSTRCMP (cursor->name, "id") == 0)
+            folder->priv->id = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "name") == 0)
+            folder->priv->name = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "messagecount") == 0)
             folder->priv->messagecount = (guint) node_to_num (cursor);
-        else if (strcmp (cursor->name, "type") == 0) {
+        else if (MYSTRCMP (cursor->name, "type") == 0) {
             tmp = xmlNodeGetContent (cursor);
-            if (strcmp (tmp, "inbox") == 0)
+            if (MYSTRCMP (tmp, "inbox") == 0)
                 folder->priv->category = OGD_FOLDER_INBOX;
-            else if (strcmp (tmp, "send") == 0)
+            else if (MYSTRCMP (tmp, "send") == 0)
                 folder->priv->category = OGD_FOLDER_SEND;
-            else if (strcmp (tmp, "trash") == 0)
+            else if (MYSTRCMP (tmp, "trash") == 0)
                 folder->priv->category = OGD_FOLDER_TRASH;
             else
                 folder->priv->category = OGD_FOLDER_UNDEFINED;
@@ -118,7 +118,7 @@ static void ogd_folder_init (OGDFolder *item)
 }
 
 /**
- * ogd_folder_get_all:
+ * ogd_folder_fetch_all:
  * @provider:       a #OGDProvider
  *
  * To retrieve the list of messages folders managed by a specified provider
@@ -130,7 +130,7 @@ static void ogd_folder_init (OGDFolder *item)
     TODO    Provide also an async version
 */
 
-GList* ogd_folder_get_all (OGDProvider *provider)
+GList* ogd_folder_fetch_all (OGDProvider *provider)
 {
     return ogd_provider_get (provider, "message", OGD_FOLDER_TYPE);
 }

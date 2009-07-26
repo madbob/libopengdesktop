@@ -64,22 +64,22 @@ static gboolean ogd_activity_fill_by_xml (OGDObject *obj, const xmlNode *xml, GE
 
     activity = OGD_ACTIVITY (obj);
 
-    if (strcmp (xml->name, "activity") != 0)
+    if (MYSTRCMP (xml->name, "activity") != 0)
         return FALSE;
 
-    ogd_activity_finalize (obj);
+    ogd_activity_finalize (G_OBJECT (obj));
 
     for (cursor = xml->children; cursor; cursor = cursor->next) {
-        if (strcmp (cursor->name, "personid") == 0)
-            activity->priv->authorid = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "timestamp") == 0)
+        if (MYSTRCMP (cursor->name, "personid") == 0)
+            activity->priv->authorid = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "timestamp") == 0)
             activity->priv->date = node_to_date (cursor);
-        else if (strcmp (cursor->name, "type") == 0)
+        else if (MYSTRCMP (cursor->name, "type") == 0)
             activity->priv->category = (guint) node_to_num (cursor);
-        else if (strcmp (cursor->name, "message") == 0)
-            activity->priv->message = xmlNodeGetContent (cursor);
-        else if (strcmp (cursor->name, "link") == 0)
-            activity->priv->link = xmlNodeGetContent (cursor);
+        else if (MYSTRCMP (cursor->name, "message") == 0)
+            activity->priv->message = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "link") == 0)
+            activity->priv->link = MYGETCONTENT (cursor);
     }
 
     return TRUE;
@@ -207,13 +207,13 @@ const gchar* ogd_activity_get_link (OGDActivity *activity)
  *
  * Return value:    %TRUE if status is correctly set, %FALSE otherwise
  */
-gboolean ogd_activity_set (OGDPerson *myself, const gchar *status)
+gboolean ogd_activity_set (OGDPerson *myself, gchar *status)
 {
     gboolean ret;
     GHashTable *params;
     OGDProvider *provider;
 
-    provider = ogd_object_get_provider (OGD_OBJECT (myself));
+    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (myself));
 
     params = g_hash_table_new (g_str_hash, g_str_equal);
     g_hash_table_insert (params, "message", status);

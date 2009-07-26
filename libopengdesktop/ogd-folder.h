@@ -67,7 +67,7 @@ typedef enum {
 
 GType                   ogd_folder_get_type             ();
 
-GList*                  ogd_folder_get_all              (OGDProvider *provider);
+GList*                  ogd_folder_fetch_all            (OGDProvider *provider);
 
 const gchar*            ogd_folder_get_id               (OGDFolder *folder);
 const gchar*            ogd_folder_get_name             (OGDFolder *folder);
