@@ -152,7 +152,7 @@ const GList*            ogd_person_get_friends              (OGDPerson *person);
 
 const OGDPerson*        ogd_person_get_myself               (OGDProvider *provider);
 void                    ogd_person_myself_set_coordinates   (OGDPerson *myself, gdouble latitude, gdouble longitude);
-void                    ogd_person_myself_invite_friend     (OGDPerson *person, const gchar *message);
+void                    ogd_person_myself_invite_friend     (OGDPerson *person, gchar *message);
 
 G_END_DECLS
 

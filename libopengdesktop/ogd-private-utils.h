@@ -49,6 +49,16 @@
     }                                                                               \
 }
 
+#define MEMDUP(__a) ({                      \
+    void *__b;                              \
+    int __size;                             \
+                                            \
+    __size = sizeof (typeof(__a));          \
+    __b = g_new0 (typeof(__a), 1);          \
+    memcpy (__b, &__a, __size);             \
+    __b;                                    \
+})
+
 #define MYSTRCMP(__a,__b)       strcmp ((char*) __a, (char*) __b)
 #define MYGETCONTENT(__a)       (char*) xmlNodeGetContent(__a)
 
@@ -57,5 +67,9 @@ guint64     node_to_num                 (xmlNode *node);
 gdouble     node_to_double              (xmlNode *node);
 
 gulong      total_items_for_query       (xmlNode *package);
+
+void        init_types_management       ();
+GType       retrieve_type               (const gchar *xml_name);
+void        finalize_types_management   ();
 
 #endif /* OGD_PRIVATE_UTILS_H */

@@ -116,7 +116,7 @@ static void ogd_category_init (OGDCategory *item)
 
 GList* ogd_category_fetch_all (OGDProvider *provider)
 {
-    return ogd_provider_get (provider, "content/categories", OGD_CATEGORY_TYPE);
+    return ogd_provider_get (provider, "content/categories");
 }
 
 /**
@@ -183,7 +183,7 @@ OGDIterator* ogd_category_get_contents (OGDCategory *category, OGD_CATEGORY_SORT
     }
 
     query = g_strdup_printf ("content/data?categories=%s&sortmode=%s", category->priv->id, sort);
-    iterator = ogd_iterator_new (ogd_object_get_provider (OGD_OBJECT (category)), query, OGD_CONTENT_TYPE);
+    iterator = ogd_iterator_new (ogd_object_get_provider (OGD_OBJECT (category)), query);
     g_free (query);
     return iterator;
 }

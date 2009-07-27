@@ -16,6 +16,9 @@
  */
 
 #include "ogd.h"
+#include "ogd-private-utils.h"
+
+static GHashTable       *TypesMap           = NULL;
 
 guint64 node_to_num (xmlNode *node)
 {
@@ -75,4 +78,48 @@ gulong total_items_for_query (xmlNode *package)
     g_list_free (header_vals);
     g_hash_table_unref (header);
     return ret;
+}
+
+void init_types_management ()
+{
+    GType type;
+
+    if (TypesMap == NULL) {
+        TypesMap = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+        type = ogd_activity_get_type ();
+        g_hash_table_insert (TypesMap, g_strdup ("activity"), MEMDUP (type));
+        type = ogd_category_get_type ();
+        g_hash_table_insert (TypesMap, g_strdup ("category"), MEMDUP (type));
+        type = ogd_content_get_type ();
+        g_hash_table_insert (TypesMap, g_strdup ("content"), MEMDUP (type));
+        type = ogd_event_get_type ();
+        g_hash_table_insert (TypesMap, g_strdup ("event"), MEMDUP (type));
+        type = ogd_folder_get_type ();
+        g_hash_table_insert (TypesMap, g_strdup ("folder"), MEMDUP (type));
+        type = ogd_message_get_type ();
+        g_hash_table_insert (TypesMap, g_strdup ("message"), MEMDUP (type));
+        type = ogd_person_get_type ();
+        g_hash_table_insert (TypesMap, g_strdup ("person"), MEMDUP (type));
+    }
+}
+
+void finalize_types_management ()
+{
+    g_hash_table_destroy (TypesMap);
+}
+
+GType retrieve_type (const gchar *xml_name)
+{
+    void *ptr;
+
+    if (TypesMap == NULL)
+        g_warning ("You have to allocate an OGDProvider before any other action");
+
+    ptr = g_hash_table_lookup (TypesMap, xml_name);
+
+    if (ptr == NULL)
+        return 0;
+    else
+        return *((GType*) ptr);
 }

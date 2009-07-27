@@ -34,6 +34,7 @@
 #include "ogd-category.h"
 #include "ogd-content.h"
 #include "ogd-activity.h"
+#include "ogd-event.h"
 #include "ogd-folder.h"
 #include "ogd-message.h"
 

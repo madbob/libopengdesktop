@@ -36,7 +36,6 @@
 struct _OGDIteratorPrivate {
     OGDProvider *provider;
     gchar       *query;
-    GType       obj_type;
 
     gulong      total;
     gulong      step;
@@ -93,25 +92,19 @@ static void prefetch_total_count (OGDIterator *iterator)
  * ogd_iterator_new:
  * @provider:       #OGDProvider from which fetch contents
  * @base_query:     basic query to perform to extract multiple contents
- * @obj_type:       subtype of #OGDObject to build with responses from the server
+
  * 
  * Init a new #OGDIterator
  *
  * Return value:    a newly allocated #OGDIterator, which initial index is 0
  */
-OGDIterator* ogd_iterator_new (const OGDProvider *provider, const gchar *base_query, GType obj_type)
+OGDIterator* ogd_iterator_new (const OGDProvider *provider, const gchar *base_query)
 {
     OGDIterator *iterator;
-
-    if (g_type_is_a (obj_type, OGD_OBJECT_TYPE) == FALSE) {
-        g_warning ("An OGD_OBJECT_TYPE must be specified as 'obj_type'\n");
-        return NULL;
-    }
 
     iterator = g_object_new (OGD_ITERATOR_TYPE, NULL);
     iterator->priv->provider = (OGDProvider*) provider;
     iterator->priv->query = g_strdup (base_query);
-    iterator->priv->obj_type = obj_type;
     prefetch_total_count (iterator);
     return iterator;
 }
@@ -150,7 +143,7 @@ GList* ogd_iterator_get_slice (OGDIterator *iter, gulong start, gulong quantity)
 
     page = start / quantity;
     query = g_strdup_printf ("%s&page=%lu&pagesize=%lu", iter->priv->query, page, quantity);
-    ret = ogd_provider_get (iter->priv->provider, query, iter->priv->obj_type);
+    ret = ogd_provider_get (iter->priv->provider, query);
     g_free (query);
 
     len = g_list_length (ret);

@@ -52,13 +52,16 @@ static void print_all_contents_by_random (OGDProvider *provider)
     GList *iter;
 
     categories = ogd_category_fetch_all (provider);
-    srand (time (NULL));
-    iter = g_list_nth (categories, rand () % g_list_length (categories));
-    print_all_contents ((OGDCategory*) iter->data);
 
-    for (iter = g_list_first (categories); iter; iter = g_list_next (iter))
-        g_object_unref (iter->data);
-    g_list_free (iter);
+    if (categories != NULL) {
+        srand (time (NULL));
+        iter = g_list_nth (categories, rand () % g_list_length (categories));
+        print_all_contents ((OGDCategory*) iter->data);
+
+        for (iter = g_list_first (categories); iter; iter = g_list_next (iter))
+            g_object_unref (iter->data);
+        g_list_free (iter);
+    }
 }
 
 int main (int argc, char **argv)

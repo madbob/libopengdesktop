@@ -132,7 +132,7 @@ static void ogd_folder_init (OGDFolder *item)
 
 GList* ogd_folder_fetch_all (OGDProvider *provider)
 {
-    return ogd_provider_get (provider, "message", OGD_FOLDER_TYPE);
+    return ogd_provider_get (provider, "message");
 }
 
 /**
@@ -201,7 +201,7 @@ OGDIterator* ogd_folder_get_contents (OGDFolder *folder)
     OGDIterator *iterator;
 
     query = g_strdup_printf ("message/%s", folder->priv->id);
-    iterator = ogd_iterator_new (ogd_object_get_provider (OGD_OBJECT (folder)), query, OGD_MESSAGE_TYPE);
+    iterator = ogd_iterator_new (ogd_object_get_provider (OGD_OBJECT (folder)), query);
     g_free (query);
     return iterator;
 }

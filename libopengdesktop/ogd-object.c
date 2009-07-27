@@ -124,5 +124,5 @@ const OGDProvider* ogd_object_get_provider (OGDObject *obj)
  */
 void ogd_object_set_provider (OGDObject *obj, const OGDProvider *provider)
 {
-    obj->priv->provider = provider;
+    obj->priv->provider = (OGDProvider*) provider;
 }

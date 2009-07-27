@@ -42,6 +42,13 @@ struct _OGDProviderPrivate {
 
 G_DEFINE_TYPE (OGDProvider, ogd_provider, G_TYPE_OBJECT);
 
+/*
+    TODO    This is not good: an explicit counter of references is maintained, it would be far
+            better to use pure GObject. But assigning a class_finalize callback to
+            OGDProviderClass seems doesn't works: another solution must be found
+*/
+static int  InstancesCounter        = 0;
+
 static void ogd_provider_finalize (GObject *obj)
 {
     OGDProvider *provider;
@@ -51,11 +58,21 @@ static void ogd_provider_finalize (GObject *obj)
     PTR_CHECK_FREE_NULLIFY (provider->priv->server_name);
     PTR_CHECK_FREE_NULLIFY (provider->priv->access_url);
     OBJ_CHECK_UNREF_NULLIFY (provider->priv->http_session);
+
+    InstancesCounter--;
+    if (InstancesCounter == 0)
+        finalize_types_management ();
 }
 
 static void ogd_provider_class_init (OGDProviderClass *klass)
 {
     GObjectClass *gobject_class;
+
+    /*
+        When the first OGDProvider is allocated, the internal map for GTypes is inited. This is
+        finalized when the last OGDProvider is freed, in ogd_provider_finalize()
+    */
+    init_types_management ();
 
     g_type_class_add_private (klass, sizeof (OGDProviderPrivate));
 
@@ -65,6 +82,7 @@ static void ogd_provider_class_init (OGDProviderClass *klass)
 
 static void ogd_provider_init (OGDProvider *item)
 {
+    InstancesCounter++;
     item->priv = OGD_PROVIDER_GET_PRIVATE (item);
     memset (item->priv, 0, sizeof (OGDProviderPrivate));
     item->priv->http_session = soup_session_sync_new ();
@@ -76,7 +94,9 @@ static void ogd_provider_init (OGDProvider *item)
  *                  Please take note the complete HTTP requests will be submited as
  *                  http://$authentication@$this_url/$version_of_api_supported/$provided_query
  *
- * Allocates a new #OGDProvider, which will be used to retrieve remote contents
+ * Allocates a new #OGDProvider, which will be used to retrieve remote contents. Pay attention to
+ * the fact an #OGDProvider is required for all function provided by this library, and this type
+ * of object is the first to be inited due internal disposition
  * 
  * Return value:    a newly allocated #OGDProvider
  */
@@ -298,15 +318,17 @@ GHashTable* ogd_provider_header_from_raw (xmlNode *response)
     return header;
 }
 
-static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *provider, GType obj_type)
+static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *provider)
 {
     xmlNode *cursor;
     GList *ret;
+    GType obj_type;
     OGDObject *obj;
 
     ret = NULL;
 
     for (cursor = data->children; cursor; cursor = cursor->next) {
+        obj_type = retrieve_type ((const gchar*) cursor->name);
         obj = g_object_new (obj_type, NULL);
 
         if (ogd_object_fill_by_xml (obj, cursor, NULL) == TRUE) {
@@ -326,18 +348,17 @@ static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *pro
  * ogd_provider_get:
  * @provider:       the #OGDProvider from which retrieve data
  * @query:          query to ask contents
- * @obj_type:       GType of the expected objects
  * 
  * To retrieve some content from the server
  * 
- * Return value:    a list of GObject of type @obj_type, or NULL if an error occours
+ * Return value:    a list of GObject, or NULL if an error occours
  */
 
 /*
     TODO    Provide also an async version
 */
 
-GList* ogd_provider_get (OGDProvider *provider, gchar *query, GType obj_type)
+GList* ogd_provider_get (OGDProvider *provider, gchar *query)
 {   
     GList *ret;
     xmlNode *data;
@@ -346,7 +367,7 @@ GList* ogd_provider_get (OGDProvider *provider, gchar *query, GType obj_type)
 
     data = ogd_provider_get_raw (provider, query);
     if (data != NULL)
-        ret = parse_xml_node_to_list_of_objects (data, provider, obj_type);
+        ret = parse_xml_node_to_list_of_objects (data, provider);
 
     return ret;
 }

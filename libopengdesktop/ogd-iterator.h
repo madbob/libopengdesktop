@@ -51,7 +51,7 @@ struct _OGDIteratorClass {
 
 GType           ogd_iterator_get_type               ();
 
-OGDIterator*    ogd_iterator_new                    (const OGDProvider *provider, const gchar *base_query, GType obj_type);
+OGDIterator*    ogd_iterator_new                    (const OGDProvider *provider, const gchar *base_query);
 
 GList*          ogd_iterator_get_slice              (OGDIterator *iter, gulong start, gulong quantity);
 GList*          ogd_iterator_next_slice             (OGDIterator *iter);

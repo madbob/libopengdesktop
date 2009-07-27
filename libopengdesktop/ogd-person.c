@@ -670,7 +670,7 @@ const GList* ogd_person_get_friends (OGDPerson *person)
     collected = 0;
     totalitems = 0;
     page = 0;
-    provider = ogd_object_get_provider (OGD_OBJECT (person));
+    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (person));
 
     do {
         query = g_strdup_printf ("friend/data/%s?pagesize=100&page=%d", ogd_person_get_id (person), page);
@@ -728,7 +728,7 @@ const OGDPerson* ogd_person_get_myself (OGDProvider *provider)
     GList *tmp_list;
     OGDPerson *ret;
 
-    tmp_list = ogd_provider_get (provider, "person/self", OGD_PERSON_TYPE);
+    tmp_list = ogd_provider_get (provider, "person/self");
     if (tmp_list == NULL)
         return NULL;
 
@@ -759,7 +759,7 @@ void ogd_person_myself_set_coordinates (OGDPerson *myself, gdouble latitude, gdo
     GHashTable *params;
     OGDProvider *provider;
 
-    provider = ogd_object_get_provider (OGD_OBJECT (myself));
+    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (myself));
     snprintf (lat_str, 100, "%.03f", latitude);
     snprintf (lon_str, 100, "%.03f", longitude);
 
@@ -786,13 +786,13 @@ void ogd_person_myself_set_coordinates (OGDPerson *myself, gdouble latitude, gdo
     TODO    Provide also an async version
 */
 
-void ogd_person_myself_invite_friend (OGDPerson *person, const gchar *message)
+void ogd_person_myself_invite_friend (OGDPerson *person, gchar *message)
 {
     gchar *query;
     GHashTable *params;
     OGDProvider *provider;
 
-    provider = ogd_object_get_provider (OGD_OBJECT (person));
+    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (person));
 
     query = g_strdup_printf ("friend/outbox/%s", ogd_person_get_id (person));
     params = g_hash_table_new (g_str_hash, g_str_equal);
