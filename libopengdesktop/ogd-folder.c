@@ -125,14 +125,22 @@ static void ogd_folder_init (OGDFolder *item)
  *
  * Return value:    a list of #OGDFolder
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 GList* ogd_folder_fetch_all (OGDProvider *provider)
 {
     return ogd_provider_get (provider, "message");
+}
+
+/**
+ * ogd_folder_fetch_all_async:
+ * @provider:       a #OGDProvider
+ * @callback:       async callback to which incoming #OGDFolders are passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_folder_fetch_all()
+ */
+void ogd_folder_fetch_all_async (OGDProvider *provider, OGDAsyncCallback callback, gpointer userdata)
+{
+    ogd_provider_get_async (provider, "message", callback, userdata);
 }
 
 /**

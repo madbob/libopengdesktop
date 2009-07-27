@@ -53,8 +53,8 @@ GType           ogd_iterator_get_type               ();
 
 OGDIterator*    ogd_iterator_new                    (const OGDProvider *provider, const gchar *base_query);
 
-GList*          ogd_iterator_get_slice              (OGDIterator *iter, gulong start, gulong quantity);
-GList*          ogd_iterator_next_slice             (OGDIterator *iter);
+GList*          ogd_iterator_fetch_slice            (OGDIterator *iter, gulong start, gulong quantity);
+GList*          ogd_iterator_fetch_next_slice       (OGDIterator *iter);
 void            ogd_iterator_set_step               (OGDIterator *iter, gulong step);
 
 G_END_DECLS

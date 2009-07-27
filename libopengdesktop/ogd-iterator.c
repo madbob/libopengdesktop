@@ -110,14 +110,14 @@ OGDIterator* ogd_iterator_new (const OGDProvider *provider, const gchar *base_qu
 }
 
 /**
- * ogd_iterator_get_slice:
+ * ogd_iterator_fetch_slice:
  * @iter:           #OGDIterator to advance
  * @start:          starting index of the request
  * @quantity:       number of elements to be fetched
  * 
  * Provides to fetch contents from index @start to index @end, accordly the query used in
- * initialization. ogd_iterator_next_slice() is a more convenient version of this. Take care this
- * function influences the internal index and next invocation of ogd_iterator_next_slice() will
+ * initialization. ogd_iterator_fetch_next_slice() is a more convenient version of this. Take care this
+ * function influences the internal index and next invocation of ogd_iterator_fetch_next_slice() will
  * use @start + @quantity as the starting point
  *
  * Return value:    a #GList of #GObject of the type specified at initialization
@@ -131,7 +131,7 @@ OGDIterator* ogd_iterator_new (const OGDProvider *provider, const gchar *base_qu
     TODO    Provide also an async version
 */
 
-GList* ogd_iterator_get_slice (OGDIterator *iter, gulong start, gulong quantity)
+GList* ogd_iterator_fetch_slice (OGDIterator *iter, gulong start, gulong quantity)
 {
     gint len;
     gulong page;
@@ -153,10 +153,10 @@ GList* ogd_iterator_get_slice (OGDIterator *iter, gulong start, gulong quantity)
 }
 
 /**
- * ogd_iterator_next_slice:
+ * ogd_iterator_fetch_next_slice:
  * @iter:           #OGDIterator to advance
  * 
- * As ogd_iterator_get_slice(), but uses an internal index internally incremented as starting
+ * As ogd_iterator_fetch_slice(), but uses an internal index internally incremented as starting
  * point. Each invocation get a number of elements equal to the step specified with
  * ogd_iterator_set_step()
  *
@@ -170,18 +170,18 @@ GList* ogd_iterator_get_slice (OGDIterator *iter, gulong start, gulong quantity)
     TODO    Provide also an async version
 */
 
-GList* ogd_iterator_next_slice (OGDIterator *iter)
+GList* ogd_iterator_fetch_next_slice (OGDIterator *iter)
 {
-    return ogd_iterator_get_slice (iter, iter->priv->position, iter->priv->step);
+    return ogd_iterator_fetch_slice (iter, iter->priv->position, iter->priv->step);
 }
 
 /**
  * ogd_iterator_set_step:
  * @iter:           #OGDIterator for which change step
- * @step:           number of elements to fetch at any invocation of ogd_iterator_next_slice()
+ * @step:           number of elements to fetch at any invocation of ogd_iterator_fetch_next_slice()
  *
  * This permits to personalize dimension of the slice with is fetched when
- * ogd_iterator_next_slice() is called. OGD_ITERATOR_DEFAULT_STEP is the default step
+ * ogd_iterator_fetch_next_slice() is called. OGD_ITERATOR_DEFAULT_STEP is the default step
  */
 void ogd_iterator_set_step (OGDIterator *iter, gulong step)
 {

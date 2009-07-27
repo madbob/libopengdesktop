@@ -16,7 +16,6 @@
  */
 
 #include "ogd.h"
-#include "ogd-category.h"
 #include "ogd-private-utils.h"
 
 #define OGD_CATEGORY_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
@@ -109,14 +108,22 @@ static void ogd_category_init (OGDCategory *item)
  *
  * Return value:    a list of #OGDCategory
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 GList* ogd_category_fetch_all (OGDProvider *provider)
 {
     return ogd_provider_get (provider, "content/categories");
+}
+
+/**
+ * ogd_category_fetch_all_async:
+ * @provider:       a #OGDProvider
+ * @callback:       async callback to which incoming #OGDCategories are passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_category_fetch_all()
+ */
+void ogd_category_fetch_all_async (OGDProvider *provider, OGDAsyncCallback callback, gpointer userdata)
+{
+    return ogd_provider_get_async (provider, "content/categories", callback, userdata);
 }
 
 /**
@@ -152,7 +159,10 @@ const gchar* ogd_category_get_name (OGDCategory *category)
  *
  * Used to retrieve #OGDContent s inside a category
  *
- * Return value:    a #OGDIterator usable to browse contents inside the selected catogory
+ * Return value:    a #OGDIterator usable to browse contents inside the selected catogory.
+ * Attention: #OGDContents from this iterator may not be completely filled, to obtain all details
+ * about that it is suggested to call ogd_object_fill_by_id() on the #OGDContent itself and the
+ * result of ogd_content_get_id()
  */
 OGDIterator* ogd_category_get_contents (OGDCategory *category, OGD_CATEGORY_SORTING sorting)
 {

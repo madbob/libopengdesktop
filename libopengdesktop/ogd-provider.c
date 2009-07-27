@@ -36,9 +36,16 @@
 struct _OGDProviderPrivate {
     gchar       *server_name;
     SoupSession *http_session;
+    SoupSession *async_http_session;
 
     gchar       *access_url;
 };
+
+typedef struct {
+    gboolean            one_shot;
+    gpointer            userdata;
+    OGDAsyncCallback    callback;
+} AsyncRequestDesc;
 
 G_DEFINE_TYPE (OGDProvider, ogd_provider, G_TYPE_OBJECT);
 
@@ -58,6 +65,7 @@ static void ogd_provider_finalize (GObject *obj)
     PTR_CHECK_FREE_NULLIFY (provider->priv->server_name);
     PTR_CHECK_FREE_NULLIFY (provider->priv->access_url);
     OBJ_CHECK_UNREF_NULLIFY (provider->priv->http_session);
+    OBJ_CHECK_UNREF_NULLIFY (provider->priv->async_http_session);
 
     InstancesCounter--;
     if (InstancesCounter == 0)
@@ -86,6 +94,7 @@ static void ogd_provider_init (OGDProvider *item)
     item->priv = OGD_PROVIDER_GET_PRIVATE (item);
     memset (item->priv, 0, sizeof (OGDProviderPrivate));
     item->priv->http_session = soup_session_sync_new ();
+    item->priv->async_http_session = soup_session_async_new ();
 }
 
 /**
@@ -225,6 +234,85 @@ finish:
     return data;
 }
 
+static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *provider)
+{
+    xmlNode *cursor;
+    GList *ret;
+    GType obj_type;
+    OGDObject *obj;
+
+    ret = NULL;
+
+    for (cursor = data->children; cursor; cursor = cursor->next) {
+        obj_type = retrieve_type ((const gchar*) cursor->name);
+        obj = g_object_new (obj_type, NULL);
+
+        if (ogd_object_fill_by_xml (obj, cursor, NULL) == TRUE) {
+            ogd_object_set_provider (obj, provider);
+            ret = g_list_prepend (ret, obj);
+        }
+    }
+
+    if (ret)
+        ret = g_list_reverse (ret);
+
+    xmlFreeDoc (data->doc);
+    return ret;
+}
+
+static gboolean check_msg (SoupMessage *msg)
+{
+    if (msg->status_code != SOUP_STATUS_OK) {
+        g_warning ("Unable to submit request to server: %s\n", msg->reason_phrase);
+        g_object_unref (msg);
+        return FALSE;
+    }
+    else
+        return TRUE;
+}
+
+static void handle_async_response (SoupSession *session, SoupMessage *msg, gpointer user_data)
+{
+    xmlNode *ret;
+    GList *list;
+    GList *iter;
+    OGDProvider *provider;
+    AsyncRequestDesc *async;
+
+    if (check_msg (msg) == FALSE)
+        return;
+
+    provider = (OGDProvider*) user_data;
+    async = (AsyncRequestDesc*) g_object_get_data (G_OBJECT (msg), "async");
+
+    ret = parse_provider_response (msg->response_body);
+    list = parse_xml_node_to_list_of_objects (ret, provider);
+
+    for (iter = g_list_first (list); iter; iter = g_list_next (iter)) {
+        async->callback ((OGDObject*) iter->data, async->userdata);
+        g_object_unref (iter->data);
+    }
+
+    if (async->one_shot == FALSE)
+        async->callback (NULL, async->userdata);
+
+    g_list_free (list);
+}
+
+static void send_async_msg_to_server (OGDProvider *provider, const gchar *complete_query, AsyncRequestDesc *async)
+{
+    SoupMessage *msg;
+
+    msg = soup_message_new ("GET", complete_query);
+    if (msg == NULL) {
+        g_warning ("Unable to build request to server\n");
+        return;
+    }
+
+    g_object_set_data_full (G_OBJECT (msg), "async", async, (GDestroyNotify) g_free);
+    soup_session_queue_message (provider->priv->async_http_session, msg, handle_async_response, provider);
+}
+
 static SoupMessage* send_msg_to_server (OGDProvider *provider, const gchar *complete_query)
 {
     guint sendret;
@@ -243,13 +331,10 @@ static SoupMessage* send_msg_to_server (OGDProvider *provider, const gchar *comp
         return NULL;
     }
 
-    if (msg->status_code != SOUP_STATUS_OK) {
-        g_warning ("Unable to submit request to server: %s\n", msg->reason_phrase);
-        g_object_unref (msg);
+    if (check_msg (msg) == FALSE)
         return NULL;
-    }
-
-    return msg;
+    else
+        return msg;
 }
 
 /**
@@ -318,32 +403,6 @@ GHashTable* ogd_provider_header_from_raw (xmlNode *response)
     return header;
 }
 
-static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *provider)
-{
-    xmlNode *cursor;
-    GList *ret;
-    GType obj_type;
-    OGDObject *obj;
-
-    ret = NULL;
-
-    for (cursor = data->children; cursor; cursor = cursor->next) {
-        obj_type = retrieve_type ((const gchar*) cursor->name);
-        obj = g_object_new (obj_type, NULL);
-
-        if (ogd_object_fill_by_xml (obj, cursor, NULL) == TRUE) {
-            ogd_object_set_provider (obj, provider);
-            ret = g_list_prepend (ret, obj);
-        }
-    }
-
-    if (ret)
-        ret = g_list_reverse (ret);
-
-    xmlFreeDoc (data->doc);
-    return ret;
-}
-
 /**
  * ogd_provider_get:
  * @provider:       the #OGDProvider from which retrieve data
@@ -353,11 +412,6 @@ static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *pro
  * 
  * Return value:    a list of GObject, or NULL if an error occours
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 GList* ogd_provider_get (OGDProvider *provider, gchar *query)
 {   
     GList *ret;
@@ -370,6 +424,31 @@ GList* ogd_provider_get (OGDProvider *provider, gchar *query)
         ret = parse_xml_node_to_list_of_objects (data, provider);
 
     return ret;
+}
+
+/**
+ * ogd_provider_get_async:
+ * @provider:       the #OGDProvider from which retrieve data
+ * @query:          query to ask contents
+ * @callback:       async callback to which incoming #OGDObject are passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_provider_get()
+ */
+void ogd_provider_get_async (OGDProvider *provider, gchar *query, OGDAsyncCallback callback, gpointer userdata)
+{   
+    gchar *complete_query;
+    AsyncRequestDesc *async;
+
+    complete_query = g_strdup_printf ("%s%s", provider->priv->access_url, query);
+
+    async = g_new0 (AsyncRequestDesc, 1);
+    async->one_shot = FALSE;
+    async->userdata = userdata;
+    async->callback = callback;
+
+    send_async_msg_to_server (provider, complete_query, async);
+    g_free (complete_query);
 }
 
 /**
