@@ -1,5 +1,5 @@
 m4_define([libogd_major_version], [0])
-m4_define([libogd_minor_version], [2])
+m4_define([libogd_minor_version], [3])
 m4_define([libogd_micro_version], [0])
 
 m4_define([libogd_version],

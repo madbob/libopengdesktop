@@ -1,7 +1,10 @@
-20/07/2009  0.2
-    Introduction of OGDFolder and OGDMessage
-    Implementation of many editing routines
-    Many memory leaks fixed
+05/08/2009 	0.3
+	Async versions of contents fetching routines
+
+20/07/2009 	0.2
+	Introduction of OGDFolder and OGDMessage
+	Implementation of many editing routines
+	Many memory leaks fixed
 
 25/06/2009	0.1
 	Initial release: implements OGDProvider, OGDIterator, OGDObject,

@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.2
+/*  libopengdesktop 0.3
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify

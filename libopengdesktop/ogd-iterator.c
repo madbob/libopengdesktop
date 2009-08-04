@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.2
+/*  libopengdesktop 0.3
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -34,12 +34,17 @@
  */
 
 struct _OGDIteratorPrivate {
-    OGDProvider *provider;
-    gchar       *query;
+    OGDProvider         *provider;
+    gchar               *query;
 
-    gulong      total;
-    gulong      step;
-    gulong      position;
+    gulong              total;
+    gulong              step;
+    gulong              position;
+
+    gboolean            running_async;
+    OGDAsyncCallback    async_callback;
+    gpointer            async_userdata;
+    gulong              async_counter;
 };
 
 G_DEFINE_TYPE (OGDIterator, ogd_iterator, G_TYPE_OBJECT);
@@ -126,11 +131,6 @@ OGDIterator* ogd_iterator_new (const OGDProvider *provider, const gchar *base_qu
  *                  at @start index. The list must be freed and internal object unref when no
  *                  longer in use
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 GList* ogd_iterator_fetch_slice (OGDIterator *iter, gulong start, gulong quantity)
 {
     gint len;
@@ -165,14 +165,71 @@ GList* ogd_iterator_fetch_slice (OGDIterator *iter, gulong start, gulong quantit
  *                  objects specified with ogd_iterator_set_step(). The list must be freed and
  *                  internal object unref when no longer in use
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 GList* ogd_iterator_fetch_next_slice (OGDIterator *iter)
 {
     return ogd_iterator_fetch_slice (iter, iter->priv->position, iter->priv->step);
+}
+
+static void retrieve_async_contents (OGDObject *obj, gpointer userdata)
+{
+    OGDIterator *iter;
+
+    iter = (OGDIterator*) userdata;
+
+    if (obj == NULL) {
+        if (iter->priv->total - iter->priv->async_counter > 100) {
+            return;
+        }
+        else {
+            iter->priv->async_callback (NULL, iter->priv->async_userdata);
+            iter->priv->running_async = FALSE;
+        }
+    }
+    else {
+        iter->priv->async_callback (obj, iter->priv->async_userdata);
+        iter->priv->async_counter += 1;
+    }
+}
+
+/**
+ * ogd_iterator_fetch_async:
+ * @iter:           #OGDIterator to fetch async
+ * @callback:       async callback to which incoming #OGDObject are passed
+ * @userdata:       the user data for the callback
+ *
+ * Retrieve all contents involved by the iterator and return them one by one through an async
+ * callback
+ */
+void ogd_iterator_fetch_async (OGDIterator *iter, OGDAsyncCallback callback, gpointer userdata)
+{
+    gulong page;
+    gulong tot;
+    gchar *query;
+
+    if (iter->priv->running_async == TRUE) {
+        g_warning ("This iterator is already used in async operations");
+        return;
+    }
+
+    iter->priv->running_async = TRUE;
+    iter->priv->async_counter = 0;
+    iter->priv->async_callback = callback;
+    iter->priv->async_userdata = userdata;
+
+    /*
+        Problem: the OCS provider often forces a limit for the number of items fetchable on a
+        single request, it is not possible to retrieve all on a single step. So many
+        ogd_provider_get_async() invocations are required, but each at the end will call the
+        callback with a NULL obj. So an internal counter is maintained (in
+        iter->priv->async_counter): if the incoming obj is NULL but this counter is not
+        iter->priv->total it means it ends a single cycle of interrogation, otherwise the whole
+        operation is ended and NULL is also passed to the toplevel application to notify it
+    */
+    for (page = 0, tot = 0; tot < iter->priv->total; page++, tot += 100) {
+        query = g_strdup_printf ("%s&page=%lu&pagesize=%d", iter->priv->query, page, 100);
+        ogd_provider_get_async (iter->priv->provider, query, retrieve_async_contents, iter);
+        g_free (query);
+    }
 }
 
 /**

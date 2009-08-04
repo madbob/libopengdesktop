@@ -17,28 +17,52 @@
 
 #include <ogd.h>
 
-static void print_category (OGDObject *obj, gpointer check)
+static gboolean busy_print (gpointer check)
 {
-    OGDCategory *category;
+    printf ("doing something else...\n");
+    return TRUE;
+}
+
+static void print_content (OGDObject *obj, gpointer userdata)
+{
+    OGDIterator *iterator;
+    OGDContent *content;
 
     if (obj == NULL) {
-        *((gboolean*) check) = FALSE;
-        g_main_loop_quit (g_main_loop_new (NULL, FALSE));
+        printf ("end of contents!\n");
+        iterator = (OGDIterator*) userdata;
+        g_object_unref (iterator);
     }
     else {
-        category = OGD_CATEGORY (obj);
-        printf ("%s\n", ogd_category_get_name (category));
+        content = (OGDContent*) obj;
+        printf ("%s\n", ogd_content_get_name (content));
     }
 }
 
-static gboolean busy_print (gpointer check)
+static void print_all_contents (OGDCategory *cat)
 {
-    if (*((gboolean*) check) == FALSE) {
-        return FALSE;
-    }
-    else {
-        printf ("doing something else...\n");
-        return TRUE;
+    OGDIterator *iterator;
+
+    g_timeout_add (2000, busy_print, NULL);
+    iterator = ogd_category_get_contents (cat, OGD_CATEGORY_SORT_NEWEST);
+    ogd_iterator_fetch_async (iterator, print_content, iterator);
+}
+
+static void print_all_contents_by_random (OGDProvider *provider)
+{
+    GList *categories;
+    GList *iter;
+
+    categories = ogd_category_fetch_all (provider);
+
+    if (categories != NULL) {
+        srand (time (NULL));
+        iter = g_list_nth (categories, rand () % g_list_length (categories));
+        print_all_contents ((OGDCategory*) iter->data);
+
+        for (iter = g_list_first (categories); iter; iter = g_list_next (iter))
+            g_object_unref (iter->data);
+        g_list_free (iter);
     }
 }
 
@@ -47,7 +71,6 @@ int main (int argc, char **argv)
     register int i;
     gchar *username;
     gchar *password;
-    gboolean check;
     OGDProvider *provider;
 
     username = NULL;
@@ -76,11 +99,9 @@ int main (int argc, char **argv)
 
     provider = ogd_provider_new ("api.opendesktop.org");
     ogd_provider_auth_user_and_pwd (provider, username, password);
-
-    check = TRUE;
-    ogd_category_fetch_all_async (provider, print_category, &check);
-    g_timeout_add (2000, busy_print, &check);
+    print_all_contents_by_random (provider);
 
     g_main_loop_run (g_main_loop_new (NULL, FALSE));
+    g_object_unref (provider);
     exit (0);
 }

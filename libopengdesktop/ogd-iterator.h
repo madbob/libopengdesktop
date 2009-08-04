@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.2
+/*  libopengdesktop 0.3
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -55,6 +55,7 @@ OGDIterator*    ogd_iterator_new                    (const OGDProvider *provider
 
 GList*          ogd_iterator_fetch_slice            (OGDIterator *iter, gulong start, gulong quantity);
 GList*          ogd_iterator_fetch_next_slice       (OGDIterator *iter);
+void            ogd_iterator_fetch_async            (OGDIterator *iter, OGDAsyncCallback callback, gpointer userdata);
 void            ogd_iterator_set_step               (OGDIterator *iter, gulong step);
 
 G_END_DECLS
