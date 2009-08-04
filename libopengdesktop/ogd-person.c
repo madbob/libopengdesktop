@@ -17,6 +17,7 @@
 
 #include "ogd.h"
 #include "ogd-person.h"
+#include "ogd-provider-private.h"
 #include "ogd-private-utils.h"
 
 #define OGD_PERSON_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
@@ -207,24 +208,9 @@ static gboolean ogd_person_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
     return TRUE;
 }
 
-static gboolean ogd_person_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
+static gchar* ogd_person_target_query (const gchar *id)
 {
-    gchar *query;
-    gboolean ret;
-    xmlNode *data;
-
-    query = g_strdup_printf ("person/data/%s", id);
-    data = ogd_provider_get_raw ((OGDProvider*) ogd_object_get_provider (obj), query);
-    g_free (query);
-
-    if (data != NULL) {
-        ret = ogd_person_fill_by_xml (obj, data, error);
-        xmlFreeDoc (data->doc);
-    }
-    else
-        ret = FALSE;
-
-    return ret;
+    return g_strdup_printf ("person/data/%s", id);
 }
 
 static void ogd_person_class_init (OGDPersonClass *klass)
@@ -239,7 +225,7 @@ static void ogd_person_class_init (OGDPersonClass *klass)
 
     ogd_object_class = OGD_OBJECT_CLASS (klass);
     ogd_object_class->fill_by_xml = ogd_person_fill_by_xml;
-    ogd_object_class->fill_by_id = ogd_person_fill_by_id;
+    ogd_object_class->target_query = ogd_person_target_query;
 }
 
 static void ogd_person_init (OGDPerson *item)
@@ -648,11 +634,6 @@ const gchar* ogd_person_get_profile_page (OGDPerson *person)
  * 
  * Return value:    list of #OGDPerson, one for each friend of the target @person
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 const GList* ogd_person_get_friends (OGDPerson *person)
 {
     gulong collected;
@@ -708,6 +689,89 @@ const GList* ogd_person_get_friends (OGDPerson *person)
     return ret;
 }
 
+static void pass_friend_up (OGDObject *obj, gpointer userdata)
+{
+    AsyncRequestDesc *req;
+
+    req = (AsyncRequestDesc*) userdata;
+    req->callback (obj, req->userdata);
+}
+
+static void retrieve_friends_slice (xmlNode *node, gpointer userdata)
+{
+    xmlChar *friend_id;
+    OGDPerson *obj;
+    AsyncRequestDesc *req;
+
+    req = (AsyncRequestDesc*) userdata;
+
+    if (node == NULL) {
+        if (req->total != req->counter) {
+            return;
+        }
+        else {
+            req->callback (NULL, req->userdata);
+            g_free (req);
+        }
+    }
+    else {
+        friend_id = xmlNodeGetContent (node);
+
+        if (friend_id != NULL) {
+            obj = g_object_new (OGD_PERSON_TYPE, NULL);
+            ogd_object_set_provider (OGD_OBJECT (obj), req->provider);
+            ogd_object_fill_by_id_async (OGD_OBJECT (obj), (char*) friend_id, pass_friend_up, req);
+            xmlFree (friend_id);
+            req->counter += 1;
+        }
+    }
+}
+
+static void init_friends_async_rebuild (xmlNode *node, gpointer userdata)
+{
+    int tot;
+    int page;
+    gchar *query;
+    AsyncRequestDesc *req;
+
+    req = (AsyncRequestDesc*) userdata;
+    req->total = total_items_for_query (node);
+    req->counter = 0;
+
+    for (page = 0, tot = 0; tot < req->total; page++, tot += 100) {
+        query = g_strdup_printf ("friend/data/%s?pagesize=%d&page=%d", ogd_person_get_id (OGD_PERSON (req->reference)), 100, page);
+        ogd_provider_get_raw_async (req->provider, query, retrieve_friends_slice, req);
+        g_free (query);
+    }
+}
+
+/**
+ * ogd_person_get_friends_async:
+ * @person:         the #OGDPerson to query
+ * @callback:       async callback to which incoming #OGDPerson are passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_person_get_friends()
+ */
+void ogd_person_get_friends_async (OGDPerson *person, OGDAsyncCallback callback, gpointer userdata)
+{
+    gchar *query;
+    AsyncRequestDesc *req;
+    OGDProvider *provider;
+
+    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (person));
+
+    req = g_new0 (AsyncRequestDesc, 1);
+    req->callback = callback;
+    req->userdata = userdata;
+    req->provider = provider;
+    req->reference = OGD_OBJECT (person);
+
+    query = g_strdup_printf ("friend/data/%s?pagesize=%d&page=%d", ogd_person_get_id (person), 1, 0);
+    ogd_provider_get_raw_async (provider, query, init_friends_async_rebuild, req);
+    g_free (query);
+}
+
 /**
  * ogd_person_get_myself:
  * @provider:       #OGDProvider from which retrieve information
@@ -718,11 +782,6 @@ const GList* ogd_person_get_friends (OGDPerson *person)
  * 
  * Return value:    the #OGDPerson rappresenting the current user
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 const OGDPerson* ogd_person_get_myself (OGDProvider *provider)
 {
     GList *tmp_list;
@@ -735,6 +794,19 @@ const OGDPerson* ogd_person_get_myself (OGDProvider *provider)
     ret = (OGDPerson*) tmp_list->data;
     g_list_free (tmp_list);
     return ret;
+}
+
+/**
+ * ogd_person_get_myself_async:
+ * @provider:       #OGDProvider from which retrieve information
+ * @callback:       async callback to which incoming #OGDPerson is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_person_get_myself()
+ */
+void ogd_person_get_myself_async (OGDProvider *provider, OGDAsyncCallback callback, gpointer userdata)
+{
+    ogd_provider_get_single_async (provider, "person/self", callback, userdata);
 }
 
 /**

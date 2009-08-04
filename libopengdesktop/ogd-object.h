@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.2
+/*  libopengdesktop 0.3
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -38,6 +38,8 @@ typedef struct _OGDObject        OGDObject;
 typedef struct _OGDObjectClass   OGDObjectClass;
 typedef struct _OGDObjectPrivate OGDObjectPrivate;
 
+typedef void (*OGDAsyncCallback) (OGDObject *obj, gpointer userdata);
+
 struct _OGDObject {
     GObject                 parent;
     OGDObjectPrivate        *priv;
@@ -46,8 +48,9 @@ struct _OGDObject {
 struct _OGDObjectClass {
     GObjectClass        parent_class;
 
-    gboolean (*fill_by_xml)     (OGDObject *obj, const xmlNode *xml, GError **error);
-    gboolean (*fill_by_id)      (OGDObject *obj, const gchar *id, GError **error);
+    gboolean    (*fill_by_xml)      (OGDObject *obj, const xmlNode *xml, GError **error);
+    gboolean    (*fill_by_id)       (OGDObject *obj, const gchar *id, GError **error);
+    gchar*      (*target_query)     (const gchar *id);
 };
 
 GType               ogd_object_get_type                 ();
@@ -57,6 +60,7 @@ void                ogd_object_set_provider             (OGDObject *obj, const O
 
 gboolean            ogd_object_fill_by_xml              (OGDObject *obj, const xmlNode *xml, GError **error);
 gboolean            ogd_object_fill_by_id               (OGDObject *obj, const gchar *id, GError **error);
+void                ogd_object_fill_by_id_async         (OGDObject *obj, const gchar *id, OGDAsyncCallback callback, gpointer userdata);
 
 G_END_DECLS
 

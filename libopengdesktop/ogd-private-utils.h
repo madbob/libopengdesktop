@@ -18,6 +18,8 @@
 #ifndef OGD_PRIVATE_UTILS_H
 #define OGD_PRIVATE_UTILS_H
 
+#include "ogd-provider-private.h"
+
 #define PTR_CHECK_FREE_NULLIFY(__ptr) {     \
     if (__ptr != NULL) {                    \
         g_free (__ptr);                     \
@@ -61,6 +63,20 @@
 
 #define MYSTRCMP(__a,__b)       strcmp ((char*) __a, (char*) __b)
 #define MYGETCONTENT(__a)       (char*) xmlNodeGetContent(__a)
+
+typedef struct {
+    OGDProvider                 *provider;
+    OGDObject                   *reference;
+    gboolean                    one_shot;
+    gboolean                    objectize;
+
+    gpointer                    userdata;
+    OGDAsyncCallback            callback;
+    OGDProviderRawAsyncCallback rcallback;
+
+    gulong                      total;
+    gulong                      counter;
+} AsyncRequestDesc;
 
 GDate*      node_to_date                (xmlNode *node);
 guint64     node_to_num                 (xmlNode *node);

@@ -17,6 +17,7 @@
 
 #include "ogd.h"
 #include "ogd-event.h"
+#include "ogd-provider-private.h"
 #include "ogd-private-utils.h"
 
 #define OGD_EVENT_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
@@ -162,24 +163,9 @@ static gboolean ogd_event_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErro
     return TRUE;
 }
 
-static gboolean ogd_event_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
+static gchar* ogd_event_target_query (const gchar *id)
 {
-    gchar *query;
-    gboolean ret;
-    xmlNode *data;
-
-    query = g_strdup_printf ("event/data/%s", id);
-    data = ogd_provider_get_raw ((OGDProvider*) ogd_object_get_provider (obj), query);
-    g_free (query);
-
-    if (data != NULL) {
-        ret = ogd_event_fill_by_xml (obj, data, error);
-        xmlFreeDoc (data->doc);
-    }
-    else
-        ret = FALSE;
-
-    return ret;
+    return g_strdup_printf ("event/data/%s", id);
 }
 
 static void ogd_event_class_init (OGDEventClass *klass)
@@ -194,7 +180,7 @@ static void ogd_event_class_init (OGDEventClass *klass)
 
     ogd_object_class = OGD_OBJECT_CLASS (klass);
     ogd_object_class->fill_by_xml = ogd_event_fill_by_xml;
-    ogd_object_class->fill_by_id = ogd_event_fill_by_id;
+    ogd_object_class->target_query = ogd_event_target_query;
 }
 
 static void ogd_event_init (OGDEvent *item)

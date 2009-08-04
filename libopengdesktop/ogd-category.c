@@ -69,16 +69,6 @@ static gboolean ogd_category_fill_by_xml (OGDObject *obj, const xmlNode *xml, GE
     return TRUE;
 }
 
-static gboolean ogd_category_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
-{
-    /*
-        Categories cannot be required by ID, so this function is left unimplemented. Anyway it
-        would be possible to retrieve the required category fetching them all and search in it:
-        if needed this would be used in future
-    */
-    return FALSE;
-}
-
 static void ogd_category_class_init (OGDCategoryClass *klass)
 {
     GObjectClass *gobject_class;
@@ -91,7 +81,6 @@ static void ogd_category_class_init (OGDCategoryClass *klass)
 
     ogd_object_class = OGD_OBJECT_CLASS (klass);
     ogd_object_class->fill_by_xml = ogd_category_fill_by_xml;
-    ogd_object_class->fill_by_id = ogd_category_fill_by_id;
 }
 
 static void ogd_category_init (OGDCategory *item)

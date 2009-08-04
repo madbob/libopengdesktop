@@ -86,14 +86,6 @@ static gboolean ogd_message_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
     return TRUE;
 }
 
-static gboolean ogd_message_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
-{
-    /*
-        Messages cannot be required by ID, so this function is left unimplemented
-    */
-    return FALSE;
-}
-
 static void ogd_message_class_init (OGDMessageClass *klass)
 {
     GObjectClass *gobject_class;
@@ -106,7 +98,6 @@ static void ogd_message_class_init (OGDMessageClass *klass)
 
     ogd_object_class = OGD_OBJECT_CLASS (klass);
     ogd_object_class->fill_by_xml = ogd_message_fill_by_xml;
-    ogd_object_class->fill_by_id = ogd_message_fill_by_id;
 }
 
 static void ogd_message_init (OGDMessage *item)

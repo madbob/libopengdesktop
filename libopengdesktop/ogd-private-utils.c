@@ -16,6 +16,7 @@
  */
 
 #include "ogd.h"
+#include "ogd-provider-private.h"
 #include "ogd-private-utils.h"
 
 static GHashTable       *TypesMap           = NULL;

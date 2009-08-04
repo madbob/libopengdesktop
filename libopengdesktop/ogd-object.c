@@ -18,6 +18,8 @@
 #include "ogd.h"
 #include "ogd-object.h"
 #include "ogd-provider.h"
+#include "ogd-provider-private.h"
+#include "ogd-private-utils.h"
 
 #define OGD_OBJECT_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
                                              OGD_OBJECT_TYPE, OGDObjectPrivate))
@@ -71,14 +73,72 @@ gboolean ogd_object_fill_by_xml (OGDObject *obj, const xmlNode *xml, GError **er
  * Return value:    %TRUE if the XML is correctly took and filled due the given @id, %FALSE
  *                  otherwise
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 gboolean ogd_object_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
 {
-    return OGD_OBJECT_GET_CLASS (obj)->fill_by_id (obj, id, error);
+    gchar *query;
+    gboolean ret;
+    xmlNode *data;
+
+    if (OGD_OBJECT_GET_CLASS (obj)->target_query == NULL)
+        return FALSE;
+
+    query = OGD_OBJECT_GET_CLASS (obj)->target_query (id);
+    if (query == NULL)
+        return FALSE;
+
+    data = ogd_provider_get_raw ((OGDProvider*) ogd_object_get_provider (obj), query);
+    g_free (query);
+
+    if (data != NULL) {
+        ret = ogd_object_fill_by_xml (obj, data, error);
+        xmlFreeDoc (data->doc);
+    }
+    else
+        ret = FALSE;
+
+    return ret;
+}
+
+static void parse_xml_from_async (xmlNode *node, gpointer userdata)
+{
+    AsyncRequestDesc *req;
+
+    if (node != NULL) {
+        req = (AsyncRequestDesc*) userdata;
+        ogd_object_fill_by_xml (req->reference, node, NULL);
+        xmlFreeDoc (node->doc);
+        g_free (req);
+    }
+}
+
+/**
+ * ogd_object_fill_by_id_async:
+ * @obj:            #OGDObject to fill with values from the provided XML
+ * @id:             ID of the object to read
+ * @callback:       async callback to which the filled #OGDObject is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_object_fill_by_id()
+ */
+void ogd_object_fill_by_id_async (OGDObject *obj, const gchar *id, OGDAsyncCallback callback, gpointer userdata)
+{
+    gchar *query;
+    AsyncRequestDesc *req;
+
+    if (OGD_OBJECT_GET_CLASS (obj)->target_query == NULL)
+        return;
+
+    query = OGD_OBJECT_GET_CLASS (obj)->target_query (id);
+    if (query == NULL)
+        return;
+
+    req = g_new0 (AsyncRequestDesc, 1);
+    req->callback = callback;
+    req->userdata = userdata;
+    req->reference = obj;
+
+    ogd_provider_get_raw_async ((OGDProvider*) ogd_object_get_provider (obj), query, parse_xml_from_async, req);
+    g_free (query);
 }
 
 static void ogd_object_class_init (OGDObjectClass *klass)
@@ -88,7 +148,6 @@ static void ogd_object_class_init (OGDObjectClass *klass)
     g_type_class_add_private (klass, sizeof (OGDObjectPrivate));
 
     klass->fill_by_xml = ogd_object_fill_by_xml;
-    klass->fill_by_id = ogd_object_fill_by_id;
 
     gobject_class = G_OBJECT_CLASS (klass);
     gobject_class->finalize = ogd_object_finalize;

@@ -17,6 +17,7 @@
 
 #include "ogd.h"
 #include "ogd-provider.h"
+#include "ogd-provider-private.h"
 #include "ogd-private-utils.h"
 
 #define OPEN_COLLABORATION_API_VERSION      1
@@ -40,12 +41,6 @@ struct _OGDProviderPrivate {
 
     gchar       *access_url;
 };
-
-typedef struct {
-    gboolean            one_shot;
-    gpointer            userdata;
-    OGDAsyncCallback    callback;
-} AsyncRequestDesc;
 
 G_DEFINE_TYPE (OGDProvider, ogd_provider, G_TYPE_OBJECT);
 
@@ -271,35 +266,43 @@ static gboolean check_msg (SoupMessage *msg)
         return TRUE;
 }
 
-static void handle_async_response (SoupSession *session, SoupMessage *msg, gpointer user_data)
+static void handle_async_response (SoupSession *session, SoupMessage *msg, gpointer userdata)
 {
     xmlNode *ret;
     GList *list;
     GList *iter;
-    OGDProvider *provider;
+    xmlNode *cursor;
     AsyncRequestDesc *async;
 
     if (check_msg (msg) == FALSE)
         return;
 
-    provider = (OGDProvider*) user_data;
-    async = (AsyncRequestDesc*) g_object_get_data (G_OBJECT (msg), "async");
-
+    async = (AsyncRequestDesc*) userdata;
     ret = parse_provider_response (msg->response_body);
-    list = parse_xml_node_to_list_of_objects (ret, provider);
 
-    for (iter = g_list_first (list); iter; iter = g_list_next (iter)) {
-        async->callback ((OGDObject*) iter->data, async->userdata);
-        g_object_unref (iter->data);
+    if (async->objectize) {
+        list = parse_xml_node_to_list_of_objects (ret, async->provider);
+
+        for (iter = g_list_first (list); iter; iter = g_list_next (iter)) {
+            async->callback ((OGDObject*) iter->data, async->userdata);
+            g_object_unref (iter->data);
+        }
+
+        if (async->one_shot == FALSE)
+            async->callback (NULL, async->userdata);
+
+        g_list_free (list);
     }
+    else {
+        for (cursor = ret->children; cursor; cursor = cursor->next)
+            async->rcallback ((xmlNode*) cursor, async->userdata);
 
-    if (async->one_shot == FALSE)
-        async->callback (NULL, async->userdata);
-
-    g_list_free (list);
+        if (async->one_shot == FALSE)
+            async->rcallback (NULL, async->userdata);
+    }
 }
 
-static void send_async_msg_to_server (OGDProvider *provider, const gchar *complete_query, AsyncRequestDesc *async)
+static void send_async_msg_to_server (const gchar *complete_query, AsyncRequestDesc *async)
 {
     SoupMessage *msg;
 
@@ -309,8 +312,27 @@ static void send_async_msg_to_server (OGDProvider *provider, const gchar *comple
         return;
     }
 
-    g_object_set_data_full (G_OBJECT (msg), "async", async, (GDestroyNotify) g_free);
-    soup_session_queue_message (provider->priv->async_http_session, msg, handle_async_response, provider);
+    soup_session_queue_message (async->provider->priv->async_http_session, msg, handle_async_response, async);
+}
+
+static void get_async (OGDProvider *provider, gchar *query, gboolean single, gboolean objects,
+                       OGDAsyncCallback callback, OGDProviderRawAsyncCallback rcallback, gpointer userdata)
+{
+    gchar *complete_query;
+    AsyncRequestDesc *async;
+
+    complete_query = g_strdup_printf ("%s%s", provider->priv->access_url, query);
+
+    async = g_new0 (AsyncRequestDesc, 1);
+    async->one_shot = single;
+    async->userdata = userdata;
+    async->callback = callback;
+    async->rcallback = rcallback;
+    async->provider = provider;
+    async->objectize = objects;
+
+    send_async_msg_to_server (complete_query, async);
+    g_free (complete_query);
 }
 
 static SoupMessage* send_msg_to_server (OGDProvider *provider, const gchar *complete_query)
@@ -337,19 +359,6 @@ static SoupMessage* send_msg_to_server (OGDProvider *provider, const gchar *comp
         return msg;
 }
 
-/**
- * ogd_provider_get_raw:
- * @provider:       the #OGDProvider to query
- * @query:          request to send to the server
- *
- * Used to access contents from the #OGDProvider with any high-level handling, in raw XML format.
- * For normal usage #ogd_provider_get() is suggested instead.
- * 
- * Return value:    reference to a raw XML node, is the &lt;data&gt; section of the upcoming
- *                  response from the server. If an error is found reading the head of the
- *                  message, NULL is returned. The returned structure must be freed with
- *                  xmlFreeDoc(return_prt->doc) when no longer in use
- */
 xmlNode* ogd_provider_get_raw (OGDProvider *provider, gchar *query)
 {
     gchar *complete_query;
@@ -370,18 +379,11 @@ xmlNode* ogd_provider_get_raw (OGDProvider *provider, gchar *query)
     return ret;
 }
 
-/**
- * ogd_provider_header_from_raw:
- * @response:       xmlNode returned by ogd_provider_get_raw()
- *
- * Given an xmlNode from ogd_provider_get_raw(), read informations from the header of the same
- * response. Here can be found informations about the status of the message and, in some
- * situation, the number of elements involved in the query which produced the response itself
- *
- * Return value:    a #GHashTable with informations from the header, with keys assigned to the
- *                  name of the XML fields and values assigned with their contents. Has to be
- *                  freed with g_hash_table_unref() when no longer in use
- */
+void ogd_provider_get_raw_async (OGDProvider *provider, gchar *query, OGDProviderRawAsyncCallback callback, gpointer userdata)
+{
+    get_async (provider, query, FALSE, FALSE, NULL, callback, userdata);
+}
+
 GHashTable* ogd_provider_header_from_raw (xmlNode *response)
 {
     GHashTable *header;
@@ -436,19 +438,13 @@ GList* ogd_provider_get (OGDProvider *provider, gchar *query)
  * Async version of ogd_provider_get()
  */
 void ogd_provider_get_async (OGDProvider *provider, gchar *query, OGDAsyncCallback callback, gpointer userdata)
-{   
-    gchar *complete_query;
-    AsyncRequestDesc *async;
+{
+    get_async (provider, query, FALSE, TRUE, callback, NULL, userdata);
+}
 
-    complete_query = g_strdup_printf ("%s%s", provider->priv->access_url, query);
-
-    async = g_new0 (AsyncRequestDesc, 1);
-    async->one_shot = FALSE;
-    async->userdata = userdata;
-    async->callback = callback;
-
-    send_async_msg_to_server (provider, complete_query, async);
-    g_free (complete_query);
+void ogd_provider_get_single_async (OGDProvider *provider, gchar *query, OGDAsyncCallback callback, gpointer userdata)
+{
+    get_async (provider, query, TRUE, TRUE, callback, NULL, userdata);
 }
 
 /**

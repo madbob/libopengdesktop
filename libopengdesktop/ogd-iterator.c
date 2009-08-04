@@ -18,11 +18,12 @@
 #include "ogd.h"
 #include "ogd-iterator.h"
 #include "ogd-provider.h"
+#include "ogd-provider-private.h"
 #include "ogd-private-utils.h"
 
 #define OGD_ITERATOR_DEFAULT_STEP       10
 
-#define OGD_ITERATOR_GET_PRIVATE(obj)     (G_TYPE_INSTANCE_GET_PRIVATE ((obj), OGD_ITERATOR_TYPE, OGDIteratorPrivate))
+#define OGD_ITERATOR_GET_PRIVATE(obj)   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), OGD_ITERATOR_TYPE, OGDIteratorPrivate))
 
 /**
  * SECTION: ogd-iterator
@@ -40,11 +41,6 @@ struct _OGDIteratorPrivate {
     gulong              total;
     gulong              step;
     gulong              position;
-
-    gboolean            running_async;
-    OGDAsyncCallback    async_callback;
-    gpointer            async_userdata;
-    gulong              async_counter;
 };
 
 G_DEFINE_TYPE (OGDIterator, ogd_iterator, G_TYPE_OBJECT);
@@ -170,24 +166,24 @@ GList* ogd_iterator_fetch_next_slice (OGDIterator *iter)
     return ogd_iterator_fetch_slice (iter, iter->priv->position, iter->priv->step);
 }
 
-static void retrieve_async_contents (OGDObject *obj, gpointer userdata)
+static void retrieve_async_contents (OGDObject *obj, gpointer request)
 {
-    OGDIterator *iter;
+    AsyncRequestDesc *req;
 
-    iter = (OGDIterator*) userdata;
+    req = (AsyncRequestDesc*) request;
 
     if (obj == NULL) {
-        if (iter->priv->total - iter->priv->async_counter > 100) {
+        if (req->total != req->counter) {
             return;
         }
         else {
-            iter->priv->async_callback (NULL, iter->priv->async_userdata);
-            iter->priv->running_async = FALSE;
+            req->callback (NULL, req->userdata);
+            g_free (req);
         }
     }
     else {
-        iter->priv->async_callback (obj, iter->priv->async_userdata);
-        iter->priv->async_counter += 1;
+        req->callback (obj, req->userdata);
+        req->counter += 1;
     }
 }
 
@@ -205,16 +201,13 @@ void ogd_iterator_fetch_async (OGDIterator *iter, OGDAsyncCallback callback, gpo
     gulong page;
     gulong tot;
     gchar *query;
+    AsyncRequestDesc *req;
 
-    if (iter->priv->running_async == TRUE) {
-        g_warning ("This iterator is already used in async operations");
-        return;
-    }
-
-    iter->priv->running_async = TRUE;
-    iter->priv->async_counter = 0;
-    iter->priv->async_callback = callback;
-    iter->priv->async_userdata = userdata;
+    req = g_new0 (AsyncRequestDesc, 1);
+    req->callback = callback;
+    req->userdata = userdata;
+    req->counter = 0;
+    req->total = iter->priv->total;
 
     /*
         Problem: the OCS provider often forces a limit for the number of items fetchable on a
@@ -227,7 +220,7 @@ void ogd_iterator_fetch_async (OGDIterator *iter, OGDAsyncCallback callback, gpo
     */
     for (page = 0, tot = 0; tot < iter->priv->total; page++, tot += 100) {
         query = g_strdup_printf ("%s&page=%lu&pagesize=%d", iter->priv->query, page, 100);
-        ogd_provider_get_async (iter->priv->provider, query, retrieve_async_contents, iter);
+        ogd_provider_get_async (iter->priv->provider, query, retrieve_async_contents, req);
         g_free (query);
     }
 }

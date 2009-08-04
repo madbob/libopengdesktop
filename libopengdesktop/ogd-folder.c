@@ -86,16 +86,6 @@ static gboolean ogd_folder_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
     return TRUE;
 }
 
-static gboolean ogd_folder_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
-{
-    /*
-        Folders cannot be required by ID, so this function is left unimplemented. Anyway it
-        would be possible to retrieve the required category fetching them all and search in it:
-        if needed this would be used in future
-    */
-    return FALSE;
-}
-
 static void ogd_folder_class_init (OGDFolderClass *klass)
 {
     GObjectClass *gobject_class;
@@ -108,7 +98,6 @@ static void ogd_folder_class_init (OGDFolderClass *klass)
 
     ogd_object_class = OGD_OBJECT_CLASS (klass);
     ogd_object_class->fill_by_xml = ogd_folder_fill_by_xml;
-    ogd_object_class->fill_by_id = ogd_folder_fill_by_id;
 }
 
 static void ogd_folder_init (OGDFolder *item)

@@ -149,8 +149,10 @@ const gchar*            ogd_person_get_favourite_games      (OGDPerson *person);
 const gchar*            ogd_person_get_description          (OGDPerson *person);
 const gchar*            ogd_person_get_profile_page         (OGDPerson *person);
 const GList*            ogd_person_get_friends              (OGDPerson *person);
+void                    ogd_person_get_friends_async        (OGDPerson *person, OGDAsyncCallback callback, gpointer userdata);
 
 const OGDPerson*        ogd_person_get_myself               (OGDProvider *provider);
+void                    ogd_person_get_myself_async         (OGDProvider *provider, OGDAsyncCallback callback, gpointer userdata);
 void                    ogd_person_myself_set_coordinates   (OGDPerson *myself, gdouble latitude, gdouble longitude);
 void                    ogd_person_myself_invite_friend     (OGDPerson *person, gchar *message);
 

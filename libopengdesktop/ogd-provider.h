@@ -50,7 +50,6 @@ struct _OGDProviderClass {
 };
 
 #include "ogd-object.h"
-typedef void (*OGDAsyncCallback) (OGDObject *obj, gpointer userdata);
 
 GType           ogd_provider_get_type               ();
 
@@ -58,10 +57,8 @@ OGDProvider*    ogd_provider_new                    (gchar *url);
 void            ogd_provider_auth_user_and_pwd      (OGDProvider *provider, gchar *username, gchar *password);
 void            ogd_provider_auth_api_key           (OGDProvider *provider, gchar *key);
 
-xmlNode*        ogd_provider_get_raw                (OGDProvider *provider, gchar *query);
 GList*          ogd_provider_get                    (OGDProvider *provider, gchar *query);
 void            ogd_provider_get_async              (OGDProvider *provider, gchar *query, OGDAsyncCallback callback, gpointer userdata);
-GHashTable*     ogd_provider_header_from_raw        (xmlNode *response);
 gboolean        ogd_provider_put                    (OGDProvider *provider, gchar *query, GHashTable *data);
 
 G_END_DECLS

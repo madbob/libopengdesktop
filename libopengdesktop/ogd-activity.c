@@ -85,14 +85,6 @@ static gboolean ogd_activity_fill_by_xml (OGDObject *obj, const xmlNode *xml, GE
     return TRUE;
 }
 
-static gboolean ogd_activity_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
-{
-    /*
-        Activities cannot be required by ID, so this function is left unimplemented
-    */
-    return FALSE;
-}
-
 static void ogd_activity_class_init (OGDActivityClass *klass)
 {
     GObjectClass *gobject_class;
@@ -105,7 +97,6 @@ static void ogd_activity_class_init (OGDActivityClass *klass)
 
     ogd_object_class = OGD_OBJECT_CLASS (klass);
     ogd_object_class->fill_by_xml = ogd_activity_fill_by_xml;
-    ogd_object_class->fill_by_id = ogd_activity_fill_by_id;
 }
 
 static void ogd_activity_init (OGDActivity *item)
