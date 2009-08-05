@@ -277,26 +277,43 @@ const GDate* ogd_event_get_end_date (OGDEvent *event)
  *                  this call requires some syncronous communication with the server, so may
  *                  return after some time
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 const OGDPerson* ogd_event_get_author (OGDEvent *event)
 {
-    if (event->priv->author == NULL) {
-        if (event->priv->authorid != NULL && strlen (event->priv->authorid) != 0) {
-            OGDPerson *author;
-
-            author = g_object_new (OGD_PERSON_TYPE, NULL);
-            ogd_object_set_provider (OGD_OBJECT (author), ogd_object_get_provider (OGD_OBJECT (event)));
-
-            if (ogd_object_fill_by_id (OGD_OBJECT (author), event->priv->authorid, NULL))
-                event->priv->author = author;
-        }
-    }
+    if (event->priv->author == NULL)
+        event->priv->author = OGD_PERSON (create_by_id (OGD_OBJECT (event), OGD_PERSON_TYPE, event->priv->authorid));
 
     return event->priv->author;
+}
+
+static void retrieve_async_author (OGDObject *obj, gpointer userdata)
+{
+    OGDEvent *ev;
+    AsyncRequestDesc *req;
+
+    req = (AsyncRequestDesc*) userdata;
+
+    ev = OGD_EVENT (req->reference);
+    ev->priv->author = OGD_PERSON (obj);
+
+    req->callback (obj, req->userdata);
+    g_free (req);
+}
+
+/**
+ * ogd_event_get_author_async:
+ * @event:          an #OGDEvent to read
+ * @callback:       async callback to which filled #OGDEvent is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_event_get_author()
+ */
+void ogd_event_get_author_async (OGDEvent *event, OGDAsyncCallback callback, gpointer userdata)
+{
+    if (event->priv->author == NULL)
+        create_by_id_async (OGD_OBJECT (event), OGD_PERSON_TYPE, event->priv->authorid,
+                            retrieve_async_author, callback, userdata);
+    else
+        callback (OGD_OBJECT (event->priv->author), userdata);
 }
 
 /**

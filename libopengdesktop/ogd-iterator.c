@@ -173,7 +173,7 @@ static void retrieve_async_contents (OGDObject *obj, gpointer request)
     req = (AsyncRequestDesc*) request;
 
     if (obj == NULL) {
-        if (req->total != req->counter) {
+        if (req->total <= req->counter) {
             return;
         }
         else {

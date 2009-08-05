@@ -114,26 +114,43 @@ static void ogd_activity_init (OGDActivity *item)
  * Return value:	an #OGDPerson who created the activity. Take care this information is not
  *                  contained in the #OGDActivity itself, and must be took from the provider
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 const OGDPerson* ogd_activity_get_author (OGDActivity *activity)
 {
-    if (activity->priv->author == NULL) {
-        if (activity->priv->authorid != NULL && strlen (activity->priv->authorid) != 0) {
-            OGDPerson *author;
-
-            author = g_object_new (OGD_PERSON_TYPE, NULL);
-            ogd_object_set_provider (OGD_OBJECT (author), ogd_object_get_provider (OGD_OBJECT (activity)));
-
-            if (ogd_object_fill_by_id (OGD_OBJECT (author), activity->priv->authorid, NULL))
-                activity->priv->author = author;
-        }
-    }
+    if (activity->priv->author == NULL)
+        activity->priv->author = OGD_PERSON (create_by_id (OGD_OBJECT (activity), OGD_PERSON_TYPE, activity->priv->authorid));
 
     return activity->priv->author;
+}
+
+static void retrieve_async_author (OGDObject *obj, gpointer userdata)
+{
+    OGDActivity *act;
+    AsyncRequestDesc *req;
+
+    req = (AsyncRequestDesc*) userdata;
+
+    act = OGD_ACTIVITY (req->reference);
+    act->priv->author = OGD_PERSON (obj);
+
+    req->callback (obj, req->userdata);
+    g_free (req);
+}
+
+/**
+ * ogd_activity_get_author_async:
+ * @activity:       an #OGDActivity to read
+ * @callback:       async callback to which filled #OGDActivity is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_activity_get_author()
+ */
+void ogd_activity_get_author_async (OGDActivity *activity, OGDAsyncCallback callback, gpointer userdata)
+{
+    if (activity->priv->author == NULL)
+        create_by_id_async (OGD_OBJECT (activity), OGD_PERSON_TYPE, activity->priv->authorid,
+                            retrieve_async_author, callback, userdata);
+    else
+        callback (OGD_OBJECT (activity->priv->author), userdata);
 }
 
 /**

@@ -706,7 +706,7 @@ static void retrieve_friends_slice (xmlNode *node, gpointer userdata)
     req = (AsyncRequestDesc*) userdata;
 
     if (node == NULL) {
-        if (req->total != req->counter) {
+        if (req->total <= req->counter) {
             return;
         }
         else {
@@ -735,13 +735,20 @@ static void init_friends_async_rebuild (xmlNode *node, gpointer userdata)
     AsyncRequestDesc *req;
 
     req = (AsyncRequestDesc*) userdata;
-    req->total = total_items_for_query (node);
-    req->counter = 0;
 
-    for (page = 0, tot = 0; tot < req->total; page++, tot += 100) {
-        query = g_strdup_printf ("friend/data/%s?pagesize=%d&page=%d", ogd_person_get_id (OGD_PERSON (req->reference)), 100, page);
-        ogd_provider_get_raw_async (req->provider, query, retrieve_friends_slice, req);
-        g_free (query);
+    if (node == NULL) {
+        req->callback (NULL, req->userdata);
+        g_free (req);
+    }
+    else {
+        req->total = total_items_for_query (node);
+        req->counter = 0;
+
+        for (page = 0, tot = 0; tot < req->total; page++, tot += 100) {
+            query = g_strdup_printf ("friend/data/%s?pagesize=%d&page=%d", ogd_person_get_id (OGD_PERSON (req->reference)), 100, page);
+            ogd_provider_get_raw_async (req->provider, query, TRUE, retrieve_friends_slice, req);
+            g_free (query);
+        }
     }
 }
 
@@ -768,7 +775,7 @@ void ogd_person_get_friends_async (OGDPerson *person, OGDAsyncCallback callback,
     req->reference = OGD_OBJECT (person);
 
     query = g_strdup_printf ("friend/data/%s?pagesize=%d&page=%d", ogd_person_get_id (person), 1, 0);
-    ogd_provider_get_raw_async (provider, query, init_friends_async_rebuild, req);
+    ogd_provider_get_raw_async (provider, query, FALSE, init_friends_async_rebuild, req);
     g_free (query);
 }
 

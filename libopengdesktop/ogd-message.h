@@ -61,15 +61,16 @@ typedef enum {
     OGD_MESSAGE_ANSWERED
 } OGD_MESSAGE_STATUS;
 
-GType                   ogd_message_get_type                   ();
+GType                   ogd_message_get_type                    ();
 
-const OGDPerson*        ogd_message_get_author                 (OGDMessage *msg);
-const GDate*            ogd_message_get_date                   (OGDMessage *msg);
-OGD_MESSAGE_STATUS      ogd_message_get_status                 (OGDMessage *msg);
-const gchar*            ogd_message_get_subject                (OGDMessage *msg);
-const gchar*            ogd_message_get_body                   (OGDMessage *msg);
+const OGDPerson*        ogd_message_get_author                  (OGDMessage *msg);
+void                    ogd_message_get_author_async            (OGDMessage *message, OGDAsyncCallback callback, gpointer userdata);
+const GDate*            ogd_message_get_date                    (OGDMessage *msg);
+OGD_MESSAGE_STATUS      ogd_message_get_status                  (OGDMessage *msg);
+const gchar*            ogd_message_get_subject                 (OGDMessage *msg);
+const gchar*            ogd_message_get_body                    (OGDMessage *msg);
 
-void                    ogd_message_send                       (OGDPerson *to, const gchar *subject, const gchar *body);
+void                    ogd_message_send                        (OGDPerson *to, const gchar *subject, const gchar *body);
 
 G_END_DECLS
 

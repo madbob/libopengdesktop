@@ -78,6 +78,7 @@ OGD_EVENT_CATEGORY      ogd_event_get_category          (OGDEvent *event);
 const GDate*            ogd_event_get_start_date        (OGDEvent *event);
 const GDate*            ogd_event_get_end_date          (OGDEvent *event);
 const OGDPerson*        ogd_event_get_author            (OGDEvent *event);
+void                    ogd_event_get_author_async      (OGDEvent *event, OGDAsyncCallback callback, gpointer userdata);
 const gchar*            ogd_event_get_organizer         (OGDEvent *event);
 const gchar*            ogd_event_get_location          (OGDEvent *event);
 const gchar*            ogd_event_get_city              (OGDEvent *event);

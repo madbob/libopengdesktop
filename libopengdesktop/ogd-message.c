@@ -115,26 +115,43 @@ static void ogd_message_init (OGDMessage *item)
  * Return value:    an #OGDPerson who created the message. Take care this information is not
  *                  contained in the #OGDMessage itself, and must be took from the provider
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 const OGDPerson* ogd_message_get_author (OGDMessage *msg)
 {
-    if (msg->priv->author == NULL) {
-        if (msg->priv->authorid != NULL && strlen (msg->priv->authorid) != 0) {
-            OGDPerson *author;
-
-            author = g_object_new (OGD_PERSON_TYPE, NULL);
-            ogd_object_set_provider (OGD_OBJECT (author), ogd_object_get_provider (OGD_OBJECT (msg)));
-
-            if (ogd_object_fill_by_id (OGD_OBJECT (author), msg->priv->authorid, NULL))
-                msg->priv->author = author;
-        }
-    }
+    if (msg->priv->author == NULL)
+        msg->priv->author = OGD_PERSON (create_by_id (OGD_OBJECT (msg), OGD_PERSON_TYPE, msg->priv->authorid));
 
     return msg->priv->author;
+}
+
+static void retrieve_async_author (OGDObject *obj, gpointer userdata)
+{
+    OGDMessage *msg;
+    AsyncRequestDesc *req;
+
+    req = (AsyncRequestDesc*) userdata;
+
+    msg = OGD_MESSAGE (req->reference);
+    msg->priv->author = OGD_PERSON (obj);
+
+    req->callback (obj, req->userdata);
+    g_free (req);
+}
+
+/**
+ * ogd_message_get_author_async:
+ * @message:        an #OGDMessage to read
+ * @callback:       async callback to which filled #OGDMessage is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_message_get_author()
+ */
+void ogd_message_get_author_async (OGDMessage *message, OGDAsyncCallback callback, gpointer userdata)
+{
+    if (message->priv->author == NULL)
+        create_by_id_async (OGD_OBJECT (message), OGD_PERSON_TYPE, message->priv->authorid,
+                            retrieve_async_author, callback, userdata);
+    else
+        callback (OGD_OBJECT (message->priv->author), userdata);
 }
 
 /**

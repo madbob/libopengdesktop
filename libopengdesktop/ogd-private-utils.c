@@ -81,6 +81,45 @@ gulong total_items_for_query (xmlNode *package)
     return ret;
 }
 
+OGDObject* create_by_id (OGDObject *parent, GType type, const gchar *id)
+{
+    OGDObject *obj;
+
+    obj = NULL;
+
+    if (id != NULL && strlen (id) != 0) {
+        obj = g_object_new (type, NULL);
+        ogd_object_set_provider (obj, ogd_object_get_provider (parent));
+
+        if (ogd_object_fill_by_id (obj, id, NULL) == FALSE) {
+            g_object_unref (obj);
+            obj = NULL;
+        }
+    }
+
+    return obj;
+}
+
+void create_by_id_async (OGDObject *parent, GType type, const gchar *id, OGDAsyncCallback callback, OGDAsyncCallback effective_callback, gpointer userdata)
+{
+    OGDObject *obj;
+    AsyncRequestDesc *req;
+
+    if (id != NULL && strlen (id) != 0) {
+        obj = g_object_new (type, NULL);
+        ogd_object_set_provider (obj, ogd_object_get_provider (parent));
+
+        req = g_new0 (AsyncRequestDesc, 1);
+        req->callback = effective_callback;
+        req->userdata = userdata;
+        req->reference = parent;
+
+        ogd_object_fill_by_id_async (obj, id, callback, req);
+    }
+    else
+        effective_callback (NULL, userdata);
+}
+
 void init_types_management ()
 {
     GType type;

@@ -61,6 +61,14 @@ gboolean ogd_object_fill_by_xml (OGDObject *obj, const xmlNode *xml, GError **er
     return OGD_OBJECT_GET_CLASS (obj)->fill_by_xml (obj, xml, error);
 }
 
+static inline gchar* has_valid_target_callback (OGDObject *obj, const gchar *id)
+{
+    if (OGD_OBJECT_GET_CLASS (obj)->target_query == NULL)
+        return NULL;
+
+    return OGD_OBJECT_GET_CLASS (obj)->target_query (id);
+}
+
 /**
  * ogd_object_fill_by_id:
  * @obj:            #OGDObject to fill with values from the provided XML
@@ -79,10 +87,7 @@ gboolean ogd_object_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
     gboolean ret;
     xmlNode *data;
 
-    if (OGD_OBJECT_GET_CLASS (obj)->target_query == NULL)
-        return FALSE;
-
-    query = OGD_OBJECT_GET_CLASS (obj)->target_query (id);
+    query = has_valid_target_callback (obj, id);
     if (query == NULL)
         return FALSE;
 
@@ -125,10 +130,7 @@ void ogd_object_fill_by_id_async (OGDObject *obj, const gchar *id, OGDAsyncCallb
     gchar *query;
     AsyncRequestDesc *req;
 
-    if (OGD_OBJECT_GET_CLASS (obj)->target_query == NULL)
-        return;
-
-    query = OGD_OBJECT_GET_CLASS (obj)->target_query (id);
+    query = has_valid_target_callback (obj, id);
     if (query == NULL)
         return;
 
@@ -137,7 +139,7 @@ void ogd_object_fill_by_id_async (OGDObject *obj, const gchar *id, OGDAsyncCallb
     req->userdata = userdata;
     req->reference = obj;
 
-    ogd_provider_get_raw_async ((OGDProvider*) ogd_object_get_provider (obj), query, parse_xml_from_async, req);
+    ogd_provider_get_raw_async ((OGDProvider*) ogd_object_get_provider (obj), FALSE, query, parse_xml_from_async, req);
     g_free (query);
 }
 

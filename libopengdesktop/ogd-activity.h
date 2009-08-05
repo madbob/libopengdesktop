@@ -96,6 +96,7 @@ typedef enum {
 GType                   ogd_activity_get_type                   ();
 
 const OGDPerson*        ogd_activity_get_author                 (OGDActivity *activity);
+void                    ogd_activity_get_author_async           (OGDActivity *activity, OGDAsyncCallback callback, gpointer userdata);
 const GDate*            ogd_activity_get_date                   (OGDActivity *activity);
 OGD_ACTIVITY_CATEGORY   ogd_activity_get_category               (OGDActivity *activity);
 const gchar*            ogd_activity_get_message                (OGDActivity *activity);

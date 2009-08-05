@@ -315,6 +315,16 @@ static void send_async_msg_to_server (const gchar *complete_query, AsyncRequestD
     soup_session_queue_message (async->provider->priv->async_http_session, msg, handle_async_response, async);
 }
 
+/*
+    Params:
+        provider:   OGDProvider from which fetch contents
+        query:      the query to execute
+        single:     TRUE if a single object is expected, callback is no invoked with NULL at the end
+        objects:    TRUE to build OGDObjects from incoming XML, FALSE to use raw data
+        callback:   if objects == TRUE, callback to which pass built objects
+        rcallback:  if objects == FALSE, callback to which pass raw XML
+        userdata:   the user data for callback or rcallback
+*/
 static void get_async (OGDProvider *provider, gchar *query, gboolean single, gboolean objects,
                        OGDAsyncCallback callback, OGDProviderRawAsyncCallback rcallback, gpointer userdata)
 {
@@ -379,9 +389,9 @@ xmlNode* ogd_provider_get_raw (OGDProvider *provider, gchar *query)
     return ret;
 }
 
-void ogd_provider_get_raw_async (OGDProvider *provider, gchar *query, OGDProviderRawAsyncCallback callback, gpointer userdata)
+void ogd_provider_get_raw_async (OGDProvider *provider, gchar *query, gboolean many, OGDProviderRawAsyncCallback callback, gpointer userdata)
 {
-    get_async (provider, query, FALSE, FALSE, NULL, callback, userdata);
+    get_async (provider, query, many == FALSE, FALSE, NULL, callback, userdata);
 }
 
 GHashTable* ogd_provider_header_from_raw (xmlNode *response)

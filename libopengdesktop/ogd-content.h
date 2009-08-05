@@ -69,6 +69,7 @@ const gchar*            ogd_content_get_name                (OGDContent *content
 const gchar*            ogd_content_get_version             (OGDContent *content);
 const gchar*            ogd_content_get_language            (OGDContent *content);
 const OGDPerson*        ogd_content_get_author              (OGDContent *content);
+void                    ogd_content_get_author_async        (OGDContent *content, OGDAsyncCallback callback, gpointer userdata);
 const GDate*            ogd_content_get_creation_date       (OGDContent *content);
 const GDate*            ogd_content_get_change_date         (OGDContent *content);
 gulong                  ogd_content_get_num_downloads       (OGDContent *content);

@@ -214,28 +214,43 @@ const gchar* ogd_content_get_language (OGDContent *content)
  * 
  * Return value:    #OGDPerson who created the @content, or NULL if the object cannot be retrieved
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 const OGDPerson* ogd_content_get_author (OGDContent *content)
 {
-    if (content->priv->author == NULL) {
-        if (content->priv->authorid != NULL && strlen (content->priv->authorid) != 0) {
-            OGDPerson *author;
-
-            author = g_object_new (OGD_PERSON_TYPE, NULL);
-            ogd_object_set_provider (OGD_OBJECT (author), ogd_object_get_provider (OGD_OBJECT (content)));
-
-            if (ogd_object_fill_by_id (OGD_OBJECT (author), content->priv->authorid, NULL))
-                content->priv->author = author;
-            else
-                g_object_unref (author);
-        }
-    }
+    if (content->priv->author == NULL)
+        content->priv->author = OGD_PERSON (create_by_id (OGD_OBJECT (content), OGD_PERSON_TYPE, content->priv->authorid));
 
     return content->priv->author;
+}
+
+static void retrieve_async_author (OGDObject *obj, gpointer userdata)
+{
+    OGDContent *con;
+    AsyncRequestDesc *req;
+
+    req = (AsyncRequestDesc*) userdata;
+
+    con = OGD_CONTENT (req->reference);
+    con->priv->author = OGD_PERSON (obj);
+
+    req->callback (obj, req->userdata);
+    g_free (req);
+}
+
+/**
+ * ogd_content_get_author_async:
+ * @content:        an #OGDContent to read
+ * @callback:       async callback to which filled #OGDContent is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_content_get_author()
+ */
+void ogd_content_get_author_async (OGDContent *content, OGDAsyncCallback callback, gpointer userdata)
+{
+    if (content->priv->author == NULL)
+        create_by_id_async (OGD_OBJECT (content), OGD_PERSON_TYPE, content->priv->authorid,
+                            retrieve_async_author, callback, userdata);
+    else
+        callback (OGD_OBJECT (content->priv->author), userdata);
 }
 
 /**
