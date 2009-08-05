@@ -33,7 +33,6 @@
 struct _OGDMessagePrivate {
     gchar               *id;
     gchar               *authorid;
-    OGDPerson           *author;
     GDate               *date;
     OGD_MESSAGE_STATUS  status;
     gchar               *subject;
@@ -50,7 +49,6 @@ static void ogd_message_finalize (GObject *obj)
 
     PTR_CHECK_FREE_NULLIFY (msg->priv->id);
     PTR_CHECK_FREE_NULLIFY (msg->priv->authorid);
-    OBJ_CHECK_UNREF_NULLIFY (msg->priv->author);
     DATE_CHECK_FREE_NULLIFY (msg->priv->date);
     PTR_CHECK_FREE_NULLIFY (msg->priv->subject);
     PTR_CHECK_FREE_NULLIFY (msg->priv->body);
@@ -107,51 +105,17 @@ static void ogd_message_init (OGDMessage *item)
 }
 
 /**
- * ogd_message_get_author:
+ * ogd_message_get_authorid:
  * @msg:            an #OGDMessage to read
  *
  * To retrieve the author of the message
  * 
- * Return value:    an #OGDPerson who created the message. Take care this information is not
- *                  contained in the #OGDMessage itself, and must be took from the provider
+ * Return value:    identifiers of the #OGDPerson who sent the message. You can use
+                    ogd_object_fill_by_id() to obtain all informations
  */
-const OGDPerson* ogd_message_get_author (OGDMessage *msg)
+const gchar* ogd_message_get_authorid (OGDMessage *msg)
 {
-    if (msg->priv->author == NULL)
-        msg->priv->author = OGD_PERSON (create_by_id (OGD_OBJECT (msg), OGD_PERSON_TYPE, msg->priv->authorid));
-
-    return msg->priv->author;
-}
-
-static void retrieve_async_author (OGDObject *obj, gpointer userdata)
-{
-    OGDMessage *msg;
-    AsyncRequestDesc *req;
-
-    req = (AsyncRequestDesc*) userdata;
-
-    msg = OGD_MESSAGE (req->reference);
-    msg->priv->author = OGD_PERSON (obj);
-
-    req->callback (obj, req->userdata);
-    g_free (req);
-}
-
-/**
- * ogd_message_get_author_async:
- * @message:        an #OGDMessage to read
- * @callback:       async callback to which filled #OGDMessage is passed
- * @userdata:       the user data for the callback
- *
- * Async version of ogd_message_get_author()
- */
-void ogd_message_get_author_async (OGDMessage *message, OGDAsyncCallback callback, gpointer userdata)
-{
-    if (message->priv->author == NULL)
-        create_by_id_async (OGD_OBJECT (message), OGD_PERSON_TYPE, message->priv->authorid,
-                            retrieve_async_author, callback, userdata);
-    else
-        callback (OGD_OBJECT (message->priv->author), userdata);
+    return (const gchar*) msg->priv->authorid;
 }
 
 /**

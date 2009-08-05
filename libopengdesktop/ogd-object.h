@@ -38,7 +38,8 @@ typedef struct _OGDObject        OGDObject;
 typedef struct _OGDObjectClass   OGDObjectClass;
 typedef struct _OGDObjectPrivate OGDObjectPrivate;
 
-typedef void (*OGDAsyncCallback) (OGDObject *obj, gpointer userdata);
+typedef void (*OGDAsyncCallback)    (OGDObject *obj, gpointer userdata);
+typedef void (*OGDPutAsyncCallback) (gboolean successfull, gpointer userdata);
 
 struct _OGDObject {
     GObject                 parent;

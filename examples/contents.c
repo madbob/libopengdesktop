@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.2
+/*  libopengdesktop 0.3
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
 static void print_all_contents (OGDCategory *cat)
 {
     int len;
+    const gchar *authorid;
     GList *slice;
     GList *iter;
     OGDIterator *iterator;
@@ -35,8 +36,8 @@ static void print_all_contents (OGDCategory *cat)
 
         for (iter = g_list_first (slice); iter; iter = g_list_next (iter)) {
             content = (OGDContent*) iter->data;
-            author = ogd_content_get_author (content);
-            printf ("\t%s by %s\n", ogd_content_get_name (content), author ? ogd_person_get_id (author) : "UNKNOW");
+            authorid = ogd_content_get_authorid (content);
+            printf ("\t%s by %s\n", ogd_content_get_name (content), authorid ? authorid : "UNKNOW");
             g_object_unref (content);
         }
 

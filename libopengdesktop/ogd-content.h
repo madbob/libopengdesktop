@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.2
+/*  libopengdesktop 0.3
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -68,8 +68,7 @@ const gchar*            ogd_content_get_id                  (OGDContent *content
 const gchar*            ogd_content_get_name                (OGDContent *content);
 const gchar*            ogd_content_get_version             (OGDContent *content);
 const gchar*            ogd_content_get_language            (OGDContent *content);
-const OGDPerson*        ogd_content_get_author              (OGDContent *content);
-void                    ogd_content_get_author_async        (OGDContent *content, OGDAsyncCallback callback, gpointer userdata);
+const gchar*            ogd_content_get_authorid            (OGDContent *content);
 const GDate*            ogd_content_get_creation_date       (OGDContent *content);
 const GDate*            ogd_content_get_change_date         (OGDContent *content);
 gulong                  ogd_content_get_num_downloads       (OGDContent *content);

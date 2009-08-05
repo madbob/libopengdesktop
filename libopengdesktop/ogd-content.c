@@ -38,7 +38,6 @@ struct _OGDContentPrivate {
     gchar       *version;
     gchar       *language;
     gchar       *authorid;
-    OGDPerson   *author;
     GDate       *creationdate;
     GDate       *changedate;
     gulong      numdownloads;
@@ -65,7 +64,6 @@ static void ogd_content_finalize (GObject *obj)
     PTR_CHECK_FREE_NULLIFY (content->priv->version);
     PTR_CHECK_FREE_NULLIFY (content->priv->language);
     PTR_CHECK_FREE_NULLIFY (content->priv->authorid);
-    OBJ_CHECK_UNREF_NULLIFY (content->priv->author);
     DATE_CHECK_FREE_NULLIFY (content->priv->creationdate);
     DATE_CHECK_FREE_NULLIFY (content->priv->changedate);
     PTR_CHECK_FREE_NULLIFY (content->priv->description);
@@ -206,51 +204,17 @@ const gchar* ogd_content_get_language (OGDContent *content)
 }
 
 /**
- * ogd_content_get_author:
+ * ogd_content_get_authorid:
  * @content:        the #OGDContent to query
  *
- * To obtain the author of the @content. Please note that this call requires some syncronous
- * communication with the server, so may return after some time
+ * To obtain the author of the @content
  * 
- * Return value:    #OGDPerson who created the @content, or NULL if the object cannot be retrieved
+ * Return value:    identifiers of the #OGDPerson who created the content. You can use
+                    ogd_object_fill_by_id() to obtain all informations
  */
-const OGDPerson* ogd_content_get_author (OGDContent *content)
+const gchar* ogd_content_get_authorid (OGDContent *content)
 {
-    if (content->priv->author == NULL)
-        content->priv->author = OGD_PERSON (create_by_id (OGD_OBJECT (content), OGD_PERSON_TYPE, content->priv->authorid));
-
-    return content->priv->author;
-}
-
-static void retrieve_async_author (OGDObject *obj, gpointer userdata)
-{
-    OGDContent *con;
-    AsyncRequestDesc *req;
-
-    req = (AsyncRequestDesc*) userdata;
-
-    con = OGD_CONTENT (req->reference);
-    con->priv->author = OGD_PERSON (obj);
-
-    req->callback (obj, req->userdata);
-    g_free (req);
-}
-
-/**
- * ogd_content_get_author_async:
- * @content:        an #OGDContent to read
- * @callback:       async callback to which filled #OGDContent is passed
- * @userdata:       the user data for the callback
- *
- * Async version of ogd_content_get_author()
- */
-void ogd_content_get_author_async (OGDContent *content, OGDAsyncCallback callback, gpointer userdata)
-{
-    if (content->priv->author == NULL)
-        create_by_id_async (OGD_OBJECT (content), OGD_PERSON_TYPE, content->priv->authorid,
-                            retrieve_async_author, callback, userdata);
-    else
-        callback (OGD_OBJECT (content->priv->author), userdata);
+    return (const gchar*) content->priv->authorid;
 }
 
 /**

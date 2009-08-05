@@ -84,10 +84,6 @@ gdouble     node_to_double              (xmlNode *node);
 
 gulong      total_items_for_query       (xmlNode *package);
 
-OGDObject*  create_by_id                (OGDObject *parent, GType type, const gchar *id);
-void        create_by_id_async          (OGDObject *parent, GType type, const gchar *id, OGDAsyncCallback callback,
-                                         OGDAsyncCallback effective_callback, gpointer userdata);
-
 void        init_types_management       ();
 GType       retrieve_type               (const gchar *xml_name);
 void        finalize_types_management   ();

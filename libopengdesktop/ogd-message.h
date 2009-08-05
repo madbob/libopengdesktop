@@ -63,8 +63,7 @@ typedef enum {
 
 GType                   ogd_message_get_type                    ();
 
-const OGDPerson*        ogd_message_get_author                  (OGDMessage *msg);
-void                    ogd_message_get_author_async            (OGDMessage *message, OGDAsyncCallback callback, gpointer userdata);
+const gchar*            ogd_message_get_authorid                (OGDMessage *msg);
 const GDate*            ogd_message_get_date                    (OGDMessage *msg);
 OGD_MESSAGE_STATUS      ogd_message_get_status                  (OGDMessage *msg);
 const gchar*            ogd_message_get_subject                 (OGDMessage *msg);

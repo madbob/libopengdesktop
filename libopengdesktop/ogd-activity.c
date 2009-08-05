@@ -35,7 +35,6 @@
 
 struct _OGDActivityPrivate {
     gchar                   *authorid;
-    OGDPerson               *author;
     GDate                   *date;
     OGD_ACTIVITY_CATEGORY   category;
     gchar                   *message;
@@ -51,7 +50,6 @@ static void ogd_activity_finalize (GObject *obj)
     activity = OGD_ACTIVITY (obj);
 
     PTR_CHECK_FREE_NULLIFY (activity->priv->authorid);
-    OBJ_CHECK_UNREF_NULLIFY (activity->priv->author);
     DATE_CHECK_FREE_NULLIFY (activity->priv->date);
     PTR_CHECK_FREE_NULLIFY (activity->priv->message);
     PTR_CHECK_FREE_NULLIFY (activity->priv->link);
@@ -106,51 +104,17 @@ static void ogd_activity_init (OGDActivity *item)
 }
 
 /**
- * ogd_activity_get_author:
+ * ogd_activity_get_authorid:
  * @activity:		an #OGDActivity to read
  *
- * To retrieve the author of the activity
+ * To retrieve the author of the @activity
  * 
- * Return value:	an #OGDPerson who created the activity. Take care this information is not
- *                  contained in the #OGDActivity itself, and must be took from the provider
+ * Return value:	identifiers of the #OGDPerson who created the activity. You can use
+                    ogd_object_fill_by_id() to obtain all informations
  */
-const OGDPerson* ogd_activity_get_author (OGDActivity *activity)
+const gchar* ogd_activity_get_authorid (OGDActivity *activity)
 {
-    if (activity->priv->author == NULL)
-        activity->priv->author = OGD_PERSON (create_by_id (OGD_OBJECT (activity), OGD_PERSON_TYPE, activity->priv->authorid));
-
-    return activity->priv->author;
-}
-
-static void retrieve_async_author (OGDObject *obj, gpointer userdata)
-{
-    OGDActivity *act;
-    AsyncRequestDesc *req;
-
-    req = (AsyncRequestDesc*) userdata;
-
-    act = OGD_ACTIVITY (req->reference);
-    act->priv->author = OGD_PERSON (obj);
-
-    req->callback (obj, req->userdata);
-    g_free (req);
-}
-
-/**
- * ogd_activity_get_author_async:
- * @activity:       an #OGDActivity to read
- * @callback:       async callback to which filled #OGDActivity is passed
- * @userdata:       the user data for the callback
- *
- * Async version of ogd_activity_get_author()
- */
-void ogd_activity_get_author_async (OGDActivity *activity, OGDAsyncCallback callback, gpointer userdata)
-{
-    if (activity->priv->author == NULL)
-        create_by_id_async (OGD_OBJECT (activity), OGD_PERSON_TYPE, activity->priv->authorid,
-                            retrieve_async_author, callback, userdata);
-    else
-        callback (OGD_OBJECT (activity->priv->author), userdata);
+    return (const gchar*) activity->priv->authorid;
 }
 
 /**

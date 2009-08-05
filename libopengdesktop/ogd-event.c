@@ -1,4 +1,4 @@
-/*  libopengdesktop 0.2
+/*  libopengdesktop 0.3
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
@@ -39,7 +39,6 @@ struct _OGDEventPrivate {
     GDate               *startdate;
     GDate               *enddate;
     gchar               *authorid;
-    OGDPerson           *author;
     gchar               *organizer;
     gchar               *location;
 
@@ -75,7 +74,6 @@ static void ogd_event_finalize (GObject *obj)
     DATE_CHECK_FREE_NULLIFY (event->priv->startdate);
     DATE_CHECK_FREE_NULLIFY (event->priv->enddate);
     PTR_CHECK_FREE_NULLIFY (event->priv->authorid);
-    OBJ_CHECK_UNREF_NULLIFY (event->priv->author);
     PTR_CHECK_FREE_NULLIFY (event->priv->organizer);
     PTR_CHECK_FREE_NULLIFY (event->priv->location);
     PTR_CHECK_FREE_NULLIFY (event->priv->city);
@@ -268,52 +266,17 @@ const GDate* ogd_event_get_end_date (OGDEvent *event)
 }
 
 /**
- * ogd_event_get_author:
+ * ogd_event_get_authorid:
  * @event:          the #OGDEvent to query
  *
  * To obtain author of an @event
  * 
- * Return value:    #OGDPerson rappresenting the author of the target @event. Please note that
- *                  this call requires some syncronous communication with the server, so may
- *                  return after some time
+ * Return value:    identifiers of the #OGDPerson who created the event. You can use
+                    ogd_object_fill_by_id() to obtain all informations
  */
-const OGDPerson* ogd_event_get_author (OGDEvent *event)
+const gchar* ogd_event_get_authorid (OGDEvent *event)
 {
-    if (event->priv->author == NULL)
-        event->priv->author = OGD_PERSON (create_by_id (OGD_OBJECT (event), OGD_PERSON_TYPE, event->priv->authorid));
-
-    return event->priv->author;
-}
-
-static void retrieve_async_author (OGDObject *obj, gpointer userdata)
-{
-    OGDEvent *ev;
-    AsyncRequestDesc *req;
-
-    req = (AsyncRequestDesc*) userdata;
-
-    ev = OGD_EVENT (req->reference);
-    ev->priv->author = OGD_PERSON (obj);
-
-    req->callback (obj, req->userdata);
-    g_free (req);
-}
-
-/**
- * ogd_event_get_author_async:
- * @event:          an #OGDEvent to read
- * @callback:       async callback to which filled #OGDEvent is passed
- * @userdata:       the user data for the callback
- *
- * Async version of ogd_event_get_author()
- */
-void ogd_event_get_author_async (OGDEvent *event, OGDAsyncCallback callback, gpointer userdata)
-{
-    if (event->priv->author == NULL)
-        create_by_id_async (OGD_OBJECT (event), OGD_PERSON_TYPE, event->priv->authorid,
-                            retrieve_async_author, callback, userdata);
-    else
-        callback (OGD_OBJECT (event->priv->author), userdata);
+    return (const gchar*) event->priv->authorid;
 }
 
 /**
