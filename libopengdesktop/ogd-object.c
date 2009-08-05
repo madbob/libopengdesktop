@@ -139,7 +139,7 @@ void ogd_object_fill_by_id_async (OGDObject *obj, const gchar *id, OGDAsyncCallb
     req->userdata = userdata;
     req->reference = obj;
 
-    ogd_provider_get_raw_async ((OGDProvider*) ogd_object_get_provider (obj), FALSE, query, parse_xml_from_async, req);
+    ogd_provider_get_raw_async ((OGDProvider*) ogd_object_get_provider (obj), query, FALSE, parse_xml_from_async, req);
     g_free (query);
 }
 

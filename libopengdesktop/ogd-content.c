@@ -108,7 +108,7 @@ static gboolean ogd_content_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
             content->priv->description = MYGETCONTENT (cursor);
         else if (MYSTRCMP (cursor->name, "changelog") == 0)
             content->priv->changelog = MYGETCONTENT (cursor);
-        else if (MYSTRCMP (cursor->name, "homepage") == 0)
+        else if (MYSTRCMP (cursor->name, "detailpage") == 0)
             content->priv->homepage = MYGETCONTENT (cursor);
         else if (MYSTRCMP (cursor->name, "comments") == 0)
             content->priv->numcomments = (guint) node_to_num (cursor);

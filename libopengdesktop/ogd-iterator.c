@@ -174,12 +174,11 @@ static void retrieve_async_contents (OGDObject *obj, gpointer request)
 
     if (obj == NULL) {
         if (req->total <= req->counter) {
-            return;
-        }
-        else {
             req->callback (NULL, req->userdata);
             g_free (req);
         }
+        else
+            return;
     }
     else {
         req->callback (obj, req->userdata);
