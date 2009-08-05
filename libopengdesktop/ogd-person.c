@@ -816,22 +816,8 @@ void ogd_person_get_myself_async (OGDProvider *provider, OGDAsyncCallback callba
     ogd_provider_get_single_async (provider, "person/self", callback, userdata);
 }
 
-/**
- * ogd_person_myself_set_coordinates:
- * @myself:         #OGDPerson returned by ogd_person_get_myself()
- * @latitude:       current latitude
- * @longitude:      current longitude
- *
- * To set current coordinates of the user which name has been expressed as @username parameter in
- * ogd_provider_auth_user_and_pwd(), and is not usable if ogd_provider_auth_api_key() has been
- * engaged instead
- */
-
-/*
-    TODO    Provide also an async version
-*/
-
-void ogd_person_myself_set_coordinates (OGDPerson *myself, gdouble latitude, gdouble longitude)
+static void effective_set_coordinates (OGDPerson *myself, gdouble latitude, gdouble longitude,
+                                       gboolean async, OGDPutAsyncCallback callback, gpointer userdata)
 {
     gchar lat_str [100];
     gchar lon_str [100];
@@ -852,20 +838,36 @@ void ogd_person_myself_set_coordinates (OGDPerson *myself, gdouble latitude, gdo
 }
 
 /**
- * ogd_person_myself_invite_friend:
- * @person:         the #OGDPerson to which send friendship invite
- * @message:        message to attach to the friendship request
+ * ogd_person_myself_set_coordinates:
+ * @myself:         #OGDPerson returned by ogd_person_get_myself()
+ * @latitude:       current latitude
+ * @longitude:      current longitude
  *
- * Sends a friendship invite to the target @person. That will become friend of the user which
- * name has been expressed as @username parameter in ogd_provider_auth_user_and_pwd(), and is not
- * usable if ogd_provider_auth_api_key() has been engaged instead
+ * To set current coordinates of the user which name has been expressed as @username parameter in
+ * ogd_provider_auth_user_and_pwd(), and is not usable if ogd_provider_auth_api_key() has been
+ * engaged instead
  */
+void ogd_person_myself_set_coordinates (OGDPerson *myself, gdouble latitude, gdouble longitude)
+{
+    effective_set_coordinates (myself, latitude, longitude, FALSE, NULL, NULL);
+}
 
-/*
-    TODO    Provide also an async version
-*/
+/**
+ * ogd_person_myself_set_coordinates_async:
+ * @myself:         #OGDPerson returned by ogd_person_get_myself()
+ * @latitude:       current latitude
+ * @longitude:      current longitude
+ * @callback:       async callback to which result of the operation is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_person_myself_set_coordinates()
+ */
+void ogd_person_myself_set_coordinates_async (OGDPerson *myself, gdouble latitude, gdouble longitude, OGDPutAsyncCallback callback, gpointer userdata)
+{
+    effective_set_coordinates (myself, latitude, longitude, TRUE, callback, userdata);
+}
 
-void ogd_person_myself_invite_friend (OGDPerson *person, gchar *message)
+static void effective_invite_friend (OGDPerson *person, gchar *message, gboolean async, OGDPutAsyncCallback callback, gpointer userdata)
 {
     gchar *query;
     GHashTable *params;
@@ -877,8 +879,39 @@ void ogd_person_myself_invite_friend (OGDPerson *person, gchar *message)
     params = g_hash_table_new (g_str_hash, g_str_equal);
     g_hash_table_insert (params, "message", message);
 
-    ogd_provider_put (provider, query, params);
+    if (async == FALSE)
+        ogd_provider_put (provider, query, params);
+    else
+        ogd_provider_put_async (provider, query, params, callback, userdata);
 
     g_hash_table_unref (params);
     g_free (query);
+}
+
+/**
+ * ogd_person_myself_invite_friend:
+ * @person:         the #OGDPerson to which send friendship invite
+ * @message:        message to attach to the friendship request
+ *
+ * Sends a friendship invite to the target @person. That will become friend of the user which
+ * name has been expressed as @username parameter in ogd_provider_auth_user_and_pwd(), and is not
+ * usable if ogd_provider_auth_api_key() has been engaged instead
+ */
+void ogd_person_myself_invite_friend (OGDPerson *person, gchar *message)
+{
+    effective_invite_friend (person, message, FALSE, NULL, NULL);
+}
+
+/**
+ * ogd_person_myself_invite_friend_async:
+ * @person:         the #OGDPerson to which send friendship invite
+ * @message:        message to attach to the friendship request
+ * @callback:       async callback to which result of the operation is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_person_myself_invite_friend()
+ */
+void ogd_person_myself_invite_friend_async (OGDPerson *person, gchar *message, OGDPutAsyncCallback callback, gpointer userdata)
+{
+    effective_invite_friend (person, message, TRUE, callback, userdata);
 }

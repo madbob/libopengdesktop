@@ -82,6 +82,7 @@ const GList*            ogd_content_get_previews            (OGDContent *content
 const GList*            ogd_content_get_download_refs       (OGDContent *content);
 
 void                    ogd_content_vote                    (OGDContent *content, OGD_CONTENT_VOTE vote);
+void                    ogd_content_vote_async              (OGDContent *content, OGD_CONTENT_VOTE vote, OGDPutAsyncCallback callback, gpointer userdata);
 
 G_END_DECLS
 

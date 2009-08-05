@@ -266,7 +266,7 @@ static gboolean check_msg (SoupMessage *msg)
         return TRUE;
 }
 
-static void handle_async_response (SoupSession *session, SoupMessage *msg, gpointer userdata)
+static void handle_async_get_response (SoupSession *session, SoupMessage *msg, gpointer userdata)
 {
     xmlNode *ret;
     GList *list;
@@ -312,7 +312,7 @@ static void send_async_msg_to_server (const gchar *complete_query, AsyncRequestD
         return;
     }
 
-    soup_session_queue_message (async->provider->priv->async_http_session, msg, handle_async_response, async);
+    soup_session_queue_message (async->provider->priv->async_http_session, msg, handle_async_get_response, async);
 }
 
 /*
@@ -457,6 +457,17 @@ void ogd_provider_get_single_async (OGDProvider *provider, gchar *query, OGDAsyn
     get_async (provider, query, TRUE, TRUE, callback, NULL, userdata);
 }
 
+static SoupMessage* prepare_message_to_put (OGDProvider *provider, gchar *query, GHashTable *data)
+{
+    gchar *complete_query;
+    SoupMessage *msg;
+
+    complete_query = g_strdup_printf ("%s%s", provider->priv->access_url, query);
+    msg = soup_form_request_new_from_hash ("POST", complete_query, data);
+    g_free (complete_query);
+    return msg;
+}
+
 /**
  * ogd_provider_put:
  * @provider:       the #OGDProvider to which save information
@@ -467,23 +478,56 @@ void ogd_provider_get_single_async (OGDProvider *provider, gchar *query, OGDAsyn
  * 
  * Return value:    %TRUE if data are saved correctly, %FALSE otherwise
  */
-
-/*
-    TODO    Provide also an async version
-*/
-
 gboolean ogd_provider_put (OGDProvider *provider, gchar *query, GHashTable *data)
 {
     guint sendret;
     gboolean ret;
-    gchar *complete_query;
     SoupMessage *msg;
 
-    complete_query = g_strdup_printf ("%s%s", provider->priv->access_url, query);
-    msg = soup_form_request_new_from_hash ("POST", complete_query, data);
+    msg = prepare_message_to_put (provider, query, data);
     sendret = soup_session_send_message (provider->priv->http_session, msg);
     ret = (sendret == 200 && msg->status_code == SOUP_STATUS_OK);
-    g_free (complete_query);
     g_object_unref (msg);
     return ret;
+}
+
+static void handle_async_put_response (SoupSession *session, SoupMessage *msg, gpointer userdata)
+{
+    gboolean result;
+    AsyncRequestDesc *async;
+
+    async = (AsyncRequestDesc*) userdata;
+
+    if (async->pcallback != NULL) {
+        result = ( msg->status_code == SOUP_STATUS_OK );
+        async->pcallback (result, async->userdata);
+    }
+
+    g_free (async);
+}
+
+/**
+ * ogd_provider_put_async:
+ * @provider:       the #OGDProvider to which save information
+ * @query:          query to use to send contents
+ * @data:           addictional data to ship with the command in "POST" section
+ * @callback:       async callback to which result of the operation is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_provider_put()
+ */
+void ogd_provider_put_async (OGDProvider *provider, gchar *query, GHashTable *data, OGDPutAsyncCallback callback, gpointer userdata)
+{
+    SoupMessage *msg;
+    AsyncRequestDesc *async;
+
+    msg = prepare_message_to_put (provider, query, data);
+
+    async = g_new0 (AsyncRequestDesc, 1);
+    async->pcallback = callback;
+    async->userdata = userdata;
+
+    soup_session_queue_message (provider->priv->async_http_session, msg, handle_async_put_response, async);
+
+    g_object_unref (msg);
 }

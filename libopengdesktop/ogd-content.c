@@ -361,21 +361,8 @@ const GList* ogd_content_get_download_refs (OGDContent *content)
     return content->priv->downloads;
 }
 
-/**
- * ogd_content_vote:
- * @content:        the #OGDContent to vote
- * @vote:           rating for the @content
- *
- * To share a rating about the content. The vote is assigned to the current user, the one which
- * username is used in ogd_provider_auth_user_and_pwd(), and the function cannot be used if
- * ogd_provider_auth_api_key() has been used instead
- */
-
-/*
-    TODO    Provide also an async version
-*/
-
-void ogd_content_vote (OGDContent *content, OGD_CONTENT_VOTE vote)
+static void effective_vote (OGDContent *content, OGD_CONTENT_VOTE vote, gboolean async,
+                            OGDPutAsyncCallback callback, gpointer userdata)
 {
     gchar *query;
     gchar *vote_str;
@@ -399,6 +386,39 @@ void ogd_content_vote (OGDContent *content, OGD_CONTENT_VOTE vote)
     }
 
     query = g_strdup_printf ("content/vote/%s?vote=%s", ogd_content_get_id (content), vote_str);
-    ogd_provider_put (provider, query, NULL);
+
+    if (async == FALSE)
+        ogd_provider_put (provider, query, NULL);
+    else
+        ogd_provider_put_async (provider, query, NULL, callback, userdata);
+
     g_free (query);
+}
+
+/**
+ * ogd_content_vote:
+ * @content:        the #OGDContent to vote
+ * @vote:           rating for the @content
+ *
+ * To share a rating about the content. The vote is assigned to the current user, the one which
+ * username is used in ogd_provider_auth_user_and_pwd(), and the function cannot be used if
+ * ogd_provider_auth_api_key() has been used instead
+ */
+void ogd_content_vote (OGDContent *content, OGD_CONTENT_VOTE vote)
+{
+    effective_vote (content, vote, FALSE, NULL, NULL);
+}
+
+/**
+ * ogd_content_vote_async:
+ * @content:        the #OGDContent to vote
+ * @vote:           rating for the @content
+ * @callback:       async callback to which result of the operation is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_content_vote()
+ */
+void ogd_content_vote_async (OGDContent *content, OGD_CONTENT_VOTE vote, OGDPutAsyncCallback callback, gpointer userdata)
+{
+    effective_vote (content, vote, TRUE, callback, userdata);
 }

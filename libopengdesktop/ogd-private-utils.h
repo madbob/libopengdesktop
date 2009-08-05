@@ -73,6 +73,7 @@ typedef struct {
     gpointer                    userdata;
     OGDAsyncCallback            callback;
     OGDProviderRawAsyncCallback rcallback;
+    OGDPutAsyncCallback         pcallback;
 
     gulong                      total;
     gulong                      counter;
