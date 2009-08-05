@@ -219,14 +219,12 @@ static xmlNode* parse_provider_response (SoupMessageBody *response)
 
     root = xmlDocGetRootElement (doc);
 
-    if (check_provider_response (root, &data) == FALSE || data == NULL)
-        goto finish;
-
-    return data;
-
-finish:
-    xmlFreeDoc (doc);
-    return data;
+    if (check_provider_response (root, &data) == FALSE || data == NULL) {
+        xmlFreeDoc (doc);
+        return NULL;
+    }
+    else
+        return data;
 }
 
 static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *provider)
@@ -234,6 +232,7 @@ static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *pro
     xmlNode *cursor;
     GList *ret;
     GType obj_type;
+    GError *error;
     OGDObject *obj;
 
     ret = NULL;
@@ -241,10 +240,15 @@ static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *pro
     for (cursor = data->children; cursor; cursor = cursor->next) {
         obj_type = retrieve_type ((const gchar*) cursor->name);
         obj = g_object_new (obj_type, NULL);
+        error = NULL;
 
-        if (ogd_object_fill_by_xml (obj, cursor, NULL) == TRUE) {
+        if (ogd_object_fill_by_xml (obj, cursor, &error) == TRUE) {
             ogd_object_set_provider (obj, provider);
             ret = g_list_prepend (ret, obj);
+        }
+        else {
+            g_warning ("%s", error->message);
+            g_error_free (error);
         }
     }
 

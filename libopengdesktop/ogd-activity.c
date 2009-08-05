@@ -62,8 +62,10 @@ static gboolean ogd_activity_fill_by_xml (OGDObject *obj, const xmlNode *xml, GE
 
     activity = OGD_ACTIVITY (obj);
 
-    if (MYSTRCMP (xml->name, "activity") != 0)
+    if (MYSTRCMP (xml->name, "activity") != 0) {
+        g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Invalid XML for OGDActivity");
         return FALSE;
+    }
 
     ogd_activity_finalize (G_OBJECT (obj));
 

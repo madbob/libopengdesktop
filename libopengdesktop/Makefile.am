@@ -19,6 +19,7 @@ sources_public_h = \
     ogd-category.h    \
     ogd-content.h     \
     ogd-event.h       \
+    ogd-errors.h      \
     ogd-folder.h      \
     ogd.h             \
     ogd-iterator.h    \

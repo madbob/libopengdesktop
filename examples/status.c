@@ -51,7 +51,7 @@ int main (int argc, char **argv)
     provider = ogd_provider_new ("api.opendesktop.org");
     ogd_provider_auth_user_and_pwd (provider, username, password);
 
-    myself = ogd_person_get_myself (provider);
+    myself = (OGDPerson*) ogd_person_get_myself (provider);
     if (ogd_activity_set (myself, message) == FALSE)
         printf ("Unable to set status message\n");
 

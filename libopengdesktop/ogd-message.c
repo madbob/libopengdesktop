@@ -61,8 +61,10 @@ static gboolean ogd_message_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
 
     msg = OGD_MESSAGE (obj);
 
-    if (MYSTRCMP (xml->name, "message") != 0)
+    if (MYSTRCMP (xml->name, "message") != 0) {
+        g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Invalid XML for OGDMessage");
         return FALSE;
+    }
 
     ogd_message_finalize (G_OBJECT (obj));
 

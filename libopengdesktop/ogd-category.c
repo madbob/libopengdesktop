@@ -54,8 +54,10 @@ static gboolean ogd_category_fill_by_xml (OGDObject *obj, const xmlNode *xml, GE
 
     category = OGD_CATEGORY (obj);
 
-    if (MYSTRCMP (xml->name, "category") != 0)
+    if (MYSTRCMP (xml->name, "category") != 0) {
+        g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Invalid XML for OGDCategory");
         return FALSE;
+    }
 
     ogd_category_finalize (G_OBJECT (obj));
 

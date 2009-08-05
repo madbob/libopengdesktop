@@ -25,7 +25,6 @@ static void print_all_contents (OGDCategory *cat)
     GList *iter;
     OGDIterator *iterator;
     OGDContent *content;
-    OGDPerson *author;
 
     printf ("%s (%s) contains:\n", ogd_category_get_name (cat), ogd_category_get_id (cat));
     iterator = ogd_category_get_contents (cat, OGD_CATEGORY_SORT_NEWEST);

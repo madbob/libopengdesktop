@@ -57,8 +57,10 @@ static gboolean ogd_folder_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
 
     folder = OGD_FOLDER (obj);
 
-    if (MYSTRCMP (xml->name, "folder") != 0)
+    if (MYSTRCMP (xml->name, "folder") != 0) {
+        g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Invalid XML for OGDFolder");
         return FALSE;
+    }
 
     ogd_folder_finalize (G_OBJECT (obj));
 

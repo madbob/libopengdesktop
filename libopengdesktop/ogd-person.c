@@ -108,10 +108,11 @@ static gboolean ogd_person_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
     xmlChar *tmp;
 
     person = OGD_PERSON (obj);
-    xml = xml->children;
 
-    if (MYSTRCMP (xml->name, "person") != 0)
+    if (MYSTRCMP (xml->name, "person") != 0) {
+        g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Invalid XML for OGDPerson");
         return FALSE;
+    }
 
     ogd_person_finalize (G_OBJECT (obj));
 
@@ -707,12 +708,11 @@ static void retrieve_friends_slice (xmlNode *node, gpointer userdata)
 
     if (node == NULL) {
         if (req->total <= req->counter) {
-            return;
-        }
-        else {
             req->callback (NULL, req->userdata);
             g_free (req);
         }
+        else
+            return;
     }
     else {
         friend_id = xmlNodeGetContent (node);
@@ -795,8 +795,10 @@ const OGDPerson* ogd_person_get_myself (OGDProvider *provider)
     OGDPerson *ret;
 
     tmp_list = ogd_provider_get (provider, "person/self");
-    if (tmp_list == NULL)
+    if (tmp_list == NULL) {
+        g_warning ("Unable to retrieve current user on the server");
         return NULL;
+    }
 
     ret = (OGDPerson*) tmp_list->data;
     g_list_free (tmp_list);

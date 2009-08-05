@@ -80,8 +80,10 @@ static gboolean ogd_content_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
 
     content = OGD_CONTENT (obj);
 
-    if (MYSTRCMP (xml->name, "content") != 0)
+    if (MYSTRCMP (xml->name, "content") != 0) {
+        g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Invalid XML for OGDContent");
         return FALSE;
+    }
 
     ogd_content_finalize (G_OBJECT (obj));
 

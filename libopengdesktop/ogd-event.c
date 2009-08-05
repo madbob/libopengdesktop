@@ -94,8 +94,10 @@ static gboolean ogd_event_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErro
 
     event = OGD_EVENT (obj);
 
-    if (MYSTRCMP (xml->name, "event") != 0)
+    if (MYSTRCMP (xml->name, "event") != 0) {
+        g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Invalid XML for OGDEvent");
         return FALSE;
+    }
 
     ogd_event_finalize (G_OBJECT (obj));
 

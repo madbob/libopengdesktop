@@ -15,28 +15,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef OGD_H
-#define OGD_H
+#ifndef OGD_ERRORS_H
+#define OGD_ERRORS_H
 
-#include <string.h>
+#define OGD_PARSING_ERROR_DOMAIN    g_quark_from_string("ParsingError")
 
-#include <glib.h>
-#include <glib-object.h>
+typedef enum {
+    OGD_XML_ERROR,
+    OGD_END_ERRORS
+} OGD_ERRORS;
 
-#include <libsoup/soup.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-
-#include "ogd-errors.h"
-#include "ogd-provider.h"
-#include "ogd-iterator.h"
-#include "ogd-object.h"
-#include "ogd-person.h"
-#include "ogd-category.h"
-#include "ogd-content.h"
-#include "ogd-activity.h"
-#include "ogd-event.h"
-#include "ogd-folder.h"
-#include "ogd-message.h"
-
-#endif /* OGD_H */
+#endif /* OGD_ERRORS_H */
