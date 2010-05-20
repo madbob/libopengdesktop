@@ -101,7 +101,7 @@ static void ogd_provider_init (OGDProvider *item)
  * Allocates a new #OGDProvider, which will be used to retrieve remote contents. Pay attention to
  * the fact an #OGDProvider is required for all function provided by this library, and this type
  * of object is the first to be inited due internal disposition
- * 
+ *
  * Return value:    a newly allocated #OGDProvider
  */
 OGDProvider* ogd_provider_new (gchar *url)
@@ -118,7 +118,7 @@ OGDProvider* ogd_provider_new (gchar *url)
  * @provider:       the #OGDProvider to which enable access with desired username and password
  * @username:       username used for authentication
  * @password:       password used for authentication
- * 
+ *
  * Set @username and @password to access the #OGDProvider. Those authentication parameters must
  * be obtained separately, perhaps registering to the target website
  */
@@ -134,7 +134,7 @@ void ogd_provider_auth_user_and_pwd (OGDProvider *provider, gchar *username, gch
  * ogd_provider_auth_api_key:
  * @provider:       the #OGDProvider to which enable access with desired key
  * @key:            key used for authentication
- * 
+ *
  * Set @key to access the #OGDProvider. This authentication parameter must be obtained
  * separately, perhaps registering to the target website
  */
@@ -423,13 +423,13 @@ GHashTable* ogd_provider_header_from_raw (xmlNode *response)
  * ogd_provider_get:
  * @provider:       the #OGDProvider from which retrieve data
  * @query:          query to ask contents
- * 
+ *
  * To retrieve some content from the server
- * 
+ *
  * Return value:    a list of GObject, or NULL if an error occours
  */
 GList* ogd_provider_get (OGDProvider *provider, gchar *query)
-{   
+{
     GList *ret;
     xmlNode *data;
 
@@ -472,14 +472,33 @@ static SoupMessage* prepare_message_to_put (OGDProvider *provider, gchar *query,
     return msg;
 }
 
+xmlNode* ogd_provider_put_raw (OGDProvider *provider, gchar *query, GHashTable *data)
+{
+    guint sendret;
+    SoupMessage *msg;
+    xmlNode *ret;
+
+    ret = NULL;
+
+    msg = prepare_message_to_put (provider, query, data);
+    sendret = soup_session_send_message (provider->priv->http_session, msg);
+
+    if (sendret == 200 && msg->status_code == SOUP_STATUS_OK) {
+        ret = parse_provider_response (msg->response_body);
+        g_object_unref (msg);
+    }
+
+    return ret;
+}
+
 /**
  * ogd_provider_put:
  * @provider:       the #OGDProvider to which save information
  * @query:          query to use to send contents
  * @data:           addictional data to ship with the command in "POST" section
- * 
+ *
  * To save some content on the server
- * 
+ *
  * Return value:    %TRUE if data are saved correctly, %FALSE otherwise
  */
 gboolean ogd_provider_put (OGDProvider *provider, gchar *query, GHashTable *data)

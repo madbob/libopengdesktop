@@ -156,7 +156,7 @@ static void ogd_content_init (OGDContent *item)
  * @content:        the #OGDContent to query
  *
  * To obtain the ID of the @content
- * 
+ *
  * Return value:    ID of the target @content
  */
 const gchar* ogd_content_get_id (OGDContent *content)
@@ -169,7 +169,7 @@ const gchar* ogd_content_get_id (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain the name of the @content
- * 
+ *
  * Return value:    name of the target @content
  */
 const gchar* ogd_content_get_name (OGDContent *content)
@@ -182,7 +182,7 @@ const gchar* ogd_content_get_name (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain the version of the @content
- * 
+ *
  * Return value:    version of the target @content. Please note this content is not semantically
  *                  validated, so cannot be programmatically managed
  */
@@ -196,7 +196,7 @@ const gchar* ogd_content_get_version (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain the language of the @content
- * 
+ *
  * Return value:    language of the target @content. Please note this content is not semantically
  *                  validated, so cannot be programmatically managed
  */
@@ -210,7 +210,7 @@ const gchar* ogd_content_get_language (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain the author of the @content
- * 
+ *
  * Return value:    identifiers of the #OGDPerson who created the content. You can use
                     ogd_object_fill_by_id() to obtain all informations
  */
@@ -224,7 +224,7 @@ const gchar* ogd_content_get_authorid (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain the creation date of the @content
- * 
+ *
  * Return value:    a #GDate for the creation date of the target @content
  */
 const GDate* ogd_content_get_creation_date (OGDContent *content)
@@ -237,7 +237,7 @@ const GDate* ogd_content_get_creation_date (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain the date of latest change of the @content
- * 
+ *
  * Return value:    a #GDate for the latest change date of the target @content
  */
 const GDate* ogd_content_get_change_date (OGDContent *content)
@@ -250,7 +250,7 @@ const GDate* ogd_content_get_change_date (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain the current downloads number of the @content
- * 
+ *
  * Return value:    current downloads number of the target @content
  */
 gulong ogd_content_get_num_downloads (OGDContent *content)
@@ -263,7 +263,7 @@ gulong ogd_content_get_num_downloads (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain the current score of the @content
- * 
+ *
  * Return value:    current score of the target @content, in function of votes. To exprime your
  *                  vote, use ogd_content_vote()
  */
@@ -277,7 +277,7 @@ guint ogd_content_get_score (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain the description of the @content
- * 
+ *
  * Return value:    description of the target @content
  */
 const gchar* ogd_content_get_description (OGDContent *content)
@@ -290,7 +290,7 @@ const gchar* ogd_content_get_description (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain a changelog of @content
- * 
+ *
  * Return value:    changelog for the target @content
  */
 const gchar* ogd_content_get_changelog (OGDContent *content)
@@ -303,7 +303,7 @@ const gchar* ogd_content_get_changelog (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain homepage URL of @content
- * 
+ *
  * Return value:    URL of the homepage for the target @content
  */
 const gchar* ogd_content_get_homepage (OGDContent *content)
@@ -316,7 +316,7 @@ const gchar* ogd_content_get_homepage (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain number of comments of @content
- * 
+ *
  * Return value:    number of comments for the target @content
  */
 gulong ogd_content_get_num_comments (OGDContent *content)
@@ -329,8 +329,10 @@ gulong ogd_content_get_num_comments (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain number of fans of @content
- * 
+ *
  * Return value:    number of fans for the target @content
+ *
+ * Deprecated: 0.4: ogd_content_get_fans() is suggested to be used instead
  */
 gulong ogd_content_get_num_fans (OGDContent *content)
 {
@@ -338,11 +340,28 @@ gulong ogd_content_get_num_fans (OGDContent *content)
 }
 
 /**
+ * ogd_content_get_fans:
+ * @content:        the #OGDContent to query
+ *
+ * Retrieves list of current fans for the given @content
+ *
+ * Return value:    a list of #OGDPerson, or NULL
+ */
+const GList* ogd_content_get_fans (OGDContent *content)
+{
+    /**
+        TODO
+    */
+
+    return NULL;
+}
+
+/**
  * ogd_content_get_previews:
  * @content:        the #OGDContent to query
  *
  * To obtain a list of URL where to find previews of @content
- * 
+ *
  * Return value:    list of URL of previews for the target @content
  */
 const GList* ogd_content_get_previews (OGDContent *content)
@@ -355,7 +374,7 @@ const GList* ogd_content_get_previews (OGDContent *content)
  * @content:        the #OGDContent to query
  *
  * To obtain a list of URL where @content may be downloaded
- * 
+ *
  * Return value:    list of URL from which download the target @content
  */
 const GList* ogd_content_get_download_refs (OGDContent *content)
@@ -423,4 +442,36 @@ void ogd_content_vote (OGDContent *content, OGD_CONTENT_VOTE vote)
 void ogd_content_vote_async (OGDContent *content, OGD_CONTENT_VOTE vote, OGDPutAsyncCallback callback, gpointer userdata)
 {
     effective_vote (content, vote, TRUE, callback, userdata);
+}
+
+/**
+ * ogd_content_set_fan:
+ * @content:        the #OGDContent for which change the fan status
+ * @fan:            %TRUE to become fan of the @content, %FALSE to be removed from the list of
+ *                  fans
+ *
+ * Permits to change status of the current user as fan of the given @content
+ */
+void ogd_content_set_fan (OGDContent *content, gboolean fan)
+{
+    /**
+        TODO
+    */
+}
+
+/**
+ * ogd_content_set_fan_async:
+ * @content:        the #OGDContent for which change the fan status
+ * @fan:            %TRUE to become fan of the @content, %FALSE to be removed from the list of
+ *                  fans
+ * @callback:       async callback to which result of the operation is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_content_set_fan()
+ */
+void ogd_content_set_fan_async (OGDContent *content, gboolean fan, OGDPutAsyncCallback callback, gpointer userdata)
+{
+    /**
+        TODO
+    */
 }

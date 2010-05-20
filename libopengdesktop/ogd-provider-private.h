@@ -24,6 +24,7 @@ typedef void (*OGDProviderRawAsyncCallback) (xmlNode *node, gpointer userdata);
 
 xmlNode*        ogd_provider_get_raw                (OGDProvider *provider, gchar *query);
 void            ogd_provider_get_raw_async          (OGDProvider *provider, gchar *query, gboolean many, OGDProviderRawAsyncCallback rcallback, gpointer userdata);
+xmlNode*        ogd_provider_put_raw                (OGDProvider *provider, gchar *query, GHashTable *data);
 GHashTable*     ogd_provider_header_from_raw        (xmlNode *response);
 void            ogd_provider_get_single_async       (OGDProvider *provider, gchar *query, OGDAsyncCallback callback, gpointer userdata);
 

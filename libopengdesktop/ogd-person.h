@@ -71,7 +71,7 @@ typedef enum {
  * @OGD_PERSON_GENDER_UNDEFINED:            the person has not specified his own gender
  * @OGD_PERSON_MAN:                         #OGDPerson is a man
  * @OGD_PERSON_WOMAN:                       #OGDPerson is a woman
- * 
+ *
  * Describe gender of a #OGDPerson
  */
 typedef enum {
@@ -87,7 +87,7 @@ typedef enum {
  * @OGD_PERSON_DEVELOPER:                   the #OGDPerson is a developer
  * @OGD_PERSON_ARTIST:                      the #OGDPerson is an artist
  * @OGD_PERSON_SUPPORTER:                   the #OGDPerson is a supporter
- * 
+ *
  * Possible roles in community a #OGDPerson may have
  */
 typedef enum {
@@ -106,7 +106,7 @@ typedef enum {
  * @OGD_PERSON_JOB_LOOKING:                 the #OGDPerson is looking for a job
  * @OGD_PERSON_JOB_RETIRED:                 the #OGDPerson is retired
  * @OGD_PERSON_JOB_FREE:                    the #OGDPerson has not a job
- * 
+ *
  * Possible working status of a #OGDPerson
  */
 typedef enum {
@@ -158,6 +158,8 @@ void                    ogd_person_myself_set_coordinates_async (OGDPerson *myse
                                                                  OGDPutAsyncCallback callback, gpointer userdata);
 void                    ogd_person_myself_invite_friend         (OGDPerson *person, gchar *message);
 void                    ogd_person_myself_invite_friend_async   (OGDPerson *person, gchar *message, OGDPutAsyncCallback callback, gpointer userdata);
+GList*                  ogd_person_myself_pending_friends       ();
+void                    ogd_person_myself_action_on_friend      (OGDPerson *person, gboolean accept);
 
 G_END_DECLS
 

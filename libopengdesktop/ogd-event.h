@@ -71,27 +71,48 @@ typedef enum {
 
 GType                   ogd_event_get_type              ();
 
+OGDEvent*               ogd_event_new                   (OGDProvider *provider);
+GList*                  ogd_event_fetch_all             (OGDProvider *provider);
+
 const gchar*            ogd_event_get_id                (OGDEvent *event);
-const gchar*            ogd_event_get_name              (OGDEvent *event);
-const gchar*            ogd_event_get_description       (OGDEvent *event);
-OGD_EVENT_CATEGORY      ogd_event_get_category          (OGDEvent *event);
-const GDate*            ogd_event_get_start_date        (OGDEvent *event);
-const GDate*            ogd_event_get_end_date          (OGDEvent *event);
 const gchar*            ogd_event_get_authorid          (OGDEvent *event);
+const gchar*            ogd_event_get_name              (OGDEvent *event);
+void                    ogd_event_set_name              (OGDEvent *event, gchar *name);
+const gchar*            ogd_event_get_description       (OGDEvent *event);
+void                    ogd_event_set_description       (OGDEvent *event, gchar *description);
+OGD_EVENT_CATEGORY      ogd_event_get_category          (OGDEvent *event);
+void                    ogd_event_set_category          (OGDEvent *event, OGD_EVENT_CATEGORY category);
+const GDate*            ogd_event_get_start_date        (OGDEvent *event);
+void                    ogd_event_set_start_date        (OGDEvent *event, GDate *date);
+const GDate*            ogd_event_get_end_date          (OGDEvent *event);
+void                    ogd_event_set_end_date          (OGDEvent *event, GDate *date);
 const gchar*            ogd_event_get_organizer         (OGDEvent *event);
+void                    ogd_event_set_organizer         (OGDEvent *event, gchar *organizer);
 const gchar*            ogd_event_get_location          (OGDEvent *event);
+void                    ogd_event_set_location          (OGDEvent *event, gchar *location);
 const gchar*            ogd_event_get_city              (OGDEvent *event);
+void                    ogd_event_set_city              (OGDEvent *event, gchar *city);
 const gchar*            ogd_event_get_country           (OGDEvent *event);
+void                    ogd_event_set_country           (OGDEvent *event, gchar *country);
 gdouble                 ogd_event_get_longitude         (OGDEvent *event);
+void                    ogd_event_set_longitude         (OGDEvent *event, gdouble longitude);
 gdouble                 ogd_event_get_latitude          (OGDEvent *event);
+void                    ogd_event_set_latitude          (OGDEvent *event, gdouble latitude);
 const gchar*            ogd_event_get_homepage          (OGDEvent *event);
+void                    ogd_event_set_homepage          (OGDEvent *event, gchar *homepage);
 const gchar*            ogd_event_get_telephone         (OGDEvent *event);
+void                    ogd_event_set_telephone         (OGDEvent *event, gchar *telephone);
 const gchar*            ogd_event_get_fax               (OGDEvent *event);
+void                    ogd_event_set_fax               (OGDEvent *event, gchar *fax);
 const gchar*            ogd_event_get_email             (OGDEvent *event);
+void                    ogd_event_set_email             (OGDEvent *event, gchar *email);
 const GDate*            ogd_event_get_changed           (OGDEvent *event);
 gulong                  ogd_event_get_num_comments      (OGDEvent *event);
 gulong                  ogd_event_get_num_partecipants  (OGDEvent *event);
 const gchar*            ogd_event_get_image             (OGDEvent *event);
+
+void                    ogd_event_save                  (OGDEvent *event);
+void                    ogd_event_remove                (OGDEvent *event);
 
 G_END_DECLS
 
