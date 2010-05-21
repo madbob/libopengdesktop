@@ -151,15 +151,15 @@ const gchar*            ogd_person_get_profile_page         (OGDPerson *person);
 const GList*            ogd_person_get_friends              (OGDPerson *person);
 void                    ogd_person_get_friends_async        (OGDPerson *person, OGDAsyncCallback callback, gpointer userdata);
 
-const OGDPerson*        ogd_person_get_myself                   (OGDProvider *provider);
+OGDPerson*              ogd_person_get_myself                   (OGDProvider *provider);
 void                    ogd_person_get_myself_async             (OGDProvider *provider, OGDAsyncCallback callback, gpointer userdata);
 void                    ogd_person_myself_set_coordinates       (OGDPerson *myself, gdouble latitude, gdouble longitude);
 void                    ogd_person_myself_set_coordinates_async (OGDPerson *myself, gdouble latitude, gdouble longitude,
                                                                  OGDPutAsyncCallback callback, gpointer userdata);
 void                    ogd_person_myself_invite_friend         (OGDPerson *person, gchar *message);
 void                    ogd_person_myself_invite_friend_async   (OGDPerson *person, gchar *message, OGDPutAsyncCallback callback, gpointer userdata);
-GList*                  ogd_person_myself_pending_friends       ();
-void                    ogd_person_myself_action_on_friend      (OGDPerson *person, gboolean accept);
+GList*                  ogd_person_myself_pending_friends       (OGDPerson *person);
+void                    ogd_person_myself_action_on_friend      (OGDPerson *person, gboolean accept, OGDPerson *friend);
 
 G_END_DECLS
 

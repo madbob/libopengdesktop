@@ -210,7 +210,7 @@ static gboolean check_ownership (OGDEvent *event)
     owner = ogd_event_get_authorid (event);
 
     if (myself == NULL)
-        myself = ogd_person_get_id ((OGDPerson*) ogd_person_get_myself ((OGDProvider*) ogd_object_get_provider (OGD_OBJECT (event))));
+        myself = ogd_person_get_id (ogd_person_get_myself ((OGDProvider*) ogd_object_get_provider (OGD_OBJECT (event))));
 
     return (strcmp (owner, myself) == 0);
 }
@@ -380,8 +380,7 @@ void ogd_event_set_start_date (OGDEvent *event, GDate *date)
         return;
     }
 
-    if (event->priv->startdate != NULL)
-        g_date_free (event->priv->startdate);
+    DATE_CHECK_FREE_NULLIFY (event->priv->startdate);
     event->priv->startdate = date;
 }
 
@@ -413,8 +412,7 @@ void ogd_event_set_end_date (OGDEvent *event, GDate *date)
         return;
     }
 
-    if (event->priv->enddate != NULL)
-        g_date_free (event->priv->enddate);
+    DATE_CHECK_FREE_NULLIFY (event->priv->enddate);
     event->priv->enddate = date;
 }
 

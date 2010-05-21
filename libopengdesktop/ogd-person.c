@@ -235,6 +235,61 @@ static void ogd_person_init (OGDPerson *item)
     memset (item->priv, 0, sizeof (OGDPersonPrivate));
 }
 
+static GList* list_of_people (OGDPerson *reference, gchar *query)
+{
+    gulong collected;
+    gulong totalitems;
+    gint page;
+    gchar *complete_query;
+    GList *ret;
+    xmlChar *friend_id;
+    xmlNode *data;
+    xmlNode *cursor;
+    OGDPerson *obj;
+    OGDProvider *provider;
+
+    ret = NULL;
+    collected = 0;
+    totalitems = 0;
+    page = 0;
+    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (reference));
+
+    do {
+        complete_query = g_strdup_printf ("%s/%s?pagesize=100&page=%d", query, ogd_person_get_id (reference), page);
+        data = ogd_provider_get_raw (provider, complete_query);
+        g_free (complete_query);
+
+        if (data != NULL) {
+            totalitems = total_items_for_query (data);
+
+            for (cursor = data->children; cursor; cursor = cursor->next) {
+                friend_id = xmlNodeGetContent (cursor->children);
+
+                if (friend_id != NULL) {
+                    obj = g_object_new (OGD_PERSON_TYPE, NULL);
+                    ogd_object_set_provider (OGD_OBJECT (obj), provider);
+
+                    if (ogd_object_fill_by_id (OGD_OBJECT (obj), (char*) friend_id, NULL) == TRUE) {
+                        ret = g_list_prepend (ret, obj);
+                        collected++;
+                    }
+
+                    xmlFree (friend_id);
+                }
+            }
+
+            xmlFreeDoc (data->doc);
+            page++;
+        }
+
+    } while (collected < totalitems);
+
+    if (ret)
+        ret = g_list_reverse (ret);
+
+    return ret;
+}
+
 /**
  * ogd_person_get_id:
  * @person:         the #OGDPerson to query
@@ -637,57 +692,7 @@ const gchar* ogd_person_get_profile_page (OGDPerson *person)
  */
 const GList* ogd_person_get_friends (OGDPerson *person)
 {
-    gulong collected;
-    gulong totalitems;
-    gint page;
-    gchar *query;
-    GList *ret;
-    xmlChar *friend_id;
-    xmlNode *data;
-    xmlNode *cursor;
-    OGDPerson *obj;
-    OGDProvider *provider;
-
-    ret = NULL;
-    collected = 0;
-    totalitems = 0;
-    page = 0;
-    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (person));
-
-    do {
-        query = g_strdup_printf ("friend/data/%s?pagesize=100&page=%d", ogd_person_get_id (person), page);
-        data = ogd_provider_get_raw (provider, query);
-        g_free (query);
-
-        if (data != NULL) {
-            totalitems = total_items_for_query (data);
-
-            for (cursor = data->children; cursor; cursor = cursor->next) {
-                friend_id = xmlNodeGetContent (cursor->children);
-
-                if (friend_id != NULL) {
-                    obj = g_object_new (OGD_PERSON_TYPE, NULL);
-
-                    if (ogd_object_fill_by_id (OGD_OBJECT (obj), (char*) friend_id, NULL) == TRUE) {
-                        ogd_object_set_provider (OGD_OBJECT (obj), provider);
-                        ret = g_list_prepend (ret, obj);
-                        collected++;
-                    }
-
-                    xmlFree (friend_id);
-                }
-            }
-
-            xmlFreeDoc (data->doc);
-            page++;
-        }
-
-    } while (collected < totalitems);
-
-    if (ret)
-        ret = g_list_reverse (ret);
-
-    return ret;
+    return list_of_people (person, "friend/data");
 }
 
 static void pass_friend_up (OGDObject *obj, gpointer userdata)
@@ -789,7 +794,7 @@ void ogd_person_get_friends_async (OGDPerson *person, OGDAsyncCallback callback,
  *
  * Return value:    the #OGDPerson rappresenting the current user
  */
-const OGDPerson* ogd_person_get_myself (OGDProvider *provider)
+OGDPerson* ogd_person_get_myself (OGDProvider *provider)
 {
     GList *tmp_list;
     OGDPerson *ret;
@@ -920,32 +925,76 @@ void ogd_person_myself_invite_friend_async (OGDPerson *person, gchar *message, O
 
 /**
  * ogd_person_myself_pending_friends:
+ * @person:         the current user, as returned by ogd_person_get_myself()
  *
  * Retrieves list of current pending requests for friendship
  *
  * Return value:    a list of #OGDPerson, or NULL
  */
-GList* ogd_person_myself_pending_friends ()
+GList* ogd_person_myself_pending_friends (OGDPerson *person)
 {
-    /**
-        TODO
-    */
-
-    return NULL;
+    return list_of_people (person, "friend/receivedinvitations");
 }
 
 /**
  * ogd_person_myself_action_on_friend:
- * @person:         an #OGDPerson which may be a friend or a pending friend
+ * @person:         the current user, as returned by ogd_person_get_myself()
  * @accept:         action to perform about friendship with the current user
+ * @friend:         an #OGDPerson which may be a friend or a pending friend
  *
  * Acts on a friendship: if @person is a pending friend his request may be accepted or declined
  * with @accept = %TRUE or %FALSE, if @person is already a friend and @accept is %FALSE the
  * relationship is dropped. Nothing happens if @person is a friend and @accept is %TRUE
  */
-void ogd_person_myself_action_on_friend (OGDPerson *person, gboolean accept)
+void ogd_person_myself_action_on_friend (OGDPerson *person, gboolean accept, OGDPerson *friend)
 {
-    /**
-        TODO
-    */
+    gboolean done;
+    gchar *query;
+    const gchar *target_id;
+    GList *list;
+    GList *iter;
+    OGDPerson *cmp;
+    OGDProvider *provider;
+
+    target_id = ogd_person_get_id (friend);
+    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (person));
+
+    done = FALSE;
+    list = ogd_person_myself_pending_friends (person);
+
+    for (iter = list; iter; iter = g_list_next (iter)) {
+        cmp = iter->data;
+
+        if (strcmp (ogd_person_get_id (cmp), target_id) == 0) {
+            if (accept == TRUE)
+                query = g_strdup_printf ("friend/approve/%s", target_id);
+            else
+                query = g_strdup_printf ("friend/decline/%s", target_id);
+
+            ogd_provider_put (provider, query, NULL);
+            g_free (query);
+
+            done = TRUE;
+            break;
+        }
+    }
+
+    FREE_LIST_OF_OBJECTS (list);
+
+    if (done == FALSE && accept == FALSE) {
+        list = (GList*) ogd_person_get_friends (person);
+
+        for (iter = list; iter; iter = g_list_next (iter)) {
+            cmp = iter->data;
+
+            if (strcmp (ogd_person_get_id (cmp), target_id) == 0) {
+                query = g_strdup_printf ("friend/cancel/%s", target_id);
+                ogd_provider_put (provider, query, NULL);
+                g_free (query);
+                break;
+            }
+        }
+
+        FREE_LIST_OF_OBJECTS (list);
+    }
 }
