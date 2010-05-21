@@ -56,8 +56,8 @@ struct _OGDObjectClass {
 
 GType               ogd_object_get_type                 ();
 
-const OGDProvider*  ogd_object_get_provider             (OGDObject *obj);
-void                ogd_object_set_provider             (OGDObject *obj, const OGDProvider *provider);
+OGDProvider*        ogd_object_get_provider             (OGDObject *obj);
+void                ogd_object_set_provider             (OGDObject *obj, OGDProvider *provider);
 
 gboolean            ogd_object_fill_by_xml              (OGDObject *obj, const xmlNode *xml, GError **error);
 gboolean            ogd_object_fill_by_id               (OGDObject *obj, const gchar *id, GError **error);

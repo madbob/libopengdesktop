@@ -63,8 +63,10 @@ gboolean ogd_object_fill_by_xml (OGDObject *obj, const xmlNode *xml, GError **er
 
 static inline gchar* has_valid_target_callback (OGDObject *obj, const gchar *id)
 {
-    if (OGD_OBJECT_GET_CLASS (obj)->target_query == NULL)
+    if (OGD_OBJECT_GET_CLASS (obj)->target_query == NULL) {
+        g_warning ("No target query defined for this object type");
         return NULL;
+    }
 
     return OGD_OBJECT_GET_CLASS (obj)->target_query (id);
 }
@@ -91,7 +93,7 @@ gboolean ogd_object_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
     if (query == NULL)
         return FALSE;
 
-    data = ogd_provider_get_raw ((OGDProvider*) ogd_object_get_provider (obj), query);
+    data = ogd_provider_get_raw (ogd_object_get_provider (obj), query);
     g_free (query);
 
     if (data != NULL) {
@@ -99,7 +101,6 @@ gboolean ogd_object_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
         xmlFreeDoc (data->doc);
     }
     else {
-        g_warning ("Error fetching ID %s.", id);
         ret = FALSE;
     }
 
@@ -141,7 +142,7 @@ void ogd_object_fill_by_id_async (OGDObject *obj, const gchar *id, OGDAsyncCallb
     req->userdata = userdata;
     req->reference = obj;
 
-    ogd_provider_get_raw_async ((OGDProvider*) ogd_object_get_provider (obj), query, FALSE, parse_xml_from_async, req);
+    ogd_provider_get_raw_async (ogd_object_get_provider (obj), query, FALSE, parse_xml_from_async, req);
     g_free (query);
 }
 
@@ -169,9 +170,9 @@ static void ogd_object_init (OGDObject *item)
  *
  * To retrieve the repository from which an object has been took
  *
- * Return value:    the #OGDProvider from which the object has been took
+ * Return value:    the #OGDProvider from which the object has been took. Don't free it!
  */
-const OGDProvider* ogd_object_get_provider (OGDObject *obj)
+OGDProvider* ogd_object_get_provider (OGDObject *obj)
 {
     return obj->priv->provider;
 }
@@ -185,7 +186,7 @@ const OGDProvider* ogd_object_get_provider (OGDObject *obj)
  * propagate reference to the content repository from an object to another, and avoid specify it
  * each time an action is performed
  */
-void ogd_object_set_provider (OGDObject *obj, const OGDProvider *provider)
+void ogd_object_set_provider (OGDObject *obj, OGDProvider *provider)
 {
     obj->priv->provider = (OGDProvider*) provider;
 }

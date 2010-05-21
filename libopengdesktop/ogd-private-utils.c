@@ -68,16 +68,78 @@ gulong total_items_for_query (xmlNode *package)
 
     ret = 0;
     header = ogd_provider_header_from_raw (package);
-    header_vals = g_hash_table_get_keys (header);
 
-    for (iter = g_list_first (header_vals); iter; iter = g_list_next (iter))
-        if (strcmp ((gchar*) iter->data, "totalitems") == 0) {
-            ret = (gulong) g_ascii_strtoull (g_hash_table_lookup (header, iter->data), NULL, 10);
-            break;
+    if (header != NULL) {
+        header_vals = g_hash_table_get_keys (header);
+
+        for (iter = g_list_first (header_vals); iter; iter = g_list_next (iter))
+            if (strcmp ((gchar*) iter->data, "totalitems") == 0) {
+                ret = (gulong) g_ascii_strtoull (g_hash_table_lookup (header, iter->data), NULL, 10);
+                break;
+            }
+
+        g_list_free (header_vals);
+        g_hash_table_unref (header);
+    }
+
+    return ret;
+}
+
+GList* list_of_people (OGDObject *reference, gchar *query)
+{
+    gulong collected;
+    gulong totalitems;
+    gint page;
+    gchar *complete_query;
+    GList *ret;
+    xmlChar *friend_id;
+    xmlNode *data;
+    xmlNode *cursor;
+    OGDPerson *obj;
+    OGDProvider *provider;
+
+    ret = NULL;
+    collected = 0;
+    totalitems = 0;
+    page = 0;
+    provider = ogd_object_get_provider (reference);
+
+    do {
+        complete_query = g_strdup_printf ("%s?pagesize=100&page=%d", query, page);
+        data = ogd_provider_get_raw (provider, complete_query);
+        g_free (complete_query);
+
+        if (data != NULL) {
+            totalitems = total_items_for_query (data);
+
+            for (cursor = data->children; cursor; cursor = cursor->next) {
+                friend_id = xmlNodeGetContent (cursor->children);
+
+                if (friend_id != NULL) {
+                    obj = g_object_new (OGD_PERSON_TYPE, NULL);
+                    ogd_object_set_provider (OGD_OBJECT (obj), provider);
+
+                    if (ogd_object_fill_by_id (OGD_OBJECT (obj), (char*) friend_id, NULL) == TRUE) {
+                        ret = g_list_prepend (ret, obj);
+                    }
+                    else {
+                        g_warning ("Unable to retrieve person with ID %s.", (char*) friend_id);
+                    }
+
+                    xmlFree (friend_id);
+                    collected++;
+                }
+            }
+
+            xmlFreeDoc (data->doc);
+            page++;
         }
 
-    g_list_free (header_vals);
-    g_hash_table_unref (header);
+    } while (collected < totalitems);
+
+    if (ret != NULL)
+        ret = g_list_reverse (ret);
+
     return ret;
 }
 

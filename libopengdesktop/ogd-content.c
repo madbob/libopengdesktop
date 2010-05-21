@@ -80,6 +80,9 @@ static gboolean ogd_content_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
 
     content = OGD_CONTENT (obj);
 
+    if (MYSTRCMP (xml->name, "data") == 0)
+        xml = xml->children;
+
     if (MYSTRCMP (xml->name, "content") != 0) {
         g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Invalid XML for OGDContent");
         return FALSE;
@@ -349,11 +352,13 @@ gulong ogd_content_get_num_fans (OGDContent *content)
  */
 const GList* ogd_content_get_fans (OGDContent *content)
 {
-    /**
-        TODO
-    */
+    gchar *query;
+    GList *ret;
 
-    return NULL;
+    query = g_strdup_printf ("fan/data/%s", ogd_content_get_id (content));
+    ret = list_of_people (OGD_OBJECT (content), query);
+    g_free (query);
+    return ret;
 }
 
 /**
@@ -389,7 +394,7 @@ static void effective_vote (OGDContent *content, OGD_CONTENT_VOTE vote, gboolean
     gchar *vote_str;
     OGDProvider *provider;
 
-    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (content));
+    provider = ogd_object_get_provider (OGD_OBJECT (content));
 
     switch (vote) {
         case OGD_CONTENT_GOOD:
@@ -444,6 +449,18 @@ void ogd_content_vote_async (OGDContent *content, OGD_CONTENT_VOTE vote, OGDPutA
     effective_vote (content, vote, TRUE, callback, userdata);
 }
 
+static gchar* fan_query (OGDContent *content, gboolean fan)
+{
+    gchar *query;
+
+    if (fan == TRUE)
+        query = g_strdup_printf ("fan/add/%s", ogd_content_get_id (content));
+    else
+        query = g_strdup_printf ("fan/remove/%s", ogd_content_get_id (content));
+
+    return query;
+}
+
 /**
  * ogd_content_set_fan:
  * @content:        the #OGDContent for which change the fan status
@@ -454,9 +471,11 @@ void ogd_content_vote_async (OGDContent *content, OGD_CONTENT_VOTE vote, OGDPutA
  */
 void ogd_content_set_fan (OGDContent *content, gboolean fan)
 {
-    /**
-        TODO
-    */
+    gchar *query;
+
+    query = fan_query (content, fan);
+    ogd_provider_put (ogd_object_get_provider (OGD_OBJECT (content)), query, NULL);
+    g_free (query);
 }
 
 /**
@@ -471,7 +490,9 @@ void ogd_content_set_fan (OGDContent *content, gboolean fan)
  */
 void ogd_content_set_fan_async (OGDContent *content, gboolean fan, OGDPutAsyncCallback callback, gpointer userdata)
 {
-    /**
-        TODO
-    */
+    gchar *query;
+
+    query = fan_query (content, fan);
+    ogd_provider_put_async (ogd_object_get_provider (OGD_OBJECT (content)), query, NULL, NULL, NULL);
+    g_free (query);
 }

@@ -179,8 +179,9 @@ static gboolean check_provider_response (xmlNode *root, xmlNode **data)
                 g_warning ("Failed to retrieve informations on server: %s\n", me);
                 xmlFree (me);
             }
-            else
+            else {
                 g_warning ("Failed to retrieve informations on server\n");
+            }
 
             return FALSE;
         }
@@ -467,7 +468,12 @@ static SoupMessage* prepare_message_to_put (OGDProvider *provider, gchar *query,
     SoupMessage *msg;
 
     complete_query = g_strdup_printf ("%s%s", provider->priv->access_url, query);
-    msg = soup_form_request_new_from_hash ("POST", complete_query, data);
+
+    if (data != NULL)
+        msg = soup_form_request_new_from_hash ("POST", complete_query, data);
+    else
+        msg = soup_form_request_new ("POST", complete_query, NULL, NULL);
+
     g_free (complete_query);
     return msg;
 }

@@ -112,7 +112,11 @@ static gboolean ogd_person_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
     if (MYSTRCMP (xml->name, "data") == 0)
         xml = xml->children;
 
-    if (MYSTRCMP (xml->name, "person") != 0) {
+    /*
+        Inconsistency in some API return data: friend/receivedinvitations encapsulates in "user"
+        tag, all others in "person" tag
+    */
+    if (MYSTRCMP (xml->name, "person") != 0 && MYSTRCMP (xml->name, "user") != 0) {
         g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Invalid XML for OGDPerson");
         return FALSE;
     }
@@ -236,68 +240,6 @@ static void ogd_person_init (OGDPerson *item)
 {
     item->priv = OGD_PERSON_GET_PRIVATE (item);
     memset (item->priv, 0, sizeof (OGDPersonPrivate));
-}
-
-static GList* list_of_people (OGDPerson *reference, gchar *query)
-{
-    gulong collected;
-    gulong totalitems;
-    gint page;
-    gchar *complete_query;
-    GList *ret;
-    GError *error;
-    xmlChar *friend_id;
-    xmlNode *data;
-    xmlNode *cursor;
-    OGDPerson *obj;
-    OGDProvider *provider;
-
-    ret = NULL;
-    collected = 0;
-    totalitems = 0;
-    page = 0;
-    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (reference));
-
-    do {
-        complete_query = g_strdup_printf ("%s?pagesize=100&page=%d", query, page);
-        data = ogd_provider_get_raw (provider, complete_query);
-        g_free (complete_query);
-
-        if (data != NULL) {
-            totalitems = total_items_for_query (data);
-
-            for (cursor = data->children; cursor; cursor = cursor->next) {
-                friend_id = xmlNodeGetContent (cursor->children);
-
-                if (friend_id != NULL) {
-                    obj = g_object_new (OGD_PERSON_TYPE, NULL);
-                    ogd_object_set_provider (OGD_OBJECT (obj), provider);
-
-                    error = NULL;
-
-                    if (ogd_object_fill_by_id (OGD_OBJECT (obj), (char*) friend_id, &error) == TRUE) {
-                        ret = g_list_prepend (ret, obj);
-                    }
-                    else {
-                        g_warning ("Unable to retrieve person with id %s: %s.", (char*) friend_id, error->message);
-                        g_error_free (error);
-                    }
-
-                    xmlFree (friend_id);
-                    collected++;
-                }
-            }
-
-            xmlFreeDoc (data->doc);
-            page++;
-        }
-
-    } while (collected < totalitems);
-
-    if (ret != NULL)
-        ret = g_list_reverse (ret);
-
-    return ret;
 }
 
 /**
@@ -706,7 +648,7 @@ const GList* ogd_person_get_friends (OGDPerson *person)
     GList *ret;
 
     query = g_strdup_printf ("friend/data/%s", ogd_person_get_id (person));
-    ret = list_of_people (person, query);
+    ret = list_of_people (OGD_OBJECT (person), query);
     g_free (query);
     return ret;
 }
@@ -787,7 +729,7 @@ void ogd_person_get_friends_async (OGDPerson *person, OGDAsyncCallback callback,
     AsyncRequestDesc *req;
     OGDProvider *provider;
 
-    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (person));
+    provider = ogd_object_get_provider (OGD_OBJECT (person));
 
     req = g_new0 (AsyncRequestDesc, 1);
     req->callback = callback;
@@ -847,7 +789,7 @@ static void effective_set_coordinates (OGDPerson *myself, gdouble latitude, gdou
     GHashTable *params;
     OGDProvider *provider;
 
-    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (myself));
+    provider = ogd_object_get_provider (OGD_OBJECT (myself));
     snprintf (lat_str, 100, "%.03f", latitude);
     snprintf (lon_str, 100, "%.03f", longitude);
 
@@ -896,7 +838,7 @@ static void effective_invite_friend (OGDPerson *person, gchar *message, gboolean
     GHashTable *params;
     OGDProvider *provider;
 
-    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (person));
+    provider = ogd_object_get_provider (OGD_OBJECT (person));
 
     query = g_strdup_printf ("friend/outbox/%s", ogd_person_get_id (person));
     params = g_hash_table_new (g_str_hash, g_str_equal);
@@ -949,7 +891,7 @@ void ogd_person_myself_invite_friend_async (OGDPerson *person, gchar *message, O
  */
 GList* ogd_person_myself_pending_friends (OGDPerson *person)
 {
-    return list_of_people (person, "friend/receivedinvitations");
+    return list_of_people (OGD_OBJECT (person), "friend/receivedinvitations");
 }
 
 /**
@@ -973,7 +915,7 @@ void ogd_person_myself_action_on_friend (OGDPerson *person, gboolean accept, OGD
     OGDProvider *provider;
 
     target_id = ogd_person_get_id (friend);
-    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (person));
+    provider = ogd_object_get_provider (OGD_OBJECT (person));
 
     done = FALSE;
     list = ogd_person_myself_pending_friends (person);

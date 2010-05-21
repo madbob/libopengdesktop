@@ -28,7 +28,7 @@
  *
  * You can use #OGDActivity to see what is going on in friends network. For example who visited
  * you homepage, who has send you a message and who uploaded a new content to the website.
- * 
+ *
  * You can also post a microblogging message which is visible on you profile page and in the
  * activities of your friends.
  */
@@ -110,7 +110,7 @@ static void ogd_activity_init (OGDActivity *item)
  * @activity:		an #OGDActivity to read
  *
  * To retrieve the author of the @activity
- * 
+ *
  * Return value:	identifiers of the #OGDPerson who created the activity. You can use
                     ogd_object_fill_by_id() to obtain all informations
  */
@@ -124,7 +124,7 @@ const gchar* ogd_activity_get_authorid (OGDActivity *activity)
  * @activity:		an #OGDActivity to read
  *
  * To retrieve the date of creation of the activity
- * 
+ *
  * Return value:	a #GDate for the date of creation of the activity
  */
 const GDate* ogd_activity_get_date (OGDActivity *activity)
@@ -137,7 +137,7 @@ const GDate* ogd_activity_get_date (OGDActivity *activity)
  * @activity:		an #OGDActivity to read
  *
  * To retrieve the category of the activity
- * 
+ *
  * Return value:	identifier of the provided activity
  */
 OGD_ACTIVITY_CATEGORY ogd_activity_get_category (OGDActivity *activity)
@@ -150,7 +150,7 @@ OGD_ACTIVITY_CATEGORY ogd_activity_get_category (OGDActivity *activity)
  * @activity:		an #OGDActivity to read
  *
  * To retrieve the message attached to the activity
- * 
+ *
  * Return value:	a string containing a message, or NULL if no message has been assigned
  */
 const gchar* ogd_activity_get_message (OGDActivity *activity)
@@ -163,7 +163,7 @@ const gchar* ogd_activity_get_message (OGDActivity *activity)
  * @activity:		an #OGDActivity to read
  *
  * To retrieve the web link attached to the activity
- * 
+ *
  * Return value:	a string containing a web link, or NULL if no link has been assigned
  */
 const gchar* ogd_activity_get_link (OGDActivity *activity)
@@ -187,7 +187,7 @@ gboolean ogd_activity_set (OGDPerson *myself, gchar *status)
     GHashTable *params;
     OGDProvider *provider;
 
-    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (myself));
+    provider = ogd_object_get_provider (OGD_OBJECT (myself));
 
     params = g_hash_table_new (g_str_hash, g_str_equal);
     g_hash_table_insert (params, "message", status);

@@ -210,7 +210,7 @@ static gboolean check_ownership (OGDEvent *event)
     owner = ogd_event_get_authorid (event);
 
     if (myself == NULL)
-        myself = ogd_person_get_id (ogd_person_get_myself ((OGDProvider*) ogd_object_get_provider (OGD_OBJECT (event))));
+        myself = ogd_person_get_id (ogd_person_get_myself (ogd_object_get_provider (OGD_OBJECT (event))));
 
     return (strcmp (owner, myself) == 0);
 }
@@ -872,7 +872,7 @@ void ogd_event_save (OGDEvent *event)
     id = ogd_event_get_id (event);
 
     if (id == NULL) {
-        response = ogd_provider_put_raw ((OGDProvider*) ogd_object_get_provider (OGD_OBJECT (event)), "event/add", data);
+        response = ogd_provider_put_raw (ogd_object_get_provider (OGD_OBJECT (event)), "event/add", data);
         if (response != NULL) {
             if (MYSTRCMP (response->name, "data") == 0 && response->children != NULL &&
                     MYSTRCMP (response->children->name, "event") == 0 && response->children->children != NULL &&
@@ -892,7 +892,7 @@ void ogd_event_save (OGDEvent *event)
     }
     else {
         query = g_strdup_printf ("event/edit/%s", id);
-        ogd_provider_put ((OGDProvider*) ogd_object_get_provider (OGD_OBJECT (event)), query, data);
+        ogd_provider_put (ogd_object_get_provider (OGD_OBJECT (event)), query, data);
         g_free (query);
     }
 
@@ -920,7 +920,7 @@ void ogd_event_remove (OGDEvent *event)
 
     if (id != NULL) {
         query = g_strdup_printf ("event/delete/%s", id);
-        ogd_provider_put ((OGDProvider*) ogd_object_get_provider (OGD_OBJECT (event)), query, NULL);
+        ogd_provider_put (ogd_object_get_provider (OGD_OBJECT (event)), query, NULL);
         g_free (query);
     }
 }

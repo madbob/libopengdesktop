@@ -111,7 +111,7 @@ static void ogd_message_init (OGDMessage *item)
  * @msg:            an #OGDMessage to read
  *
  * To retrieve the author of the message
- * 
+ *
  * Return value:    identifiers of the #OGDPerson who sent the message. You can use
                     ogd_object_fill_by_id() to obtain all informations
  */
@@ -125,7 +125,7 @@ const gchar* ogd_message_get_authorid (OGDMessage *msg)
  * @msg:            an #OGDMessage to read
  *
  * To retrieve the date of message sending
- * 
+ *
  * Return value:    a #GDate for the date of message sending
  */
 const GDate* ogd_message_get_date (OGDMessage *msg)
@@ -138,7 +138,7 @@ const GDate* ogd_message_get_date (OGDMessage *msg)
  * @msg:            an #OGDMessage to read
  *
  * To retrieve the current status for the message
- * 
+ *
  * Return value:    identifier of the status of the message
  */
 OGD_MESSAGE_STATUS ogd_message_get_status (OGDMessage *msg)
@@ -151,7 +151,7 @@ OGD_MESSAGE_STATUS ogd_message_get_status (OGDMessage *msg)
  * @msg:            an #OGDMessage to read
  *
  * To retrieve the subject of the message
- * 
+ *
  * Return value:    a string containing the subject
  */
 const gchar* ogd_message_get_subject (OGDMessage *msg)
@@ -164,7 +164,7 @@ const gchar* ogd_message_get_subject (OGDMessage *msg)
  * @msg:            an #OGDMessage to read
  *
  * To retrieve the body of the message
- * 
+ *
  * Return value:    a string containing the message
  */
 const gchar* ogd_message_get_body (OGDMessage *msg)
@@ -210,7 +210,7 @@ void ogd_message_send (OGDPerson *to, const gchar *subject, const gchar *body)
     GHashTable *params;
     OGDProvider *provider;
 
-    provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (to));
+    provider = ogd_object_get_provider (OGD_OBJECT (to));
 
     id_of_send_folder = retrieve_messages_folder (provider, OGD_FOLDER_SEND);
     if (id_of_send_folder == NULL)
