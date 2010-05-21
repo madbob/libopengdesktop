@@ -109,6 +109,9 @@ static gboolean ogd_person_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErr
 
     person = OGD_PERSON (obj);
 
+    if (MYSTRCMP (xml->name, "data") == 0)
+        xml = xml->children;
+
     if (MYSTRCMP (xml->name, "person") != 0) {
         g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Invalid XML for OGDPerson");
         return FALSE;
@@ -242,6 +245,7 @@ static GList* list_of_people (OGDPerson *reference, gchar *query)
     gint page;
     gchar *complete_query;
     GList *ret;
+    GError *error;
     xmlChar *friend_id;
     xmlNode *data;
     xmlNode *cursor;
@@ -255,7 +259,7 @@ static GList* list_of_people (OGDPerson *reference, gchar *query)
     provider = (OGDProvider*) ogd_object_get_provider (OGD_OBJECT (reference));
 
     do {
-        complete_query = g_strdup_printf ("%s/%s?pagesize=100&page=%d", query, ogd_person_get_id (reference), page);
+        complete_query = g_strdup_printf ("%s?pagesize=100&page=%d", query, page);
         data = ogd_provider_get_raw (provider, complete_query);
         g_free (complete_query);
 
@@ -269,12 +273,18 @@ static GList* list_of_people (OGDPerson *reference, gchar *query)
                     obj = g_object_new (OGD_PERSON_TYPE, NULL);
                     ogd_object_set_provider (OGD_OBJECT (obj), provider);
 
-                    if (ogd_object_fill_by_id (OGD_OBJECT (obj), (char*) friend_id, NULL) == TRUE) {
+                    error = NULL;
+
+                    if (ogd_object_fill_by_id (OGD_OBJECT (obj), (char*) friend_id, &error) == TRUE) {
                         ret = g_list_prepend (ret, obj);
-                        collected++;
+                    }
+                    else {
+                        g_warning ("Unable to retrieve person with id %s: %s.", (char*) friend_id, error->message);
+                        g_error_free (error);
                     }
 
                     xmlFree (friend_id);
+                    collected++;
                 }
             }
 
@@ -284,7 +294,7 @@ static GList* list_of_people (OGDPerson *reference, gchar *query)
 
     } while (collected < totalitems);
 
-    if (ret)
+    if (ret != NULL)
         ret = g_list_reverse (ret);
 
     return ret;
@@ -692,7 +702,13 @@ const gchar* ogd_person_get_profile_page (OGDPerson *person)
  */
 const GList* ogd_person_get_friends (OGDPerson *person)
 {
-    return list_of_people (person, "friend/data");
+    gchar *query;
+    GList *ret;
+
+    query = g_strdup_printf ("friend/data/%s", ogd_person_get_id (person));
+    ret = list_of_people (person, query);
+    g_free (query);
+    return ret;
 }
 
 static void pass_friend_up (OGDObject *obj, gpointer userdata)

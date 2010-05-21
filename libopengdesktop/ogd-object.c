@@ -49,10 +49,10 @@ static void ogd_object_finalize (GObject *obj)
  * @obj:            #OGDObject to fill with values from the provided XML
  * @xml:            XML to parse
  * @error:          a #GError filled if the function return %FALSE
- * 
+ *
  * To fill a #OGDObject with the given XML. Consider this is an abstract method, to be
  * reimplemented by each extending class
- * 
+ *
  * Return value:    %TRUE if the XML is correctly parsed and @obj is filled with retrieved
  *                  values, %FALSE otherwise
  */
@@ -74,10 +74,10 @@ static inline gchar* has_valid_target_callback (OGDObject *obj, const gchar *id)
  * @obj:            #OGDObject to fill with values from the provided XML
  * @id:             ID of the object to read
  * @error:          a #GError filled if the function return %FALSE
- * 
+ *
  * To fill a #OGDObject given its ID on the server. Consider this is an abstract method, to be
  * reimplemented by each extending class, but not all classes may be accessed through an ID
- * 
+ *
  * Return value:    %TRUE if the XML is correctly took and filled due the given @id, %FALSE
  *                  otherwise
  */
@@ -98,8 +98,10 @@ gboolean ogd_object_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
         ret = ogd_object_fill_by_xml (obj, data, error);
         xmlFreeDoc (data->doc);
     }
-    else
+    else {
+        g_warning ("Error fetching ID %s.", id);
         ret = FALSE;
+    }
 
     return ret;
 }
@@ -164,9 +166,9 @@ static void ogd_object_init (OGDObject *item)
 /**
  * ogd_object_get_provider:
  * @obj:            the #OGDObject to which get relative #OGDProvider
- * 
+ *
  * To retrieve the repository from which an object has been took
- * 
+ *
  * Return value:    the #OGDProvider from which the object has been took
  */
 const OGDProvider* ogd_object_get_provider (OGDObject *obj)
