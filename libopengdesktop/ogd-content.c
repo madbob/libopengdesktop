@@ -528,6 +528,14 @@ static GHashTable* add_comment_params (OGDContent *content, gchar *subject, gcha
     return params;
 }
 
+/**
+ * ogd_content_add_comment:
+ * @content:        the #OGDContent to comment
+ * @subject:        subject of the new comment
+ * @message:        text of the new comment
+ *
+ * Assigns a new comment to the given @content
+ */
 void ogd_content_add_comment (OGDContent *content, gchar *subject, gchar *message)
 {
     GHashTable *params;
@@ -537,6 +545,16 @@ void ogd_content_add_comment (OGDContent *content, gchar *subject, gchar *messag
     g_hash_table_unref (params);
 }
 
+/**
+ * ogd_content_add_comment_async:
+ * @content:        the #OGDContent to comment
+ * @subject:        subject of the new comment
+ * @message:        text of the new comment
+ * @callback:       async callback to which result of the operation is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_content_add_comment()
+ */
 void ogd_content_add_comment_async (OGDContent *content, gchar *subject, gchar *message, OGDPutAsyncCallback callback, gpointer userdata)
 {
     GHashTable *params;

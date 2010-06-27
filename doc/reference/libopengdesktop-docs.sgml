@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY version SYSTEM "version.xml">
 ]>
@@ -61,6 +61,7 @@
     <xi:include href="xml/ogd-message.xml"/>
     <xi:include href="xml/ogd-activity.xml"/>
     <xi:include href="xml/ogd-event.xml"/>
+    <xi:include href="xml/ogd-comment.xml"/>
   </part>
 
   <part id="libopengdesktop-contents">

@@ -26,7 +26,10 @@
  * SECTION: ogd-comment
  * @short_description:  a comment assigned to a content
  *
- * #OGDComments are simple comments assigned to #OGDContents
+ * #OGDComments are simple comments assigned to any kind of contents, of type
+ * #OGDContents or #OGDEvent. Look at the documentation of specific classes
+ * to know how to retrieve and assign comments to individual pieces of
+ * informations
  */
 
 struct _OGDCommentPrivate {

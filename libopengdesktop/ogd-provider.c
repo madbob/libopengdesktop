@@ -93,7 +93,7 @@ static void ogd_provider_init (OGDProvider *item)
 }
 
 /**
- * ogd_provider_new;
+ * ogd_provider_new:
  * @url:            HTTP address to which retrieve the exposed REST API of the desired service.
  *                  Please take note the complete HTTP requests will be submited as
  *                  http://$authentication@$this_url/$version_of_api_supported/$provided_query
