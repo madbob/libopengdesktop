@@ -1,5 +1,5 @@
-/*  libopengdesktop 0.3
- *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+/*  libopengdesktop
+ *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -58,7 +58,14 @@ static void ogd_object_finalize (GObject *obj)
  */
 gboolean ogd_object_fill_by_xml (OGDObject *obj, const xmlNode *xml, GError **error)
 {
-    return OGD_OBJECT_GET_CLASS (obj)->fill_by_xml (obj, xml, error);
+    if (obj->priv->provider == NULL) {
+        g_set_error (error, OGD_HIERARCHY_ERROR_DOMAIN, OGD_HIERARCHY_ERROR,
+                     "Object without OGDProvider: have you used ogd_object_set_provider() properly?");
+        return FALSE;
+    }
+    else {
+        return OGD_OBJECT_GET_CLASS (obj)->fill_by_xml (obj, xml, error);
+    }
 }
 
 static inline gchar* has_valid_target_callback (OGDObject *obj, const gchar *id)
@@ -89,11 +96,20 @@ gboolean ogd_object_fill_by_id (OGDObject *obj, const gchar *id, GError **error)
     gboolean ret;
     xmlNode *data;
 
-    query = has_valid_target_callback (obj, id);
-    if (query == NULL)
+    if (obj->priv->provider == NULL) {
+        g_set_error (error, OGD_HIERARCHY_ERROR_DOMAIN, OGD_HIERARCHY_ERROR,
+                     "Object without OGDProvider: have you used ogd_object_set_provider() properly?");
         return FALSE;
+    }
 
-    data = ogd_provider_get_raw (ogd_object_get_provider (obj), query);
+    query = has_valid_target_callback (obj, id);
+    if (query == NULL) {
+        g_set_error (error, OGD_TYPE_ERROR_DOMAIN, OGD_TYPE_ERROR,
+                     "This kind of object seems not have a callback to retrieve a single element.");
+        return FALSE;
+    }
+
+    data = ogd_provider_get_raw (ogd_object_get_provider (obj), query, error);
     g_free (query);
 
     if (data != NULL) {

@@ -1,5 +1,5 @@
-/*  libopengdesktop 0.3
- *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+/*  libopengdesktop
+ *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ GList* list_of_people (OGDObject *reference, gchar *query)
 
     do {
         complete_query = g_strdup_printf ("%s?pagesize=100&page=%d", query, page);
-        data = ogd_provider_get_raw (provider, complete_query);
+        data = ogd_provider_get_raw (provider, complete_query, NULL);
         g_free (complete_query);
 
         if (data != NULL) {

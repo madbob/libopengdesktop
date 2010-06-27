@@ -1,5 +1,5 @@
-/*  libopengdesktop 0.3
- *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+/*  libopengdesktop
+ *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 typedef void (*OGDProviderRawAsyncCallback) (xmlNode *node, gpointer userdata);
 
-xmlNode*        ogd_provider_get_raw                (OGDProvider *provider, gchar *query);
+xmlNode*        ogd_provider_get_raw                (OGDProvider *provider, gchar *query, GError **error);
 void            ogd_provider_get_raw_async          (OGDProvider *provider, gchar *query, gboolean many, OGDProviderRawAsyncCallback rcallback, gpointer userdata);
 xmlNode*        ogd_provider_put_raw                (OGDProvider *provider, gchar *query, GHashTable *data);
 GHashTable*     ogd_provider_header_from_raw        (xmlNode *response);

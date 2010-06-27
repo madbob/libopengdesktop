@@ -1,5 +1,5 @@
-/*  libopengdesktop 0.3
- *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+/*  libopengdesktop
+ *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,9 +19,15 @@
 #define OGD_ERRORS_H
 
 #define OGD_PARSING_ERROR_DOMAIN    g_quark_from_string("ParsingError")
+#define OGD_HIERARCHY_ERROR_DOMAIN  g_quark_from_string("HierarchyError")
+#define OGD_TYPE_ERROR_DOMAIN       g_quark_from_string("TypeError")
+#define OGD_NETWORK_ERROR_DOMAIN    g_quark_from_string("NetworkError")
 
 typedef enum {
     OGD_XML_ERROR,
+    OGD_HIERARCHY_ERROR,
+    OGD_TYPE_ERROR,
+    OGD_NETWORK_ERROR,
     OGD_END_ERRORS
 } OGD_ERRORS;
 

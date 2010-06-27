@@ -1,5 +1,5 @@
-/*  libopengdesktop 0.3
- *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+/*  libopengdesktop
+ *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ struct _OGDCategoryClass {
  * @OGD_CATEGORY_SORT_ALPHABETICAL:     contents ordered alphabetically, by name
  * @OGD_CATEGORY_SORT_RATING:           contents with higher scores come before
  * @OGD_CATEGORY_SORT_DOWNLOADS:        contents with most downloads come before
- * 
+ *
  * Types of sorting for listing #OGDContents into a #OGDCategory
  */
 typedef enum {

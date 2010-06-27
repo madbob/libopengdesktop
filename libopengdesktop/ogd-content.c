@@ -1,5 +1,5 @@
-/*  libopengdesktop 0.3
- *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+/*  libopengdesktop
+ *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -541,7 +541,7 @@ void ogd_content_add_comment (OGDContent *content, gchar *subject, gchar *messag
     GHashTable *params;
 
     params = add_comment_params (content, subject, message);
-    ogd_provider_put (ogd_object_get_provider (OGD_OBJECT (content)), "comment/add", params);
+    ogd_provider_put (ogd_object_get_provider (OGD_OBJECT (content)), "comments/add", params);
     g_hash_table_unref (params);
 }
 

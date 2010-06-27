@@ -1,5 +1,5 @@
-/*  libopengdesktop 0.3
- *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+/*  libopengdesktop
+ *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -146,7 +146,7 @@ void ogd_provider_auth_api_key (OGDProvider *provider, gchar *key)
                                                   OPEN_COLLABORATION_API_VERSION);
 }
 
-static gboolean check_provider_response (xmlNode *root, xmlNode **data)
+static gboolean check_provider_response (xmlNode *root, xmlNode **data, GError **error)
 {
     xmlNode *status;
     xmlNode *subroot;
@@ -154,7 +154,7 @@ static gboolean check_provider_response (xmlNode *root, xmlNode **data)
     xmlChar *me;
 
     if (root->type != XML_ELEMENT_NODE || MYSTRCMP (root->name, "ocs") != 0) {
-        g_warning ("Unidentified root XML block\n");
+        g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Unidentified root XML block");
         return FALSE;
     }
 
@@ -165,7 +165,7 @@ static gboolean check_provider_response (xmlNode *root, xmlNode **data)
         status = status->children;
 
     if (status == NULL || MYSTRCMP (status->name, "status") != 0) {
-        g_warning ("Unidentified status XML block\n");
+        g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Unidentified status XML block");
         return FALSE;
     }
 
@@ -176,11 +176,15 @@ static gboolean check_provider_response (xmlNode *root, xmlNode **data)
 
             if (status != NULL && MYSTRCMP (status->name, "message") == 0) {
                 me = xmlNodeGetContent (status);
-                g_warning ("Failed to retrieve informations on server: %s\n", me);
+
+                g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR,
+                             "Failed to retrieve informations on server: %s", me);
+
                 xmlFree (me);
             }
             else {
-                g_warning ("Failed to retrieve informations on server\n");
+                g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR,
+                             "Failed to retrieve informations on server");
             }
 
             return FALSE;
@@ -188,8 +192,11 @@ static gboolean check_provider_response (xmlNode *root, xmlNode **data)
 
         xmlFree (st);
     }
-    else
+    else {
+        g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR,
+                     "No valid content for status node");
         return FALSE;
+    }
 
     if (data != NULL) {
         if (MYSTRCMP (subroot->next->name, "data") == 0) {
@@ -204,7 +211,7 @@ static gboolean check_provider_response (xmlNode *root, xmlNode **data)
     return TRUE;
 }
 
-static xmlNode* parse_provider_response (SoupMessageBody *response)
+static xmlNode* parse_provider_response (SoupMessageBody *response, GError **error)
 {
     xmlDocPtr doc;
     xmlNode *root;
@@ -214,18 +221,20 @@ static xmlNode* parse_provider_response (SoupMessageBody *response)
 
     doc = xmlReadMemory (response->data, response->length, NULL, NULL, XML_PARSE_NOBLANKS);
     if (doc == NULL) {
-        g_warning ("Unable to parse response from server\n");
+        g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR,
+                     "Unable to parse response from server.");
         return NULL;
     }
 
     root = xmlDocGetRootElement (doc);
 
-    if (check_provider_response (root, &data) == FALSE || data == NULL) {
+    if (check_provider_response (root, &data, error) == FALSE || data == NULL) {
         xmlFreeDoc (doc);
         return NULL;
     }
-    else
+    else {
         return data;
+    }
 }
 
 static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *provider)
@@ -283,7 +292,7 @@ static void handle_async_get_response (SoupSession *session, SoupMessage *msg, g
         return;
 
     async = (AsyncRequestDesc*) userdata;
-    ret = parse_provider_response (msg->response_body);
+    ret = parse_provider_response (msg->response_body, NULL);
 
     if (async->objectize) {
         list = parse_xml_node_to_list_of_objects (ret, async->provider);
@@ -317,7 +326,8 @@ static void send_async_msg_to_server (const gchar *complete_query, AsyncRequestD
         return;
     }
 
-    soup_session_queue_message (async->provider->priv->async_http_session, msg, handle_async_get_response, async);
+    soup_session_queue_message (async->provider->priv->async_http_session, msg,
+                                handle_async_get_response, async);
 }
 
 /*
@@ -374,7 +384,7 @@ static SoupMessage* send_msg_to_server (OGDProvider *provider, const gchar *comp
         return msg;
 }
 
-xmlNode* ogd_provider_get_raw (OGDProvider *provider, gchar *query)
+xmlNode* ogd_provider_get_raw (OGDProvider *provider, gchar *query, GError **error)
 {
     gchar *complete_query;
     SoupMessage *msg;
@@ -387,14 +397,19 @@ xmlNode* ogd_provider_get_raw (OGDProvider *provider, gchar *query)
     g_free (complete_query);
 
     if (msg != NULL) {
-        ret = parse_provider_response (msg->response_body);
+        ret = parse_provider_response (msg->response_body, error);
         g_object_unref (msg);
+    }
+    else {
+        g_set_error (error, OGD_NETWORK_ERROR_DOMAIN, OGD_NETWORK_ERROR,
+                     "Unable to fetch data from server.");
     }
 
     return ret;
 }
 
-void ogd_provider_get_raw_async (OGDProvider *provider, gchar *query, gboolean many, OGDProviderRawAsyncCallback callback, gpointer userdata)
+void ogd_provider_get_raw_async (OGDProvider *provider, gchar *query, gboolean many,
+                                 OGDProviderRawAsyncCallback callback, gpointer userdata)
 {
     get_async (provider, query, many == FALSE, FALSE, NULL, callback, userdata);
 }
@@ -412,7 +427,8 @@ GHashTable* ogd_provider_header_from_raw (xmlNode *response)
         return NULL;
     }
 
-    header = g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) xmlFree, (GDestroyNotify) xmlFree);
+    header = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                    (GDestroyNotify) xmlFree, (GDestroyNotify) xmlFree);
 
     for (node = node->children; node; node = node->next)
         g_hash_table_insert (header, strdup ((char*) node->name), xmlNodeGetContent (node));
@@ -436,7 +452,7 @@ GList* ogd_provider_get (OGDProvider *provider, gchar *query)
 
     ret = NULL;
 
-    data = ogd_provider_get_raw (provider, query);
+    data = ogd_provider_get_raw (provider, query, NULL);
     if (data != NULL)
         ret = parse_xml_node_to_list_of_objects (data, provider);
 
@@ -452,12 +468,14 @@ GList* ogd_provider_get (OGDProvider *provider, gchar *query)
  *
  * Async version of ogd_provider_get()
  */
-void ogd_provider_get_async (OGDProvider *provider, gchar *query, OGDAsyncCallback callback, gpointer userdata)
+void ogd_provider_get_async (OGDProvider *provider, gchar *query,
+                             OGDAsyncCallback callback, gpointer userdata)
 {
     get_async (provider, query, FALSE, TRUE, callback, NULL, userdata);
 }
 
-void ogd_provider_get_single_async (OGDProvider *provider, gchar *query, OGDAsyncCallback callback, gpointer userdata)
+void ogd_provider_get_single_async (OGDProvider *provider, gchar *query,
+                                    OGDAsyncCallback callback, gpointer userdata)
 {
     get_async (provider, query, TRUE, TRUE, callback, NULL, userdata);
 }
@@ -490,7 +508,7 @@ xmlNode* ogd_provider_put_raw (OGDProvider *provider, gchar *query, GHashTable *
     sendret = soup_session_send_message (provider->priv->http_session, msg);
 
     if (sendret == 200 && msg->status_code == SOUP_STATUS_OK) {
-        ret = parse_provider_response (msg->response_body);
+        ret = parse_provider_response (msg->response_body, NULL);
         g_object_unref (msg);
     }
 
@@ -545,7 +563,8 @@ static void handle_async_put_response (SoupSession *session, SoupMessage *msg, g
  *
  * Async version of ogd_provider_put()
  */
-void ogd_provider_put_async (OGDProvider *provider, gchar *query, GHashTable *data, OGDPutAsyncCallback callback, gpointer userdata)
+void ogd_provider_put_async (OGDProvider *provider, gchar *query, GHashTable *data,
+                             OGDPutAsyncCallback callback, gpointer userdata)
 {
     SoupMessage *msg;
     AsyncRequestDesc *async;
@@ -556,7 +575,8 @@ void ogd_provider_put_async (OGDProvider *provider, gchar *query, GHashTable *da
     async->pcallback = callback;
     async->userdata = userdata;
 
-    soup_session_queue_message (provider->priv->async_http_session, msg, handle_async_put_response, async);
+    soup_session_queue_message (provider->priv->async_http_session, msg,
+                                handle_async_put_response, async);
 
     g_object_unref (msg);
 }

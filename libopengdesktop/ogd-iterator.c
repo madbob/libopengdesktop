@@ -1,5 +1,5 @@
-/*  libopengdesktop 0.3
- *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+/*  libopengdesktop
+ *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -82,7 +82,7 @@ static void prefetch_total_count (OGDIterator *iterator)
     */
 
     query = g_strdup_printf ("%s&page=0&pagesize=1", iterator->priv->query);
-    node = ogd_provider_get_raw (iterator->priv->provider, query);
+    node = ogd_provider_get_raw (iterator->priv->provider, query, NULL);
     g_free (query);
 
     iterator->priv->total = total_items_for_query (node);
@@ -94,7 +94,7 @@ static void prefetch_total_count (OGDIterator *iterator)
  * @provider:       #OGDProvider from which fetch contents
  * @base_query:     basic query to perform to extract multiple contents
 
- * 
+ *
  * Init a new #OGDIterator
  *
  * Return value:    a newly allocated #OGDIterator, which initial index is 0
@@ -115,7 +115,7 @@ OGDIterator* ogd_iterator_new (const OGDProvider *provider, const gchar *base_qu
  * @iter:           #OGDIterator to advance
  * @start:          starting index of the request
  * @quantity:       number of elements to be fetched
- * 
+ *
  * Provides to fetch contents from index @start to index @end, accordly the query used in
  * initialization. ogd_iterator_fetch_next_slice() is a more convenient version of this. Take care this
  * function influences the internal index and next invocation of ogd_iterator_fetch_next_slice() will
@@ -151,7 +151,7 @@ GList* ogd_iterator_fetch_slice (OGDIterator *iter, gulong start, gulong quantit
 /**
  * ogd_iterator_fetch_next_slice:
  * @iter:           #OGDIterator to advance
- * 
+ *
  * As ogd_iterator_fetch_slice(), but uses an internal index internally incremented as starting
  * point. Each invocation get a number of elements equal to the step specified with
  * ogd_iterator_set_step()
