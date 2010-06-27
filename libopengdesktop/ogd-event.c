@@ -104,6 +104,9 @@ static gboolean ogd_event_fill_by_xml (OGDObject *obj, const xmlNode *xml, GErro
 
     event = OGD_EVENT (obj);
 
+    if (MYSTRCMP (xml->name, "data") == 0)
+        xml = xml->children;
+
     if (MYSTRCMP (xml->name, "event") != 0) {
         g_set_error (error, OGD_PARSING_ERROR_DOMAIN, OGD_XML_ERROR, "Invalid XML for OGDEvent");
         return FALSE;
@@ -716,10 +719,30 @@ const GDate* ogd_event_get_changed (OGDEvent *event)
  * (see ogd_event_get_homepage())
  *
  * Return value:    number of comments assigned to the target @event
+ *
+ * Deprecated: 0.4: ogd_event_get_comments() is suggested to be used instead
  */
 gulong ogd_event_get_num_comments (OGDEvent *event)
 {
     return event->priv->numcomments;
+}
+
+/**
+ * ogd_event_get_comments:
+ * @event:          the #OGDEvent to query
+ *
+ * Return value:    a list of #OGDComment to be freed when no longer in use,
+ *                  or NULL
+ */
+GList* ogd_event_get_comments (OGDEvent *event)
+{
+    gchar *query;
+    GList *ret;
+
+    query = g_strdup_printf ("comments/data/8/%s/0", ogd_event_get_id (event));
+    ret = ogd_provider_get (ogd_object_get_provider (OGD_OBJECT (event)), query);
+    g_free (query);
+    return ret;
 }
 
 /**
@@ -923,4 +946,52 @@ void ogd_event_remove (OGDEvent *event)
         ogd_provider_put (ogd_object_get_provider (OGD_OBJECT (event)), query, NULL);
         g_free (query);
     }
+}
+
+static GHashTable* add_comment_params (OGDEvent *event, gchar *subject, gchar *message)
+{
+    GHashTable *params;
+
+    params = g_hash_table_new (g_str_hash, g_str_equal);
+    g_hash_table_insert (params, "type", "8");
+    g_hash_table_insert (params, "content", (gpointer) ogd_event_get_id (event));
+    g_hash_table_insert (params, "subject", (gpointer) subject);
+    g_hash_table_insert (params, "message", (gpointer) message);
+    return params;
+}
+
+/**
+ * ogd_event_add_comment:
+ * @event:          the #OGDEvent to comment
+ * @subject:        subject of the new comment
+ * @message:        text of the new comment
+ *
+ * Assigns a new comment to the given @event
+ */
+void ogd_event_add_comment (OGDEvent *event, gchar *subject, gchar *message)
+{
+    GHashTable *params;
+
+    params = add_comment_params (event, subject, message);
+    ogd_provider_put (ogd_object_get_provider (OGD_OBJECT (event)), "comments/add", params);
+    g_hash_table_unref (params);
+}
+
+/**
+ * ogd_event_add_comment_async:
+ * @event:          the #OGDEvent to comment
+ * @subject:        subject of the new comment
+ * @message:        text of the new comment
+ * @callback:       async callback to which result of the operation is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_event_add_comment()
+ */
+void ogd_event_add_comment_async (OGDEvent *event, gchar *subject, gchar *message, OGDPutAsyncCallback callback, gpointer userdata)
+{
+    GHashTable *params;
+
+    params = add_comment_params (event, subject, message);
+    ogd_provider_put_async (ogd_object_get_provider (OGD_OBJECT (event)), "comment/add", params, callback, userdata);
+    g_hash_table_unref (params);
 }

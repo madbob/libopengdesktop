@@ -108,11 +108,14 @@ const gchar*            ogd_event_get_email             (OGDEvent *event);
 void                    ogd_event_set_email             (OGDEvent *event, gchar *email);
 const GDate*            ogd_event_get_changed           (OGDEvent *event);
 gulong                  ogd_event_get_num_comments      (OGDEvent *event);
+GList*                  ogd_event_get_comments          (OGDEvent *event);
 gulong                  ogd_event_get_num_partecipants  (OGDEvent *event);
 const gchar*            ogd_event_get_image             (OGDEvent *event);
 
 void                    ogd_event_save                  (OGDEvent *event);
 void                    ogd_event_remove                (OGDEvent *event);
+void                    ogd_event_add_comment           (OGDEvent *event, gchar *subject, gchar *message);
+void                    ogd_event_add_comment_async     (OGDEvent *event, gchar *subject, gchar *message, OGDPutAsyncCallback callback, gpointer userdata);
 
 G_END_DECLS
 

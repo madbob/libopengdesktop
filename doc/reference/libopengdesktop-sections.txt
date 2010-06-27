@@ -39,10 +39,13 @@ ogd_event_get_email
 ogd_event_set_email
 ogd_event_get_changed
 ogd_event_get_num_comments
+ogd_event_get_comments
 ogd_event_get_num_partecipants
 ogd_event_get_image
 ogd_event_save
 ogd_event_remove
+ogd_event_add_comment
+ogd_event_add_comment_async
 </SECTION>
 
 <SECTION>
