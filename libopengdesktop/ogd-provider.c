@@ -269,10 +269,11 @@ static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *pro
     return ret;
 }
 
-static gboolean check_msg (SoupMessage *msg)
+static gboolean check_msg (SoupMessage *msg, GError **error)
 {
     if (msg->status_code != SOUP_STATUS_OK) {
-        g_warning ("Unable to submit request to server: %s\n", msg->reason_phrase);
+        g_set_error (error, OGD_NETWORK_ERROR_DOMAIN, OGD_NETWORK_ERROR,
+                     "Unable to submit request to server: %s", msg->reason_phrase);
         g_object_unref (msg);
         return FALSE;
     }
@@ -288,7 +289,7 @@ static void handle_async_get_response (SoupSession *session, SoupMessage *msg, g
     xmlNode *cursor;
     AsyncRequestDesc *async;
 
-    if (check_msg (msg) == FALSE)
+    if (check_msg (msg, NULL) == FALSE)
         return;
 
     async = (AsyncRequestDesc*) userdata;
@@ -360,25 +361,27 @@ static void get_async (OGDProvider *provider, gchar *query, gboolean single, gbo
     g_free (complete_query);
 }
 
-static SoupMessage* send_msg_to_server (OGDProvider *provider, const gchar *complete_query)
+static SoupMessage* send_msg_to_server (OGDProvider *provider, const gchar *complete_query, GError **error)
 {
     guint sendret;
     SoupMessage *msg;
 
     msg = soup_message_new ("GET", complete_query);
     if (msg == NULL) {
-        g_warning ("Unable to build request to server\n");
+        g_set_error (error, OGD_NETWORK_ERROR_DOMAIN, OGD_NETWORK_ERROR,
+                     "Unable to build request to server");
         return NULL;
     }
 
     sendret = soup_session_send_message (provider->priv->http_session, msg);
     if (sendret != 200) {
-        g_warning ("Unable to send request to server, error %u\n", sendret);
+        g_set_error (error, OGD_NETWORK_ERROR_DOMAIN, OGD_NETWORK_ERROR,
+                     "Unable to send request to server, error %u", sendret);
         g_object_unref (msg);
         return NULL;
     }
 
-    if (check_msg (msg) == FALSE)
+    if (check_msg (msg, error) == FALSE)
         return NULL;
     else
         return msg;
@@ -393,16 +396,12 @@ xmlNode* ogd_provider_get_raw (OGDProvider *provider, gchar *query, GError **err
     ret = NULL;
 
     complete_query = g_strdup_printf ("%s%s", provider->priv->access_url, query);
-    msg = send_msg_to_server (provider, complete_query);
+    msg = send_msg_to_server (provider, complete_query, error);
     g_free (complete_query);
 
     if (msg != NULL) {
         ret = parse_provider_response (msg->response_body, error);
         g_object_unref (msg);
-    }
-    else {
-        g_set_error (error, OGD_NETWORK_ERROR_DOMAIN, OGD_NETWORK_ERROR,
-                     "Unable to fetch data from server.");
     }
 
     return ret;

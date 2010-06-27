@@ -58,14 +58,7 @@ static void ogd_object_finalize (GObject *obj)
  */
 gboolean ogd_object_fill_by_xml (OGDObject *obj, const xmlNode *xml, GError **error)
 {
-    if (obj->priv->provider == NULL) {
-        g_set_error (error, OGD_HIERARCHY_ERROR_DOMAIN, OGD_HIERARCHY_ERROR,
-                     "Object without OGDProvider: have you used ogd_object_set_provider() properly?");
-        return FALSE;
-    }
-    else {
-        return OGD_OBJECT_GET_CLASS (obj)->fill_by_xml (obj, xml, error);
-    }
+    return OGD_OBJECT_GET_CLASS (obj)->fill_by_xml (obj, xml, error);
 }
 
 static inline gchar* has_valid_target_callback (OGDObject *obj, const gchar *id)

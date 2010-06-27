@@ -333,14 +333,15 @@ gulong ogd_content_get_num_comments (OGDContent *content)
  * ogd_content_get_comments:
  * @content:        the #OGDContent to query
  *
- * Return value:    a list of #OGDComment, or NULL
+ * Return value:    a list of #OGDComment to be freed when no longer in use,
+ *                  or NULL
  */
-const GList* ogd_content_get_comments (OGDContent *content)
+GList* ogd_content_get_comments (OGDContent *content)
 {
     gchar *query;
     GList *ret;
 
-    query = g_strdup_printf ("comments/data/1/%s", ogd_content_get_id (content));
+    query = g_strdup_printf ("comments/data/1/%s/0", ogd_content_get_id (content));
     ret = ogd_provider_get (ogd_object_get_provider (OGD_OBJECT (content)), query);
     g_free (query);
     return ret;

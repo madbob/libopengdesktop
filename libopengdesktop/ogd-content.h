@@ -77,7 +77,7 @@ const gchar*            ogd_content_get_description         (OGDContent *content
 const gchar*            ogd_content_get_changelog           (OGDContent *content);
 const gchar*            ogd_content_get_homepage            (OGDContent *content);
 gulong                  ogd_content_get_num_comments        (OGDContent *content);
-const GList*            ogd_content_get_comments            (OGDContent *content);
+GList*                  ogd_content_get_comments            (OGDContent *content);
 gulong                  ogd_content_get_num_fans            (OGDContent *content);
 const GList*            ogd_content_get_fans                (OGDContent *content);
 const GList*            ogd_content_get_previews            (OGDContent *content);
