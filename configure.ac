@@ -15,9 +15,9 @@ m4_define([lt_revision], [libogd_interface_age])
 m4_define([lt_age],
           [m4_eval(libogd_binary_age - libogd_interface_age)])
 
-m4_define([glib_req_version], [2.16])
-m4_define([soup_req_version], [2.4.1])
-m4_define([xml_req_version], [2.7.3])
+m4_define([glib_req_version], [2.22.5])
+m4_define([soup_req_version], [2.28.2])
+m4_define([xml_req_version], [2.7.7])
 
 AC_PREREQ([2.59])
 AC_INIT([libogd], [libogd_version], [], [libogd])

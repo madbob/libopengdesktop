@@ -17,10 +17,10 @@ REQUIREMENTS
 In order to build libopengdesktop you will need:
 
   * pkg-config
-  * Glib >= 2.20.3
-  * LibSoup >= 2.26.2
-  * LibXML >= 2.7.3
-  * gtk-doc >= 1.10
+  * Glib >= 2.22.5
+  * LibSoup >= 2.28.2
+  * LibXML >= 2.7.7
+  * gtk-doc >= 1.12
 
 INSTALLATION
 ------------
@@ -40,4 +40,4 @@ list.
 AUTHOR
 ------
 libopengdesktop has been written by Roberto Guido
-Copyright (C) 2009  Roberto Guido
+Copyright (C) 2009/2010  Roberto Guido

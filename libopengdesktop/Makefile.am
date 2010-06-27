@@ -12,6 +12,7 @@ LDADD = $(LIBOGD_LT_LDFLAGS) -export-dynamic -rpath $(libdir)
 
 sources_private_h = \
    ogd-private-utils.h  \
+   ogd-provider-private.h  \
    $(NULL)
 
 sources_public_h = \
@@ -57,5 +58,3 @@ libopengdesktop_1_0_la_LDFLAGS = $(LDADD)
 
 libopengdesktopincludedir = $(includedir)/libopengdesktop
 libopengdesktopinclude_DATA = $(sources_public_h)
-
-CLEANFILES = $(pcfile_DATA)
