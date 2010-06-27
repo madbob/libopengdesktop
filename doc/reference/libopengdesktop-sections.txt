@@ -147,6 +147,7 @@ ogd_comment_get_authorid
 ogd_comment_get_date
 ogd_comment_get_subject
 ogd_comment_get_message
+ogd_comment_get_children
 </SECTION>
 
 <SECTION>

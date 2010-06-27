@@ -38,6 +38,7 @@ struct _OGDCommentPrivate {
     GDate               *date;
     gchar               *subject;
     gchar               *message;
+    GList               *children;
 };
 
 G_DEFINE_TYPE (OGDComment, ogd_comment, OGD_OBJECT_TYPE);
@@ -53,12 +54,16 @@ static void ogd_comment_finalize (GObject *obj)
     DATE_CHECK_FREE_NULLIFY (msg->priv->date);
     PTR_CHECK_FREE_NULLIFY (msg->priv->subject);
     PTR_CHECK_FREE_NULLIFY (msg->priv->message);
+    FREE_LIST_OF_OBJECTS (msg->priv->children);
 }
 
 static gboolean ogd_comment_fill_by_xml (OGDObject *obj, const xmlNode *xml, GError **error)
 {
     xmlNode *cursor;
+    xmlNode *children;
+    OGDProvider *provider;
     OGDComment *msg;
+    OGDComment *child;
 
     msg = OGD_COMMENT (obj);
 
@@ -70,16 +75,37 @@ static gboolean ogd_comment_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
     ogd_comment_finalize (G_OBJECT (obj));
 
     for (cursor = xml->children; cursor; cursor = cursor->next) {
-        if (MYSTRCMP (cursor->name, "id") == 0)
+        if (MYSTRCMP (cursor->name, "id") == 0) {
             msg->priv->id = MYGETCONTENT (cursor);
-        else if (MYSTRCMP (cursor->name, "user") == 0)
+        }
+        else if (MYSTRCMP (cursor->name, "user") == 0) {
             msg->priv->authorid = MYGETCONTENT (cursor);
-        else if (MYSTRCMP (cursor->name, "date") == 0)
+        }
+        else if (MYSTRCMP (cursor->name, "date") == 0) {
             msg->priv->date = node_to_date (cursor);
-        else if (MYSTRCMP (cursor->name, "subject") == 0)
+        }
+        else if (MYSTRCMP (cursor->name, "subject") == 0) {
             msg->priv->subject = MYGETCONTENT (cursor);
-        else if (MYSTRCMP (cursor->name, "text") == 0)
+        }
+        else if (MYSTRCMP (cursor->name, "text") == 0) {
             msg->priv->message = MYGETCONTENT (cursor);
+        }
+        else if (MYSTRCMP (cursor->name, "childs") == 0) {
+            provider = ogd_object_get_provider (obj);
+
+            for (children = cursor->children; children; children = children->next) {
+                child = g_object_new (OGD_COMMENT_TYPE, NULL);
+                msg->priv->children = g_list_prepend (msg->priv->children, child);
+
+                if (ogd_comment_fill_by_xml (OGD_OBJECT (child), children, error) == FALSE)
+                    return FALSE;
+
+                ogd_object_set_provider (OGD_OBJECT (child), provider);
+            }
+
+            if (msg->priv->children != NULL)
+                msg->priv->children = g_list_reverse (msg->priv->children);
+        }
     }
 
     return TRUE;
@@ -156,4 +182,17 @@ const gchar* ogd_comment_get_subject (OGDComment *msg)
 const gchar* ogd_comment_get_message (OGDComment *msg)
 {
     return (const gchar*) msg->priv->message;
+}
+
+/**
+ * ogd_comment_get_children:
+ * @msg:            an #OGDComment
+ *
+ * Retrieves list of child comments, replies to the given @comment
+ *
+ * Return value: a list of #OGDComments, or NULL if @comment had no replies
+ */
+const GList* ogd_comment_get_children (OGDComment *msg)
+{
+    return (const GList*) msg->priv->children;
 }

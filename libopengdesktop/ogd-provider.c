@@ -250,10 +250,17 @@ static GList* parse_xml_node_to_list_of_objects (xmlNode *data, OGDProvider *pro
     for (cursor = data->children; cursor; cursor = cursor->next) {
         obj_type = retrieve_type ((const gchar*) cursor->name);
         obj = g_object_new (obj_type, NULL);
+
+        /*
+            We set provider before parsing because fill_by_xml() callbacks
+            may create other sub-objects and must assign a provider to
+            internal children
+        */
+        ogd_object_set_provider (obj, provider);
+
         error = NULL;
 
         if (ogd_object_fill_by_xml (obj, cursor, &error) == TRUE) {
-            ogd_object_set_provider (obj, provider);
             ret = g_list_prepend (ret, obj);
         }
         else {

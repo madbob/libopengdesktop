@@ -53,6 +53,7 @@ const gchar*            ogd_comment_get_authorid               (OGDComment *comm
 const GDate*            ogd_comment_get_date                   (OGDComment *comment);
 const gchar*            ogd_comment_get_subject                (OGDComment *comment);
 const gchar*            ogd_comment_get_message                (OGDComment *comment);
+const GList*            ogd_comment_get_children               (OGDComment *comment);
 
 G_END_DECLS
 

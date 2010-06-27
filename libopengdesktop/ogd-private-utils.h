@@ -51,12 +51,14 @@
     }                                                                               \
 }
 
-#define FREE_LIST_OF_OBJECTS(__list) {                              \
-    GList *__iter;                                                  \
-                                                                    \
-    for (__iter = __list; __iter; __iter = g_list_next (__iter))    \
-        g_object_unref (__iter->data);                              \
-    g_list_free (__list);                                           \
+#define FREE_LIST_OF_OBJECTS(__list) {                                  \
+    GList *__iter;                                                      \
+                                                                        \
+    if (__list != NULL) {                                               \
+        for (__iter = __list; __iter; __iter = g_list_next (__iter))    \
+            g_object_unref (__iter->data);                              \
+        g_list_free (__list);                                           \
+    }
 }
 
 #define MEMDUP(__a) ({                      \
