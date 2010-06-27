@@ -38,5 +38,6 @@
 #include "ogd-event.h"
 #include "ogd-folder.h"
 #include "ogd-message.h"
+#include "ogd-comment.h"
 
 #endif /* OGD_H */

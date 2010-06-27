@@ -18,6 +18,7 @@ sources_public_h = \
     ogd-activity.h    \
     ogd-category.h    \
     ogd-content.h     \
+    ogd-comment.h     \
     ogd-event.h       \
     ogd-errors.h      \
     ogd-folder.h      \
@@ -33,6 +34,7 @@ sources_c = \
     ogd-activity.c      \
     ogd-category.c      \
     ogd-content.c       \
+    ogd-comment.c       \
     ogd-event.c         \
     ogd-folder.c        \
     ogd-iterator.c      \

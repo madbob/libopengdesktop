@@ -164,6 +164,8 @@ void init_types_management ()
         g_hash_table_insert (TypesMap, g_strdup ("message"), MEMDUP (type));
         type = ogd_person_get_type ();
         g_hash_table_insert (TypesMap, g_strdup ("person"), MEMDUP (type));
+        type = ogd_comment_get_type ();
+        g_hash_table_insert (TypesMap, g_strdup ("comment"), MEMDUP (type));
     }
 }
 

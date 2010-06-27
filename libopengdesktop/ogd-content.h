@@ -77,6 +77,7 @@ const gchar*            ogd_content_get_description         (OGDContent *content
 const gchar*            ogd_content_get_changelog           (OGDContent *content);
 const gchar*            ogd_content_get_homepage            (OGDContent *content);
 gulong                  ogd_content_get_num_comments        (OGDContent *content);
+const GList*            ogd_content_get_comments            (OGDContent *content);
 gulong                  ogd_content_get_num_fans            (OGDContent *content);
 const GList*            ogd_content_get_fans                (OGDContent *content);
 const GList*            ogd_content_get_previews            (OGDContent *content);
@@ -86,6 +87,8 @@ void                    ogd_content_vote                    (OGDContent *content
 void                    ogd_content_vote_async              (OGDContent *content, OGD_CONTENT_VOTE vote, OGDPutAsyncCallback callback, gpointer userdata);
 void                    ogd_content_set_fan                 (OGDContent *content, gboolean fan);
 void                    ogd_content_set_fan_async           (OGDContent *content, gboolean fan, OGDPutAsyncCallback callback, gpointer userdata);
+void                    ogd_content_add_comment             (OGDContent *content, gchar *subject, gchar *message);
+void                    ogd_content_add_comment_async       (OGDContent *content, gchar *subject, gchar *message, OGDPutAsyncCallback callback, gpointer userdata);
 
 G_END_DECLS
 

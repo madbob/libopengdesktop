@@ -321,10 +321,29 @@ const gchar* ogd_content_get_homepage (OGDContent *content)
  * To obtain number of comments of @content
  *
  * Return value:    number of comments for the target @content
+ *
+ * Deprecated: 0.4: ogd_content_get_comments() is suggested to be used instead
  */
 gulong ogd_content_get_num_comments (OGDContent *content)
 {
     return content->priv->numcomments;
+}
+
+/**
+ * ogd_content_get_comments:
+ * @content:        the #OGDContent to query
+ *
+ * Return value:    a list of #OGDComment, or NULL
+ */
+const GList* ogd_content_get_comments (OGDContent *content)
+{
+    gchar *query;
+    GList *ret;
+
+    query = g_strdup_printf ("comments/data/1/%s", ogd_content_get_id (content));
+    ret = ogd_provider_get (ogd_object_get_provider (OGD_OBJECT (content)), query);
+    g_free (query);
+    return ret;
 }
 
 /**
@@ -493,6 +512,36 @@ void ogd_content_set_fan_async (OGDContent *content, gboolean fan, OGDPutAsyncCa
     gchar *query;
 
     query = fan_query (content, fan);
-    ogd_provider_put_async (ogd_object_get_provider (OGD_OBJECT (content)), query, NULL, NULL, NULL);
+    ogd_provider_put_async (ogd_object_get_provider (OGD_OBJECT (content)), query, NULL, callback, userdata);
     g_free (query);
+}
+
+static GHashTable* add_comment_params (OGDContent *content, gchar *subject, gchar *message)
+{
+    GHashTable *params;
+
+    params = g_hash_table_new (g_str_hash, g_str_equal);
+    g_hash_table_insert (params, "type", "1");
+    g_hash_table_insert (params, "content", (gpointer) ogd_content_get_id (content));
+    g_hash_table_insert (params, "subject", (gpointer) subject);
+    g_hash_table_insert (params, "message", (gpointer) message);
+    return params;
+}
+
+void ogd_content_add_comment (OGDContent *content, gchar *subject, gchar *message)
+{
+    GHashTable *params;
+
+    params = add_comment_params (content, subject, message);
+    ogd_provider_put (ogd_object_get_provider (OGD_OBJECT (content)), "comment/add", params);
+    g_hash_table_unref (params);
+}
+
+void ogd_content_add_comment_async (OGDContent *content, gchar *subject, gchar *message, OGDPutAsyncCallback callback, gpointer userdata)
+{
+    GHashTable *params;
+
+    params = add_comment_params (content, subject, message);
+    ogd_provider_put_async (ogd_object_get_provider (OGD_OBJECT (content)), "comment/add", params, callback, userdata);
+    g_hash_table_unref (params);
 }
