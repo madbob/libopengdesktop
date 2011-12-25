@@ -237,8 +237,12 @@ OGDEvent* ogd_event_new (OGDProvider *provider)
 
 /**
  * ogd_event_fetch_all:
+ * @provider:       reference provider for the events list
  *
- * Return value:
+ * To obtain a complete list of the latest events occourred on the specified
+ * #OGDProvider 
+ *
+ * Return value:    a list of #OGDEvents, to be freed when no longer in use
  */
 GList* ogd_event_fetch_all (OGDProvider *provider)
 {
@@ -312,7 +316,7 @@ const gchar* ogd_event_get_description (OGDEvent *event)
 }
 
 /**
- * ogd_event_set_name:
+ * ogd_event_set_description:
  * @event:          the #OGDEvent to edit
  * @description:    new description for the event
  *
@@ -371,7 +375,7 @@ const GDate* ogd_event_get_start_date (OGDEvent *event)
 /**
  * ogd_event_set_start_date:
  * @event:          the #OGDEvent to edit
- * @cat:            new starting date for the event
+ * @date:           new starting date for the event
  *
  * Sets a start date to the @event. Can be used only if the current user has permission to edit
  * the element
@@ -403,7 +407,7 @@ const GDate* ogd_event_get_end_date (OGDEvent *event)
 /**
  * ogd_event_set_end_date:
  * @event:          the #OGDEvent to edit
- * @cat:            new ending date for the event
+ * @date:           new ending date for the event
  *
  * Sets a end date to the @event. Can be used only if the current user has permission to edit the
  * element
@@ -686,14 +690,14 @@ const gchar* ogd_event_get_email (OGDEvent *event)
 }
 
 /**
- * ogd_event_set_mail:
+ * ogd_event_set_email:
  * @event:          the #OGDEvent to edit
  * @mail:           new mail for the event
  *
  * Sets the fax number to the @event. Can be used only if the current user has permission to edit
  * the element
  */
-void ogd_event_set_mail (OGDEvent *event, gchar *mail)
+void ogd_event_set_email (OGDEvent *event, gchar *mail)
 {
     SET_STRING (event, mail, mail);
 }
@@ -709,22 +713,6 @@ void ogd_event_set_mail (OGDEvent *event, gchar *mail)
 const GDate* ogd_event_get_changed (OGDEvent *event)
 {
     return event->priv->changed;
-}
-
-/**
- * ogd_event_get_num_comments:
- * @event:          the #OGDEvent to query
- *
- * To obtain the number of comments for @event. Comments are readable in the dedicated homepage
- * (see ogd_event_get_homepage())
- *
- * Return value:    number of comments assigned to the target @event
- *
- * Deprecated: 0.4: ogd_event_get_comments() is suggested to be used instead
- */
-gulong ogd_event_get_num_comments (OGDEvent *event)
-{
-    return event->priv->numcomments;
 }
 
 /**
@@ -770,6 +758,26 @@ const gchar* ogd_event_get_image (OGDEvent *event)
 {
     return (const gchar*) event->priv->image;
 }
+
+#ifndef OGD_DISABLE_DEPRECATED
+
+/**
+ * ogd_event_get_num_comments:
+ * @event:          the #OGDEvent to query
+ *
+ * To obtain the number of comments for @event. Comments are readable in the dedicated homepage
+ * (see ogd_event_get_homepage())
+ *
+ * Return value:    number of comments assigned to the target @event
+ *
+ * Deprecated: 0.4: ogd_event_get_comments is suggested to be used instead
+ */
+gulong ogd_event_get_num_comments (OGDEvent *event)
+{
+    return event->priv->numcomments;
+}
+
+#endif
 
 static int category_to_identifier (OGD_EVENT_CATEGORY category)
 {

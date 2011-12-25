@@ -50,13 +50,13 @@ struct _OGDFolderClass {
 };
 
 /**
- * OGD_FOLDER_SORTING:
- * @OGD_FOLDER_SORT_NEWEST:           newer content come before
- * @OGD_FOLDER_SORT_ALPHABETICAL:     contents ordered alphabetically, by name
- * @OGD_FOLDER_SORT_RATING:           contents with higher scores come before
- * @OGD_FOLDER_SORT_DOWNLOADS:        contents with most downloads come before
+ * OGD_FOLDER_CATEGORY:
+ * @OGD_FOLDER_UNDEFINED:           undefined type of folder
+ * @OGD_FOLDER_INBOX:               'Inbox', the main folder
+ * @OGD_FOLDER_SEND:                contains the sent messages
+ * @OGD_FOLDER_TRASH:               removed contents
  *
- * Types of sorting for listing #OGDContents into a #OGDFolder
+ * Type of folders in which #OGDMessages are sorted
  */
 typedef enum {
     OGD_FOLDER_UNDEFINED,

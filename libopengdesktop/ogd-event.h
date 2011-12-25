@@ -77,11 +77,11 @@ GList*                  ogd_event_fetch_all             (OGDProvider *provider);
 const gchar*            ogd_event_get_id                (OGDEvent *event);
 const gchar*            ogd_event_get_authorid          (OGDEvent *event);
 const gchar*            ogd_event_get_name              (OGDEvent *event);
-void                    ogd_event_set_name              (OGDEvent *event, gchar *name);
+void                    ogd_event_set_name              (OGDEvent *event, gchar *title);
 const gchar*            ogd_event_get_description       (OGDEvent *event);
 void                    ogd_event_set_description       (OGDEvent *event, gchar *description);
 OGD_EVENT_CATEGORY      ogd_event_get_category          (OGDEvent *event);
-void                    ogd_event_set_category          (OGDEvent *event, OGD_EVENT_CATEGORY category);
+void                    ogd_event_set_category          (OGDEvent *event, OGD_EVENT_CATEGORY cat);
 const GDate*            ogd_event_get_start_date        (OGDEvent *event);
 void                    ogd_event_set_start_date        (OGDEvent *event, GDate *date);
 const GDate*            ogd_event_get_end_date          (OGDEvent *event);
@@ -105,12 +105,15 @@ void                    ogd_event_set_telephone         (OGDEvent *event, gchar 
 const gchar*            ogd_event_get_fax               (OGDEvent *event);
 void                    ogd_event_set_fax               (OGDEvent *event, gchar *fax);
 const gchar*            ogd_event_get_email             (OGDEvent *event);
-void                    ogd_event_set_email             (OGDEvent *event, gchar *email);
+void                    ogd_event_set_email             (OGDEvent *event, gchar *mail);
 const GDate*            ogd_event_get_changed           (OGDEvent *event);
-gulong                  ogd_event_get_num_comments      (OGDEvent *event);
 GList*                  ogd_event_get_comments          (OGDEvent *event);
 gulong                  ogd_event_get_num_partecipants  (OGDEvent *event);
 const gchar*            ogd_event_get_image             (OGDEvent *event);
+
+#ifndef OGD_DISABLE_DEPRECATED
+gulong                  ogd_event_get_num_comments      (OGDEvent *event);
+#endif
 
 void                    ogd_event_save                  (OGDEvent *event);
 void                    ogd_event_remove                (OGDEvent *event);

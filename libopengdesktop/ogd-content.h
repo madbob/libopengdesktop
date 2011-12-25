@@ -76,12 +76,15 @@ guint                   ogd_content_get_score               (OGDContent *content
 const gchar*            ogd_content_get_description         (OGDContent *content);
 const gchar*            ogd_content_get_changelog           (OGDContent *content);
 const gchar*            ogd_content_get_homepage            (OGDContent *content);
-gulong                  ogd_content_get_num_comments        (OGDContent *content);
 GList*                  ogd_content_get_comments            (OGDContent *content);
-gulong                  ogd_content_get_num_fans            (OGDContent *content);
 const GList*            ogd_content_get_fans                (OGDContent *content);
 const GList*            ogd_content_get_previews            (OGDContent *content);
 const GList*            ogd_content_get_download_refs       (OGDContent *content);
+
+#ifndef OGD_DISABLE_DEPRECATED
+gulong                  ogd_content_get_num_comments        (OGDContent *content);
+gulong                  ogd_content_get_num_fans            (OGDContent *content);
+#endif
 
 void                    ogd_content_vote                    (OGDContent *content, OGD_CONTENT_VOTE vote);
 void                    ogd_content_vote_async              (OGDContent *content, OGD_CONTENT_VOTE vote, OGDPutAsyncCallback callback, gpointer userdata);

@@ -107,7 +107,7 @@ GList* ogd_category_fetch_all (OGDProvider *provider)
 /**
  * ogd_category_fetch_all_async:
  * @provider:       a #OGDProvider
- * @callback:       async callback to which incoming #OGDCategories are passed
+ * @callback:       async callback to which incoming #OGDCategory are passed
  * @userdata:       the user data for the callback
  *
  * Async version of ogd_category_fetch_all()

@@ -315,21 +315,6 @@ const gchar* ogd_content_get_homepage (OGDContent *content)
 }
 
 /**
- * ogd_content_get_num_comments:
- * @content:        the #OGDContent to query
- *
- * To obtain number of comments of @content
- *
- * Return value:    number of comments for the target @content
- *
- * Deprecated: 0.4: ogd_content_get_comments() is suggested to be used instead
- */
-gulong ogd_content_get_num_comments (OGDContent *content)
-{
-    return content->priv->numcomments;
-}
-
-/**
  * ogd_content_get_comments:
  * @content:        the #OGDContent to query
  *
@@ -347,20 +332,6 @@ GList* ogd_content_get_comments (OGDContent *content)
     return ret;
 }
 
-/**
- * ogd_content_get_num_fans:
- * @content:        the #OGDContent to query
- *
- * To obtain number of fans of @content
- *
- * Return value:    number of fans for the target @content
- *
- * Deprecated: 0.4: ogd_content_get_fans() is suggested to be used instead
- */
-gulong ogd_content_get_num_fans (OGDContent *content)
-{
-    return content->priv->numfans;
-}
 
 /**
  * ogd_content_get_fans:
@@ -440,6 +411,40 @@ static void effective_vote (OGDContent *content, OGD_CONTENT_VOTE vote, gboolean
 
     g_free (query);
 }
+
+#ifndef OGD_DISABLE_DEPRECATED
+
+/**
+ * ogd_content_get_num_comments:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain number of comments of @content
+ *
+ * Return value:    number of comments for the target @content
+ *
+ * Deprecated: 0.4: ogd_content_get_comments is suggested to be used instead
+ */
+gulong ogd_content_get_num_comments (OGDContent *content)
+{
+    return content->priv->numcomments;
+}
+
+/**
+ * ogd_content_get_num_fans:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain number of fans of @content
+ *
+ * Return value:    number of fans for the target @content
+ *
+ * Deprecated: 0.4: ogd_content_get_fans() is suggested to be used instead
+ */
+gulong ogd_content_get_num_fans (OGDContent *content)
+{
+    return content->priv->numfans;
+}
+
+#endif
 
 /**
  * ogd_content_vote:

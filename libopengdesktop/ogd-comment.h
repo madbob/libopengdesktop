@@ -49,11 +49,11 @@ struct _OGDCommentClass {
 
 GType                   ogd_comment_get_type                   ();
 
-const gchar*            ogd_comment_get_authorid               (OGDComment *comment);
-const GDate*            ogd_comment_get_date                   (OGDComment *comment);
-const gchar*            ogd_comment_get_subject                (OGDComment *comment);
-const gchar*            ogd_comment_get_message                (OGDComment *comment);
-const GList*            ogd_comment_get_children               (OGDComment *comment);
+const gchar*            ogd_comment_get_authorid               (OGDComment *msg);
+const GDate*            ogd_comment_get_date                   (OGDComment *msg);
+const gchar*            ogd_comment_get_subject                (OGDComment *msg);
+const gchar*            ogd_comment_get_message                (OGDComment *msg);
+const GList*            ogd_comment_get_children               (OGDComment *msg);
 
 G_END_DECLS
 
