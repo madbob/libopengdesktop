@@ -155,6 +155,52 @@ static void ogd_content_init (OGDContent *item)
 }
 
 /**
+ * ogd_content_new_by_id:
+ * @provider        #OGDProvider from which retrieve the content
+ * @id:             ID of the required content
+ *
+ * To obtain informations about an existing content published on the specified platform
+ *
+ * Return value:    a newly allocated and populated #OGDContent, or NULL if the ID is not valid
+ */
+OGDContent* ogd_content_new_by_id (OGDProvider *provider, const gchar *id)
+{
+    GError *err;
+    OGDContent *ret;
+
+    ret = g_object_new (ogd_content_get_type (), NULL);
+    ogd_object_set_provider (OGD_OBJECT (ret), provider);
+
+    err = NULL;
+
+    if (ogd_object_fill_by_id (OGD_OBJECT (ret), id, &err) == TRUE) {
+        return ret;
+    }
+    else {
+        g_object_unref (ret);
+        return NULL;
+    }
+}
+
+/**
+ * ogd_content_new_by_id_async:
+ * @provider        #OGDProvider from which retrieve the content
+ * @id:             ID of the required content
+ * @callback:       async callback to which the filled #OGDObject is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_content_new_by_id()
+ */
+void ogd_content_new_by_id_async (OGDProvider *provider, const gchar *id, OGDAsyncCallback callback, gpointer userdata)
+{
+    OGDContent *ret;
+
+    ret = g_object_new (ogd_content_get_type (), NULL);
+    ogd_object_set_provider (OGD_OBJECT (ret), provider);
+    ogd_object_fill_by_id_async (OGD_OBJECT (ret), id, callback, userdata);
+}
+
+/**
  * ogd_content_get_id:
  * @content:        the #OGDContent to query
  *

@@ -113,6 +113,8 @@ ogd_person_myself_action_on_friend
 <TITLE>OGDContent</TITLE>
 OGDContent
 OGD_CONTENT_VOTE
+ogd_content_new_by_id
+ogd_content_new_by_id_async
 ogd_content_get_id
 ogd_content_get_name
 ogd_content_get_version

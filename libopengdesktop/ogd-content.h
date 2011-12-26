@@ -64,6 +64,8 @@ typedef enum {
 
 GType                   ogd_content_get_type                ();
 
+OGDContent*             ogd_content_new_by_id               (OGDProvider *provider, const gchar *id);
+void                    ogd_content_new_by_id_async         (OGDProvider *provider, const gchar *id, OGDAsyncCallback callback, gpointer userdata);
 const gchar*            ogd_content_get_id                  (OGDContent *content);
 const gchar*            ogd_content_get_name                (OGDContent *content);
 const gchar*            ogd_content_get_version             (OGDContent *content);
