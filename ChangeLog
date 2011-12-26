@@ -1,4 +1,7 @@
-27/006/2010  0.4
+??? 		0.5
+	Added utility functions to fetch given contents
+
+27/06/2010  	0.4
 	Update to version 1.5 of Open Collaboration Service API
 	Improved management of friendships
 	Ability to create new events

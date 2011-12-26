@@ -123,6 +123,7 @@ static void parse_xml_from_async (xmlNode *node, gpointer userdata)
     if (node != NULL) {
         req = (AsyncRequestDesc*) userdata;
         ogd_object_fill_by_xml (req->reference, node, NULL);
+        req->callback (req->reference, req->userdata);
         xmlFreeDoc (node->doc);
         g_free (req);
     }
