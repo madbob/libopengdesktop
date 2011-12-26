@@ -364,8 +364,7 @@ const gchar* ogd_content_get_homepage (OGDContent *content)
  * ogd_content_get_comments:
  * @content:        the #OGDContent to query
  *
- * Return value:    a list of #OGDComment to be freed when no longer in use,
- *                  or NULL
+ * Return value:    a list of #OGDComment to be freed when no longer in use, or NULL
  */
 GList* ogd_content_get_comments (OGDContent *content)
 {
@@ -385,9 +384,9 @@ GList* ogd_content_get_comments (OGDContent *content)
  *
  * Retrieves list of current fans for the given @content
  *
- * Return value:    a list of #OGDPerson, or NULL
+ * Return value:    a list of #OGDPerson to be freed when no longer in use, or NULL
  */
-const GList* ogd_content_get_fans (OGDContent *content)
+GList* ogd_content_get_fans (OGDContent *content)
 {
     gchar *query;
     GList *ret;

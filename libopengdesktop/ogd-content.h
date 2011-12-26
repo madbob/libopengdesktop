@@ -79,7 +79,7 @@ const gchar*            ogd_content_get_description         (OGDContent *content
 const gchar*            ogd_content_get_changelog           (OGDContent *content);
 const gchar*            ogd_content_get_homepage            (OGDContent *content);
 GList*                  ogd_content_get_comments            (OGDContent *content);
-const GList*            ogd_content_get_fans                (OGDContent *content);
+GList*                  ogd_content_get_fans                (OGDContent *content);
 const GList*            ogd_content_get_previews            (OGDContent *content);
 const GList*            ogd_content_get_download_refs       (OGDContent *content);
 
