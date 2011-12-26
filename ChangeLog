@@ -1,5 +1,6 @@
 ??? 		0.5
 	Added utility functions to fetch given contents
+	More *_async functions
 
 27/06/2010  	0.4
 	Update to version 1.5 of Open Collaboration Service API

@@ -59,6 +59,7 @@ void            ogd_provider_auth_api_key           (OGDProvider *provider, gcha
 
 GList*          ogd_provider_get                    (OGDProvider *provider, gchar *query);
 void            ogd_provider_get_async              (OGDProvider *provider, gchar *query, OGDAsyncCallback callback, gpointer userdata);
+void            ogd_provider_get_list_async         (OGDProvider *provider, gchar *query, OGDAsyncListCallback callback, gpointer userdata);
 gboolean        ogd_provider_put                    (OGDProvider *provider, gchar *query, GHashTable *data);
 void            ogd_provider_put_async              (OGDProvider *provider, gchar *query, GHashTable *data, OGDPutAsyncCallback callback, gpointer userdata);
 

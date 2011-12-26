@@ -77,6 +77,7 @@
 typedef struct {
     OGDProvider                 *provider;
     OGDObject                   *reference;
+    GList*                      list;
     gboolean                    one_shot;
     gboolean                    objectize;
 
@@ -84,6 +85,7 @@ typedef struct {
     OGDAsyncCallback            callback;
     OGDProviderRawAsyncCallback rcallback;
     OGDPutAsyncCallback         pcallback;
+    OGDAsyncListCallback        lcallback;
 
     gulong                      total;
     gulong                      counter;
@@ -95,6 +97,7 @@ gdouble     node_to_double              (xmlNode *node);
 
 gulong      total_items_for_query       (xmlNode *package);
 GList*      list_of_people              (OGDObject *reference, gchar *query);
+void        list_of_people_async        (OGDObject *reference, gchar *query, OGDAsyncListCallback callback, gpointer userdata);
 
 void        init_types_management       ();
 GType       retrieve_type               (const gchar *xml_name);

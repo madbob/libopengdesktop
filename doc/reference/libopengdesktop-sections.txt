@@ -127,10 +127,10 @@ ogd_content_get_score
 ogd_content_get_description
 ogd_content_get_changelog
 ogd_content_get_homepage
-ogd_content_get_num_comments
 ogd_content_get_comments
-ogd_content_get_num_fans
+ogd_content_get_comments_async
 ogd_content_get_fans
+ogd_content_get_fans_async
 ogd_content_get_previews
 ogd_content_get_download_refs
 ogd_content_vote
@@ -139,6 +139,8 @@ ogd_content_set_fan
 ogd_content_set_fan_async
 ogd_content_add_comment
 ogd_content_add_comment_async
+ogd_content_get_num_fans
+ogd_content_get_num_comments
 </SECTION>
 
 <SECTION>
@@ -188,6 +190,7 @@ ogd_provider_auth_user_and_pwd
 ogd_provider_auth_api_key
 ogd_provider_get
 ogd_provider_get_async
+ogd_provider_get_list_async
 ogd_provider_put
 ogd_provider_put_async
 </SECTION>
@@ -197,6 +200,7 @@ ogd_provider_put_async
 <TITLE>OGDObject</TITLE>
 OGDObject
 OGDAsyncCallback
+OGDAsyncListCallback
 OGDPutAsyncCallback
 ogd_object_get_provider
 ogd_object_set_provider

@@ -143,6 +143,66 @@ GList* list_of_people (OGDObject *reference, gchar *query)
     return ret;
 }
 
+void put_person_in_list (OGDObject *obj, gpointer userdata)
+{
+    AsyncRequestDesc *request;
+
+    request = (AsyncRequestDesc*) userdata;
+    request->list = g_list_prepend (request->list, obj);
+
+    if (g_list_length (request->list) == request->total) {
+        request->lcallback (request->list, request->userdata);
+        g_free (request);
+    }
+}
+
+void fill_people_in_list (xmlNode *node, gpointer userdata)
+{
+    xmlChar *friend_id;
+    AsyncRequestDesc *request;
+    OGDPerson *obj;
+
+    request = (AsyncRequestDesc*) userdata;
+
+    if (node != NULL) {
+        request->total += 1;
+
+        friend_id = xmlNodeGetContent (node);
+
+        obj = g_object_new (OGD_PERSON_TYPE, NULL);
+        ogd_object_set_provider (OGD_OBJECT (obj), request->provider);
+        ogd_object_fill_by_id_async (OGD_OBJECT (obj), (char*) friend_id, put_person_in_list, request);
+
+        xmlFree (friend_id);
+    }
+    else {
+        if (request->total == 0) {
+            request->lcallback (NULL, request->userdata);
+            g_free (request);
+        }
+    }
+}
+
+void list_of_people_async (OGDObject *reference, gchar *query, OGDAsyncListCallback callback, gpointer userdata)
+{
+    gint page;
+    gchar *complete_query;
+    OGDProvider *provider;
+    AsyncRequestDesc *request;
+
+    page = 0;
+    provider = ogd_object_get_provider (reference);
+
+    request = g_new0 (AsyncRequestDesc, 1);
+    request->provider = ogd_object_get_provider (reference);
+    request->lcallback = callback;
+    request->userdata = userdata;
+
+    complete_query = g_strdup_printf ("%s?pagesize=100&page=%d", query, page);
+    ogd_provider_get_raw_async (provider, complete_query, TRUE, fill_people_in_list, request);
+    g_free (complete_query);
+}
+
 void init_types_management ()
 {
     GType type;

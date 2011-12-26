@@ -305,15 +305,20 @@ static void handle_async_get_response (SoupSession *session, SoupMessage *msg, g
     if (async->objectize) {
         list = parse_xml_node_to_list_of_objects (ret, async->provider);
 
-        for (iter = g_list_first (list); iter; iter = g_list_next (iter)) {
-            async->callback ((OGDObject*) iter->data, async->userdata);
-            g_object_unref (iter->data);
+        if (async->lcallback != NULL) {
+            async->lcallback (list, async->userdata);
         }
+        else {
+            for (iter = g_list_first (list); iter; iter = g_list_next (iter)) {
+                async->callback ((OGDObject*) iter->data, async->userdata);
+                g_object_unref (iter->data);
+            }
 
-        if (async->one_shot == FALSE)
-            async->callback (NULL, async->userdata);
+            if (async->one_shot == FALSE)
+                async->callback (NULL, async->userdata);
 
-        g_list_free (list);
+            g_list_free (list);
+        }
     }
     else {
         for (cursor = ret->children; cursor; cursor = cursor->next)
@@ -330,7 +335,7 @@ static void send_async_msg_to_server (const gchar *complete_query, AsyncRequestD
 
     msg = soup_message_new ("GET", complete_query);
     if (msg == NULL) {
-        g_warning ("Unable to build request to server\n");
+        g_warning ("Unable to build request to server: %s\n", complete_query);
         return;
     }
 
@@ -346,10 +351,12 @@ static void send_async_msg_to_server (const gchar *complete_query, AsyncRequestD
         objects:    TRUE to build OGDObjects from incoming XML, FALSE to use raw data
         callback:   if objects == TRUE, callback to which pass built objects
         rcallback:  if objects == FALSE, callback to which pass raw XML
+        lcallback:  if objects == TRUE and lcallback != NULL, callback to which pass GList of built objects
         userdata:   the user data for callback or rcallback
 */
 static void get_async (OGDProvider *provider, gchar *query, gboolean single, gboolean objects,
-                       OGDAsyncCallback callback, OGDProviderRawAsyncCallback rcallback, gpointer userdata)
+                       OGDAsyncCallback callback, OGDProviderRawAsyncCallback rcallback, OGDAsyncListCallback lcallback,
+                       gpointer userdata)
 {
     gchar *complete_query;
     AsyncRequestDesc *async;
@@ -361,6 +368,7 @@ static void get_async (OGDProvider *provider, gchar *query, gboolean single, gbo
     async->userdata = userdata;
     async->callback = callback;
     async->rcallback = rcallback;
+    async->lcallback = lcallback;
     async->provider = provider;
     async->objectize = objects;
 
@@ -417,7 +425,7 @@ xmlNode* ogd_provider_get_raw (OGDProvider *provider, gchar *query, GError **err
 void ogd_provider_get_raw_async (OGDProvider *provider, gchar *query, gboolean many,
                                  OGDProviderRawAsyncCallback callback, gpointer userdata)
 {
-    get_async (provider, query, many == FALSE, FALSE, NULL, callback, userdata);
+    get_async (provider, query, many == FALSE, FALSE, NULL, callback, NULL, userdata);
 }
 
 GHashTable* ogd_provider_header_from_raw (xmlNode *response)
@@ -477,13 +485,28 @@ GList* ogd_provider_get (OGDProvider *provider, gchar *query)
 void ogd_provider_get_async (OGDProvider *provider, gchar *query,
                              OGDAsyncCallback callback, gpointer userdata)
 {
-    get_async (provider, query, FALSE, TRUE, callback, NULL, userdata);
+    get_async (provider, query, FALSE, TRUE, callback, NULL, NULL, userdata);
+}
+
+/**
+ * ogd_provider_get_list_async:
+ * @provider:       the #OGDProvider from which retrieve data
+ * @query:          query to ask contents
+ * @callback:       async callback to which list of incoming #OGDObjects is passed
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_provider_get()
+ */
+void ogd_provider_get_list_async (OGDProvider *provider, gchar *query,
+                                  OGDAsyncListCallback callback, gpointer userdata)
+{
+    get_async (provider, query, FALSE, TRUE, NULL, NULL, callback, userdata);
 }
 
 void ogd_provider_get_single_async (OGDProvider *provider, gchar *query,
                                     OGDAsyncCallback callback, gpointer userdata)
 {
-    get_async (provider, query, TRUE, TRUE, callback, NULL, userdata);
+    get_async (provider, query, TRUE, TRUE, callback, NULL, NULL, userdata);
 }
 
 static SoupMessage* prepare_message_to_put (OGDProvider *provider, gchar *query, GHashTable *data)

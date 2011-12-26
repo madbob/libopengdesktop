@@ -364,6 +364,8 @@ const gchar* ogd_content_get_homepage (OGDContent *content)
  * ogd_content_get_comments:
  * @content:        the #OGDContent to query
  *
+ * Retrieves list of comments published for the given #OGDContent
+ *
  * Return value:    a list of #OGDComment to be freed when no longer in use, or NULL
  */
 GList* ogd_content_get_comments (OGDContent *content)
@@ -377,6 +379,23 @@ GList* ogd_content_get_comments (OGDContent *content)
     return ret;
 }
 
+/**
+ * ogd_content_get_comments_async:
+ * @content:        the #OGDContent to query
+ * @callback:       callback to call when comments collection is ended. If no comments exist, it
+ *					is invoked with NULL
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_content_get_comments()
+ */
+void ogd_content_get_comments_async (OGDContent *content, OGDAsyncListCallback callback, gpointer userdata)
+{
+    gchar *query;
+
+    query = g_strdup_printf ("comments/data/1/%s/0", ogd_content_get_id (content));
+    ogd_provider_get_list_async (ogd_object_get_provider (content), query, callback, userdata);
+    g_free (query);
+}
 
 /**
  * ogd_content_get_fans:
@@ -395,6 +414,24 @@ GList* ogd_content_get_fans (OGDContent *content)
     ret = list_of_people (OGD_OBJECT (content), query);
     g_free (query);
     return ret;
+}
+
+/**
+ * ogd_content_get_fans_async:
+ * @content:        the #OGDContent to query
+ * @callback:       callback to call when fans collection is ended. If no fans exist, it is
+ *                  invoked with NULL
+ * @userdata:       the user data for the callback
+ *
+ * Async version of ogd_content_get_fans()
+ */
+void ogd_content_get_fans_async (OGDContent *content, OGDAsyncListCallback callback, gpointer userdata)
+{
+    gchar *query;
+
+    query = g_strdup_printf ("fan/data/%s", ogd_content_get_id (content));
+    list_of_people_async (OGD_OBJECT (content), query, callback, userdata);
+    g_free (query);
 }
 
 /**
