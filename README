@@ -32,12 +32,10 @@ To build libopengdesktop just run:
 
 HACKING
 -------
-libopengdesktop is hosted by BarberaWare: http://barberaware.org
-The reference website is at http://libopengdesktop.barberaware.org : here you
-find links to the SVN repository, the bugtracker and the developers mailing
-list.
+The reference website is available at http://madbob.org/index.php/Libopengdesktop
+Here you find pointers to the git repository, online documentation and more.
 
 AUTHOR
 ------
 libopengdesktop has been written by Roberto Guido
-Copyright (C) 2009/2011  Roberto Guido
+Copyright (C) 2009/2012  Roberto Guido

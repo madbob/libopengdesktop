@@ -1,5 +1,5 @@
 /*  libopengdesktop
- *  Copyright (C) 2009/2011 Roberto -MadBob- Guido <bob4job@gmail.com>
+ *  Copyright (C) 2009/2012 Roberto -MadBob- Guido <bob4job@gmail.com>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
