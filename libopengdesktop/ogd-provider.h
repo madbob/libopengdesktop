@@ -57,6 +57,8 @@ OGDProvider*    ogd_provider_new                    (gchar *url);
 void            ogd_provider_auth_user_and_pwd      (OGDProvider *provider, gchar *username, gchar *password);
 void            ogd_provider_auth_api_key           (OGDProvider *provider, gchar *key);
 
+const gchar*    ogd_provider_get_url                (OGDProvider *provider);
+
 GList*          ogd_provider_get                    (OGDProvider *provider, gchar *query);
 void            ogd_provider_get_async              (OGDProvider *provider, gchar *query, OGDAsyncCallback callback, gpointer userdata);
 void            ogd_provider_get_list_async         (OGDProvider *provider, gchar *query, OGDAsyncListCallback callback, gpointer userdata);

@@ -71,6 +71,16 @@
     __b;                                    \
 })
 
+#define SET_STRING(__obj, __field, __value) {             \
+    PTR_CHECK_FREE_NULLIFY (__obj->priv->__field);        \
+    __obj->priv->__field = g_strdup (__value);            \
+}
+
+#define SET_OBJECT(__obj, __field, __value) {             \
+    OBJ_CHECK_UNREF_NULLIFY (__obj->priv->__field);       \
+    __obj->priv->__field = g_object_ref (__value);        \
+}
+
 #define MYSTRCMP(__a,__b)       strcmp ((char*) __a, (char*) __b)
 #define MYGETCONTENT(__a)       (char*) xmlNodeGetContent(__a)
 

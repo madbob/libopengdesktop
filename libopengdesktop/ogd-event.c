@@ -23,14 +23,13 @@
 #define OGD_EVENT_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
                                              OGD_EVENT_TYPE, OGDEventPrivate))
 
-#define SET_STRING(__event, __field, __value) {             \
+#define CHECK_AND_SET_STRING(__event, __field, __value) {   \
     if (check_ownership (__event) == FALSE) {               \
         g_warning ("No permissions to edit the event.");    \
         return;                                             \
     }                                                       \
                                                             \
-    PTR_CHECK_FREE_NULLIFY (__event->priv->__field);        \
-    __event->priv->__field = g_strdup (__value);            \
+    SET_STRING (__event, __field, __value);                 \
 }
 
 /**
@@ -224,7 +223,7 @@ static gboolean check_ownership (OGDEvent *event)
  *
  * Creates an empty event suitable to be filled and saved with ogd_event_save()
  *
- * Return value:    ID of the target @event
+ * Return value:    a new #OGDEvent
  */
 OGDEvent* ogd_event_new (OGDProvider *provider)
 {
@@ -299,7 +298,7 @@ const gchar* ogd_event_get_name (OGDEvent *event)
  */
 void ogd_event_set_name (OGDEvent *event, gchar *title)
 {
-    SET_STRING (event, name, title);
+    CHECK_AND_SET_STRING (event, name, title);
 }
 
 /**
@@ -325,7 +324,7 @@ const gchar* ogd_event_get_description (OGDEvent *event)
  */
 void ogd_event_set_description (OGDEvent *event, gchar *description)
 {
-    SET_STRING (event, description, description);
+    CHECK_AND_SET_STRING (event, description, description);
 }
 
 /**
@@ -447,7 +446,7 @@ const gchar* ogd_event_get_organizer (OGDEvent *event)
  */
 void ogd_event_set_organizer (OGDEvent *event, gchar *organizer)
 {
-    SET_STRING (event, organizer, organizer);
+    CHECK_AND_SET_STRING (event, organizer, organizer);
 }
 
 /**
@@ -474,7 +473,7 @@ const gchar* ogd_event_get_location (OGDEvent *event)
  */
 void ogd_event_set_location (OGDEvent *event, gchar *location)
 {
-    SET_STRING (event, location, location);
+    CHECK_AND_SET_STRING (event, location, location);
 }
 
 /**
@@ -501,7 +500,7 @@ const gchar* ogd_event_get_city (OGDEvent *event)
  */
 void ogd_event_set_city (OGDEvent *event, gchar *city)
 {
-    SET_STRING (event, city, city);
+    CHECK_AND_SET_STRING (event, city, city);
 }
 
 /**
@@ -528,7 +527,7 @@ const gchar* ogd_event_get_country (OGDEvent *event)
  */
 void ogd_event_set_country (OGDEvent *event, gchar *country)
 {
-    SET_STRING (event, country, country);
+    CHECK_AND_SET_STRING (event, country, country);
 }
 
 /**
@@ -616,7 +615,7 @@ const gchar* ogd_event_get_homepage (OGDEvent *event)
  */
 void ogd_event_set_homepage (OGDEvent *event, gchar *homepage)
 {
-    SET_STRING (event, homepage, homepage);
+    CHECK_AND_SET_STRING (event, homepage, homepage);
 }
 
 /**
@@ -644,7 +643,7 @@ const gchar* ogd_event_get_telephone (OGDEvent *event)
  */
 void ogd_event_set_telephone (OGDEvent *event, gchar *telephone)
 {
-    SET_STRING (event, telephone, telephone);
+    CHECK_AND_SET_STRING (event, telephone, telephone);
 }
 
 /**
@@ -671,7 +670,7 @@ const gchar* ogd_event_get_fax (OGDEvent *event)
  */
 void ogd_event_set_fax (OGDEvent *event, gchar *fax)
 {
-    SET_STRING (event, fax, fax);
+    CHECK_AND_SET_STRING (event, fax, fax);
 }
 
 /**
@@ -699,7 +698,7 @@ const gchar* ogd_event_get_email (OGDEvent *event)
  */
 void ogd_event_set_email (OGDEvent *event, gchar *mail)
 {
-    SET_STRING (event, mail, mail);
+    CHECK_AND_SET_STRING (event, mail, mail);
 }
 
 /**

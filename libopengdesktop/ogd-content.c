@@ -23,6 +23,15 @@
 #define OGD_CONTENT_GET_PRIVATE(obj)       (G_TYPE_INSTANCE_GET_PRIVATE ((obj),    \
                                              OGD_CONTENT_TYPE, OGDContentPrivate))
 
+#define CHECK_AND_SET_STRING(__content, __field, __value) { \
+    if (check_ownership (__content) == FALSE) {             \
+        g_warning ("No permissions to edit the content.");  \
+        return;                                             \
+    }                                                       \
+                                                            \
+    SET_STRING (__content, __field, __value);               \
+}
+
 /**
  * SECTION: ogd-content
  * @short_description:  description of a specific content took from the provider
@@ -34,6 +43,7 @@
 
 struct _OGDContentPrivate {
     gchar       *id;
+    OGDCategory *category;
     gchar       *name;
     gchar       *version;
     gchar       *language;
@@ -60,6 +70,7 @@ static void ogd_content_finalize (GObject *obj)
     content = OGD_CONTENT (obj);
 
     PTR_CHECK_FREE_NULLIFY (content->priv->id);
+    OBJ_CHECK_UNREF_NULLIFY (content->priv->category);
     PTR_CHECK_FREE_NULLIFY (content->priv->name);
     PTR_CHECK_FREE_NULLIFY (content->priv->version);
     PTR_CHECK_FREE_NULLIFY (content->priv->language);
@@ -93,6 +104,8 @@ static gboolean ogd_content_fill_by_xml (OGDObject *obj, const xmlNode *xml, GEr
     for (cursor = xml->children; cursor; cursor = cursor->next) {
         if (MYSTRCMP (cursor->name, "id") == 0)
             content->priv->id = MYGETCONTENT (cursor);
+        else if (MYSTRCMP (cursor->name, "typeid") == 0)
+            content->priv->category = ogd_category_new_by_id (ogd_object_get_provider (obj), MYGETCONTENT (cursor));
         else if (MYSTRCMP (cursor->name, "name") == 0)
             content->priv->name = MYGETCONTENT (cursor);
         else if (MYSTRCMP (cursor->name, "version") == 0)
@@ -154,9 +167,43 @@ static void ogd_content_init (OGDContent *item)
     memset (item->priv, 0, sizeof (OGDContentPrivate));
 }
 
+static gboolean check_ownership (OGDContent *content)
+{
+    const gchar *owner;
+    static const gchar *myself = NULL;
+
+    if (ogd_content_get_id (content) == NULL)
+        return TRUE;
+
+    owner = ogd_content_get_authorid (content);
+
+    if (myself == NULL)
+        myself = ogd_person_get_id (ogd_person_get_myself (ogd_object_get_provider (OGD_OBJECT (content))));
+
+    return (strcmp (owner, myself) == 0);
+}
+
+/**
+ * ogd_content_new:
+ * @provider:       reference provider for the new event
+ *
+ * Creates an empty content suitable to be filled and saved with ogd_content_save()
+ *
+ * Return value:    a new #OGDContent
+ */
+OGDContent* ogd_content_new (OGDProvider *provider)
+{
+    OGDContent *ret;
+
+    ret = g_object_new (OGD_CONTENT_TYPE, NULL);
+    ogd_object_set_provider (OGD_OBJECT (ret), provider);
+    ret->priv->authorid = g_strdup (ogd_person_get_id (ogd_person_get_myself (provider)));
+    return ret;
+}
+
 /**
  * ogd_content_new_by_id:
- * @provider        #OGDProvider from which retrieve the content
+ * @provider:       #OGDProvider from which retrieve the content
  * @id:             ID of the required content
  *
  * To obtain informations about an existing content published on the specified platform
@@ -184,7 +231,7 @@ OGDContent* ogd_content_new_by_id (OGDProvider *provider, const gchar *id)
 
 /**
  * ogd_content_new_by_id_async:
- * @provider        #OGDProvider from which retrieve the content
+ * @provider:       #OGDProvider from which retrieve the content
  * @id:             ID of the required content
  * @callback:       async callback to which the filled #OGDObject is passed
  * @userdata:       the user data for the callback
@@ -214,6 +261,37 @@ const gchar* ogd_content_get_id (OGDContent *content)
 }
 
 /**
+ * ogd_content_get_category:
+ * @content:        the #OGDContent to query
+ *
+ * To obtain the category of the @content
+ *
+ * Return value:    #OGDCategory parent of @content
+ */
+const OGDCategory* ogd_content_get_category (OGDContent *content)
+{
+    return (const OGDCategory*) content->priv->category;
+}
+
+/**
+ * ogd_content_set_category:
+ * @content:        the #OGDContent to edit
+ * @category:       new category for the content
+ *
+ * Sets a category to the @content. Can be used only if the current user has permission to edit the
+ * element
+ */
+void ogd_content_set_category (OGDContent *content, OGDCategory *category)
+{
+    if (check_ownership (content) == FALSE) {
+        g_warning ("No permissions to edit the event.");
+        return;
+    }
+
+    SET_OBJECT (content, category, category);
+}
+
+/**
  * ogd_content_get_name:
  * @content:        the #OGDContent to query
  *
@@ -224,6 +302,19 @@ const gchar* ogd_content_get_id (OGDContent *content)
 const gchar* ogd_content_get_name (OGDContent *content)
 {
     return (const gchar*) content->priv->name;
+}
+
+/**
+ * ogd_content_set_name:
+ * @content:        the #OGDContent to edit
+ * @name :          new name for the content
+ *
+ * Sets a name to the @content. Can be used only if the current user has permission to edit the
+ * element
+ */
+void ogd_content_set_name (OGDContent *content, gchar *name)
+{
+    CHECK_AND_SET_STRING (content, name, name);
 }
 
 /**
@@ -241,6 +332,19 @@ const gchar* ogd_content_get_version (OGDContent *content)
 }
 
 /**
+ * ogd_content_set_version:
+ * @content:        the #OGDContent to edit
+ * @version:        new version for the content
+ *
+ * Sets a version to the @content. Can be used only if the current user has permission to edit the
+ * element
+ */
+void ogd_content_set_version (OGDContent *content, gchar *version)
+{
+    CHECK_AND_SET_STRING (content, version, version);
+}
+
+/**
  * ogd_content_get_language:
  * @content:        the #OGDContent to query
  *
@@ -252,6 +356,19 @@ const gchar* ogd_content_get_version (OGDContent *content)
 const gchar* ogd_content_get_language (OGDContent *content)
 {
     return (const gchar*) content->priv->language;
+}
+
+/**
+ * ogd_content_set_language:
+ * @content:        the #OGDContent to edit
+ * @language:       new language for the content
+ *
+ * Sets a language to the @content. Can be used only if the current user has permission to edit the
+ * element
+ */
+void ogd_content_set_language (OGDContent *content, gchar *language)
+{
+    CHECK_AND_SET_STRING (content, language, language);
 }
 
 /**
@@ -335,6 +452,19 @@ const gchar* ogd_content_get_description (OGDContent *content)
 }
 
 /**
+ * ogd_content_set_description:
+ * @content:        the #OGDContent to edit
+ * @description:    new description for the content
+ *
+ * Sets a description to the @content. Can be used only if the current user has permission to
+ * edit the element
+ */
+void ogd_content_set_description (OGDContent *content, gchar *description)
+{
+    CHECK_AND_SET_STRING (content, description, description);
+}
+
+/**
  * ogd_content_get_changelog:
  * @content:        the #OGDContent to query
  *
@@ -348,6 +478,19 @@ const gchar* ogd_content_get_changelog (OGDContent *content)
 }
 
 /**
+ * ogd_content_set_changelog:
+ * @content:        the #OGDContent to edit
+ * @changelog:      new changelog for the content
+ *
+ * Sets a changelog to the @content. Can be used only if the current user has permission to edit the
+ * element
+ */
+void ogd_content_set_changelog (OGDContent *content, gchar *changelog)
+{
+    CHECK_AND_SET_STRING (content, changelog, changelog);
+}
+
+/**
  * ogd_content_get_homepage:
  * @content:        the #OGDContent to query
  *
@@ -358,6 +501,19 @@ const gchar* ogd_content_get_changelog (OGDContent *content)
 const gchar* ogd_content_get_homepage (OGDContent *content)
 {
     return (const gchar*) content->priv->homepage;
+}
+
+/**
+ * ogd_content_set_homepage:
+ * @content:        the #OGDContent to edit
+ * @homepage:       new homepage for the content
+ *
+ * Sets a homepage to the @content. Can be used only if the current user has permission to edit the
+ * element
+ */
+void ogd_content_set_homepage (OGDContent *content, gchar *homepage)
+{
+    CHECK_AND_SET_STRING (content, homepage, homepage);
 }
 
 /**
@@ -393,7 +549,7 @@ void ogd_content_get_comments_async (OGDContent *content, OGDAsyncListCallback c
     gchar *query;
 
     query = g_strdup_printf ("comments/data/1/%s/0", ogd_content_get_id (content));
-    ogd_provider_get_list_async (ogd_object_get_provider (content), query, callback, userdata);
+    ogd_provider_get_list_async (ogd_object_get_provider (OGD_OBJECT (content)), query, callback, userdata);
     g_free (query);
 }
 
@@ -458,6 +614,25 @@ const GList* ogd_content_get_previews (OGDContent *content)
 const GList* ogd_content_get_download_refs (OGDContent *content)
 {
     return content->priv->downloads;
+}
+
+/**
+ * ogd_content_set_homepage:
+ * @content:        the #OGDContent to edit
+ * @downloads:      a list of strings
+ *
+ * Sets the list of URL where @content can be downloaded. Can be used only if the current user has
+ * permission to edit the element
+ */
+void ogd_content_set_download_refs (OGDContent *content, const GList *downloads)
+{
+    if (check_ownership (content) == FALSE) {
+        g_warning ("No permissions to edit the event.");
+        return;
+    }
+
+    STRLIST_CHECK_FREE_NULLIFY (content->priv->downloads);
+    content->priv->downloads = (GList*) downloads;
 }
 
 static void effective_vote (OGDContent *content, OGD_CONTENT_VOTE vote, gboolean async,
@@ -651,3 +826,129 @@ void ogd_content_add_comment_async (OGDContent *content, gchar *subject, gchar *
     ogd_provider_put_async (ogd_object_get_provider (OGD_OBJECT (content)), "comment/add", params, callback, userdata);
     g_hash_table_unref (params);
 }
+
+/**
+ * ogd_content_save:
+ * @content:        a new #OGDContent to be saved on the provider, or an existing event to edit
+ *
+ * To save a new or edited content. The function fails if trying to edit a content not owned by the
+ * current user
+ */
+void ogd_content_save (OGDContent *content)
+{
+    int i;
+    const gchar *id;
+    gchar *query;
+    gchar *tmp;
+    const gchar *str;
+    const GList *list;
+    GHashTable *data;
+    xmlNode *response;
+    xmlNode *inner_response;
+    OGDCategory *category;
+
+    if (check_ownership (content) == FALSE) {
+        g_warning ("No permissions to edit the event.");
+        return;
+    }
+
+    str = ogd_content_get_name (content);
+    if (str == NULL) {
+        g_warning ("A name for the content is mandatory.");
+        return;
+    }
+
+    category = ogd_content_get_category (content);
+    if (category == NULL) {
+        g_warning ("A category for the content is mandatory.");
+        return;
+    }
+
+    data = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+
+    g_hash_table_insert (data, g_strdup ("name"), (gchar*) str);
+    g_hash_table_insert (data, g_strdup ("type"), ogd_category_get_id (category));
+
+    str = ogd_content_get_version (content);
+    if (str != NULL)
+        g_hash_table_insert (data, g_strdup ("version"), (gchar*) str);
+
+    str = ogd_content_get_language (content);
+    if (str != NULL)
+        g_hash_table_insert (data, g_strdup ("language"), (gchar*) str);
+
+    str = ogd_content_get_description (content);
+    if (str != NULL)
+        g_hash_table_insert (data, g_strdup ("description"), (gchar*) str);
+
+    str = ogd_content_get_changelog (content);
+    if (str != NULL)
+        g_hash_table_insert (data, g_strdup ("changelog"), (gchar*) str);
+
+    str = ogd_content_get_homepage (content);
+    if (str != NULL)
+        g_hash_table_insert (data, g_strdup ("homepage"), (gchar*) str);
+
+    for (i = 1, list = ogd_content_get_download_refs (content); list != NULL; i++, list = g_list_next (list)) {
+        str = g_strdup_printf ("downloadtype%d", i);
+        g_hash_table_insert (data, str, "1");
+        str = g_strdup_printf ("downloadlink%d", i);
+        g_hash_table_insert (data, str, (gchar*) list->data);
+    }
+
+    id = ogd_content_get_id (content);
+
+    if (id == NULL) {
+        response = ogd_provider_put_raw (ogd_object_get_provider (OGD_OBJECT (content)), "content/add", data);
+        if (response != NULL) {
+            if (MYSTRCMP (response->name, "data") == 0 && response->children != NULL &&
+                    MYSTRCMP (response->children->name, "content") == 0 && response->children->children != NULL &&
+                    MYSTRCMP (response->children->children->name, "id") == 0) {
+
+                inner_response = response->children->children;
+                tmp = (gchar*) MYGETCONTENT (inner_response);
+                content->priv->id = g_strdup (tmp);
+                xmlFree (tmp);
+            }
+            else {
+                g_warning ("An error occurred while retriving ID for newly created event.");
+            }
+
+            xmlFreeDoc (response->doc);
+        }
+    }
+    else {
+        query = g_strdup_printf ("content/edit/%s", id);
+        ogd_provider_put (ogd_object_get_provider (OGD_OBJECT (content)), query, data);
+        g_free (query);
+    }
+
+    g_hash_table_unref (data);
+}
+
+/**
+ * ogd_content_remove:
+ * @content:        the #OGDContent to remove
+ * 
+ * Removes an existing content. The function fails if trying to edit a content not owned by the
+ * current user
+ */
+void ogd_content_remove (OGDContent *content)
+{
+    const gchar *id;
+    gchar *query;
+
+    if (check_ownership (content) == FALSE) {
+        g_warning ("No permissions to edit the event.");
+        return;
+    }
+
+    id = ogd_content_get_id (content);
+
+    if (id != NULL) {
+        query = g_strdup_printf ("content/delete/%s", id);
+        ogd_provider_put (ogd_object_get_provider (OGD_OBJECT (content)), query, NULL);
+        g_free (query);
+    }
+}
+

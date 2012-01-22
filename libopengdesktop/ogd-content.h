@@ -64,26 +64,36 @@ typedef enum {
 
 GType                   ogd_content_get_type                ();
 
+OGDContent*             ogd_content_new                     (OGDProvider *provider);
 OGDContent*             ogd_content_new_by_id               (OGDProvider *provider, const gchar *id);
 void                    ogd_content_new_by_id_async         (OGDProvider *provider, const gchar *id, OGDAsyncCallback callback, gpointer userdata);
 const gchar*            ogd_content_get_id                  (OGDContent *content);
+const OGDCategory*      ogd_content_get_category            (OGDContent *content);
+void                    ogd_content_set_category            (OGDContent *content, OGDCategory *category);
 const gchar*            ogd_content_get_name                (OGDContent *content);
+void                    ogd_content_set_name                (OGDContent *content, gchar *name);
 const gchar*            ogd_content_get_version             (OGDContent *content);
+void                    ogd_content_set_version             (OGDContent *content, gchar *version);
 const gchar*            ogd_content_get_language            (OGDContent *content);
+void                    ogd_content_set_language            (OGDContent *content, gchar *language);
 const gchar*            ogd_content_get_authorid            (OGDContent *content);
 const GDate*            ogd_content_get_creation_date       (OGDContent *content);
 const GDate*            ogd_content_get_change_date         (OGDContent *content);
 gulong                  ogd_content_get_num_downloads       (OGDContent *content);
 guint                   ogd_content_get_score               (OGDContent *content);
 const gchar*            ogd_content_get_description         (OGDContent *content);
+void                    ogd_content_set_description         (OGDContent *content, gchar *description);
 const gchar*            ogd_content_get_changelog           (OGDContent *content);
+void                    ogd_content_set_changelog           (OGDContent *content, gchar *changelog);
 const gchar*            ogd_content_get_homepage            (OGDContent *content);
+void                    ogd_content_set_homepage            (OGDContent *content, gchar *homepage);
 GList*                  ogd_content_get_comments            (OGDContent *content);
 void                    ogd_content_get_comments_async      (OGDContent *content, OGDAsyncListCallback callback, gpointer userdata);
 GList*                  ogd_content_get_fans                (OGDContent *content);
 void                    ogd_content_get_fans_async          (OGDContent *content, OGDAsyncListCallback callback, gpointer userdata);
 const GList*            ogd_content_get_previews            (OGDContent *content);
 const GList*            ogd_content_get_download_refs       (OGDContent *content);
+void                    ogd_content_set_download_refs       (OGDContent *content, const GList *links);
 
 #ifndef OGD_DISABLE_DEPRECATED
 gulong                  ogd_content_get_num_comments        (OGDContent *content);
@@ -96,6 +106,9 @@ void                    ogd_content_set_fan                 (OGDContent *content
 void                    ogd_content_set_fan_async           (OGDContent *content, gboolean fan, OGDPutAsyncCallback callback, gpointer userdata);
 void                    ogd_content_add_comment             (OGDContent *content, gchar *subject, gchar *message);
 void                    ogd_content_add_comment_async       (OGDContent *content, gchar *subject, gchar *message, OGDPutAsyncCallback callback, gpointer userdata);
+
+void                    ogd_content_save                    (OGDContent *content);
+void                    ogd_content_remove                  (OGDContent *content);
 
 G_END_DECLS
 

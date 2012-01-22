@@ -40,6 +40,9 @@ struct _OGDProviderPrivate {
     SoupSession *async_http_session;
 
     gchar       *access_url;
+
+    gchar       *username;
+    gchar       *password;
 };
 
 G_DEFINE_TYPE (OGDProvider, ogd_provider, G_TYPE_OBJECT);
@@ -59,6 +62,8 @@ static void ogd_provider_finalize (GObject *obj)
 
     PTR_CHECK_FREE_NULLIFY (provider->priv->server_name);
     PTR_CHECK_FREE_NULLIFY (provider->priv->access_url);
+    PTR_CHECK_FREE_NULLIFY (provider->priv->username);
+    PTR_CHECK_FREE_NULLIFY (provider->priv->password);
     OBJ_CHECK_UNREF_NULLIFY (provider->priv->http_session);
     OBJ_CHECK_UNREF_NULLIFY (provider->priv->async_http_session);
 
@@ -90,6 +95,14 @@ static void ogd_provider_init (OGDProvider *item)
     memset (item->priv, 0, sizeof (OGDProviderPrivate));
     item->priv->http_session = soup_session_sync_new ();
     item->priv->async_http_session = soup_session_async_new ();
+}
+
+void authenticate_call (SoupSession *session, SoupMessage *msg, SoupAuth *auth, gboolean retrying, OGDProvider *provider)
+{
+    if (retrying == TRUE || provider->priv->username == NULL || provider->priv->password == NULL)
+        return;
+
+    soup_auth_authenticate (auth, provider->priv->username, provider->priv->password);
 }
 
 /**
@@ -124,10 +137,19 @@ OGDProvider* ogd_provider_new (gchar *url)
  */
 void ogd_provider_auth_user_and_pwd (OGDProvider *provider, gchar *username, gchar *password)
 {
+    PTR_CHECK_FREE_NULLIFY (provider->priv->username);
+    provider->priv->username = g_strdup (username);
+    PTR_CHECK_FREE_NULLIFY (provider->priv->password);
+    provider->priv->password = g_strdup (password);
+
     PTR_CHECK_FREE_NULLIFY (provider->priv->access_url);
-    provider->priv->access_url = g_strdup_printf ("http://%s:%s@%s/v%d/", username, password,
-                                                  provider->priv->server_name,
-                                                  OPEN_COLLABORATION_API_VERSION);
+    provider->priv->access_url = g_strdup_printf ("http://%s/v%d/", provider->priv->server_name, OPEN_COLLABORATION_API_VERSION);
+
+    if (g_signal_handler_find (provider->priv->http_session, G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, authenticate_call, provider) == 0)
+        g_signal_connect (provider->priv->http_session, "authenticate", G_CALLBACK (authenticate_call), provider);
+
+    if (g_signal_handler_find (provider->priv->async_http_session, G_SIGNAL_MATCH_FUNC | G_SIGNAL_MATCH_DATA, 0, 0, NULL, authenticate_call, provider) == 0)
+        g_signal_connect (provider->priv->async_http_session, "authenticate", G_CALLBACK (authenticate_call), provider);
 }
 
 /**
@@ -144,6 +166,19 @@ void ogd_provider_auth_api_key (OGDProvider *provider, gchar *key)
     provider->priv->access_url = g_strdup_printf ("http://%s@%s/v%d/", key,
                                                   provider->priv->server_name,
                                                   OPEN_COLLABORATION_API_VERSION);
+}
+
+/**
+ * ogd_provider_get_url:
+ * @provider:       a #OGDProvider
+ * 
+ * To retrieve the URL of the #OGDProvider
+ * 
+ * Return value: the same string passed as "url" parameter in ogd_provider_new()
+ */
+const gchar* ogd_provider_get_url (OGDProvider *provider)
+{
+    return provider->priv->server_name;
 }
 
 static gboolean check_provider_response (xmlNode *root, xmlNode **data, GError **error)

@@ -92,6 +92,40 @@ static void ogd_category_init (OGDCategory *item)
 }
 
 /**
+ * ogd_category_new_by_id:
+ * @provider:       the parent #OGDProvider of the desidered category
+ * @id:             ID of the category
+ *
+ * To retrieve a #OGDCategory given his ID
+ *
+ * Return value: a #OGDCategory, or %NULL if no category is found for the given ID
+ */
+OGDCategory* ogd_category_new_by_id (OGDProvider *provider, gchar *id)
+{
+    GList *list;
+    OGDCategory *cat;
+    OGDCategory *ret;
+
+    ret = NULL;
+
+    for (list = ogd_category_fetch_all (provider); list != NULL; list = g_list_next (list)) {
+        cat = list->data;
+
+        if (strcmp (ogd_category_get_id (cat), id) == 0)
+            ret = cat;
+        else
+            g_object_unref (cat);
+    }
+
+    for (; list != NULL; list = g_list_next (list)) {
+        g_object_unref (list->data);
+    }
+
+    g_list_free (list);
+    return ret;
+}
+
+/**
  * ogd_category_fetch_all:
  * @provider:       a #OGDProvider
  *
